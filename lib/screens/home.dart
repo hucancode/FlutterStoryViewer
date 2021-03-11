@@ -27,7 +27,7 @@ class HomePageState extends State<HomePage> {
   Future<List<Message>> readJSONFromCache(BuildContext context) async
   {
     print("readJSONFromCache");
-    String response = await DefaultAssetBundle.of(context).loadString("assets/messages.json");
+    String response = await DefaultAssetBundle.of(context).loadString("assets/net_messages.json");
     //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
     Iterable it = json.decode(response);
     return List<Message>.from(it.map((model)=> Message.fromJson(model)));

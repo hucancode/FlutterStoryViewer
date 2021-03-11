@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
-import 'package:pop_template/widgets/tapable_photo.dart';
+import 'package:pop_template/widgets/network_tapable_photo.dart';
 
 class MessageDetail extends StatelessWidget {
   static const double kMinRadius = 32.0;
@@ -55,8 +55,8 @@ class MessageDetail extends StatelessWidget {
       tag: id,
       child: RadialExpansion(
         maxRadius: kMaxRadius,
-        child: TapablePhoto(
-          photo: banner,
+        child: NetworkTapablePhoto(
+          imageUrl: banner,
           onTap: () {
             Navigator.of(context).pop();
           },

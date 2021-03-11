@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/screens/message_detail.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
-import 'package:pop_template/widgets/tapable_photo.dart';
+import 'package:pop_template/widgets/network_tapable_photo.dart';
 
 class MessageList extends StatefulWidget {
   final List<Message> initialMessages;
@@ -20,20 +20,21 @@ class MessageListState extends State<MessageList> {
   {
     messages = msg;
   }
+  var availableId = 4;
   void addMessage() {
     setState(() {
-      var index = messages.length;
-      messages.add(
+      messages.insert(0,
         Message(
-            id: index,
-            icon: 'assets/amber.jpg',
+            id: ++availableId,
+            //icon: 'assets/amber.jpg',
+            icon: 'https://picsum.photos/250?image=9',
             title: 'Integer quis mi a sit amet id turpis. ',
             date: DateTime.now(),
             content:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.'),
       );
       listRef.currentState
-          .insertItem(index, duration: Duration(milliseconds: 300));
+          .insertItem(0, duration: Duration(milliseconds: 300));
     });
   }
 
@@ -128,7 +129,7 @@ class MessageListState extends State<MessageList> {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 
-  Widget buildHeroWidget(BuildContext context, int id, String imageName) {
+  Widget buildHeroWidget(BuildContext context, int id, String iconPath) {
     return Container(
       width: kMinRadius * 2.0,
       height: kMinRadius * 2.0,
@@ -137,8 +138,8 @@ class MessageListState extends State<MessageList> {
         tag: id,
         child: RadialExpansion(
           maxRadius: kMaxRadius,
-          child: TapablePhoto(
-            photo: imageName,
+          child: NetworkTapablePhoto(
+            imageUrl: iconPath,
           ),
         ),
       ),
