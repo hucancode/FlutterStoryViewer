@@ -19,6 +19,7 @@ class HomePageState extends State<HomePage> {
   {
     print("fetchJsonFromNet");
     var response = await http.get(Uri.https('example.com','/path/to/json'));
+    //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
     Iterable it = json.decode(response.body);
     return List<Message>.from(it.map((model)=> Message.fromJson(model)));
   }
@@ -27,6 +28,7 @@ class HomePageState extends State<HomePage> {
   {
     print("readJSONFromCache");
     String response = await DefaultAssetBundle.of(context).loadString("assets/messages.json");
+    //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
     Iterable it = json.decode(response);
     return List<Message>.from(it.map((model)=> Message.fromJson(model)));
   }
@@ -78,7 +80,7 @@ class HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             buildMessageList(context),
           ],
@@ -97,7 +99,10 @@ class HomePageState extends State<HomePage> {
             future: readJSONFromCache(context),
             builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
               if (!snapshot.hasData) {
-                return Expanded(child: Text('Loading...'));
+                return Text(
+                  'Loading...', 
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30,),
+                  );
               }
               return MessageList(key: listRef, initialMessages: snapshot.data);
             },

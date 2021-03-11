@@ -11,8 +11,6 @@ class MessageList extends StatefulWidget {
   MessageListState createState() => MessageListState(initialMessages);
 }
 
-int maxIdValue = 4;
-
 class MessageListState extends State<MessageList> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
   bool showDeleteButton = false;
@@ -27,7 +25,7 @@ class MessageListState extends State<MessageList> {
       var index = messages.length;
       messages.add(
         Message(
-            id: ++maxIdValue,
+            id: index,
             icon: 'assets/amber.jpg',
             title: 'Integer quis mi a sit amet id turpis. ',
             date: DateTime.now(),

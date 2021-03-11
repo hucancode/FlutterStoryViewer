@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Message {
   int id;
   String icon;
