@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_geofence/geofence.dart';
 // import 'package:flutter_beacon/flutter_beacon.dart';
 
-import 'package:pop_template/screens/home.dart';
+import 'package:pop_template/screens/master.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(title: 'Home Page'),
+      home: MasterPage(),
     );
   }
 }

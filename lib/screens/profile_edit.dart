@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class UserSetting extends StatefulWidget {
-  UserSettingState createState() => UserSettingState();
+class ProfileEdit extends StatefulWidget {
+  ProfileEditState createState() => ProfileEditState();
 }
 
-class UserSettingState extends State<UserSetting> {
+class ProfileEditState extends State<ProfileEdit> {
   int counter = 0;
 
   void incrementCounter() {
@@ -17,7 +17,7 @@ class UserSettingState extends State<UserSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Content Viewer"),
+        title: Text("Profile Edit"),
       ),
       body: Center(
         child: TextButton(

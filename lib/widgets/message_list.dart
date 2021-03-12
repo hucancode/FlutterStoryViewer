@@ -1,9 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/screens/message_detail.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
-import 'package:pop_template/widgets/network_tapable_photo.dart';
 
 class MessageList extends StatefulWidget {
   final List<Message> initialMessages;
@@ -16,14 +16,15 @@ class MessageListState extends State<MessageList> {
   bool showDeleteButton = false;
   List<Message> messages = [];
   MessageListState(this.messages);
-  void setMessage(List<Message> msg)
-  {
+  void setMessage(List<Message> msg) {
     messages = msg;
   }
+
   var availableId = 4;
   void addMessage() {
     setState(() {
-      messages.insert(0,
+      messages.insert(
+        0,
         Message(
             id: ++availableId,
             //icon: 'assets/amber.jpg',
@@ -33,8 +34,7 @@ class MessageListState extends State<MessageList> {
             content:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.'),
       );
-      listRef.currentState
-          .insertItem(0, duration: Duration(milliseconds: 300));
+      listRef.currentState.insertItem(0, duration: Duration(milliseconds: 300));
     });
   }
 
@@ -67,7 +67,7 @@ class MessageListState extends State<MessageList> {
     });
   }
 
-  void transitionToMessageDetail(id, imageName, content) {
+  void transitionToMessageDetail(id, title, imageName, content) {
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         pageBuilder: (BuildContext context, Animation<double> animation,
@@ -78,7 +78,10 @@ class MessageListState extends State<MessageList> {
                 return Opacity(
                   opacity: opacityCurve.transform(animation.value),
                   child: MessageDetail(
-                      id: id, banner: imageName, content: content),
+                      id: id,
+                      title: title,
+                      banner: imageName,
+                      content: content),
                 );
               });
         },
@@ -101,8 +104,8 @@ class MessageListState extends State<MessageList> {
         ),
         visible: showDeleteButton,
       ),
-      onTap: () =>
-          transitionToMessageDetail(message.id, message.icon, message.content),
+      onTap: () => Navigator.pushNamed(context, '/detail', arguments: message),
+      //transitionToMessageDetail(message.id, message.title, message.icon, message.content),
     );
   }
 
@@ -138,11 +141,19 @@ class MessageListState extends State<MessageList> {
         tag: id,
         child: RadialExpansion(
           maxRadius: kMaxRadius,
-          child: NetworkTapablePhoto(
-            imageUrl: iconPath,
-          ),
+          child: buildMessageIcon(iconPath),
         ),
       ),
+    );
+  }
+
+  Widget buildMessageIcon(String iconPath) {
+    //return Image.asset(iconPath, fit: BoxFit.contain);
+    return CachedNetworkImage(
+      imageUrl: iconPath,
+      placeholder: (context, url) => CircularProgressIndicator(),
+      errorWidget: (context, url, error) => Icon(Icons.error),
+      fit: BoxFit.contain,
     );
   }
 }

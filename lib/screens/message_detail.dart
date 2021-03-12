@@ -1,7 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
-import 'package:pop_template/widgets/network_tapable_photo.dart';
 
 class MessageDetail extends StatelessWidget {
   static const double kMinRadius = 32.0;
@@ -19,13 +19,14 @@ class MessageDetail extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).canvasColor,
-      child: Center(
-        child: Card(
-          elevation: 8.0,
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+        ),
+        body: Container(
+          color: Theme.of(context).canvasColor,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
               SizedBox(
@@ -44,9 +45,7 @@ class MessageDetail extends StatelessWidget {
               const SizedBox(width: double.infinity, height: 16.0),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Hero buildHeroWidget(BuildContext context) {
@@ -55,13 +54,18 @@ class MessageDetail extends StatelessWidget {
       tag: id,
       child: RadialExpansion(
         maxRadius: kMaxRadius,
-        child: NetworkTapablePhoto(
-          imageUrl: banner,
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        child: buildMessageBanner(),
       ),
     );
+  }
+
+  CachedNetworkImage buildMessageBanner() {
+    //return Image.asset(banner, fit: BoxFit.contain);
+    return CachedNetworkImage(
+            imageUrl: banner,
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+            fit: BoxFit.contain,
+          );
   }
 }
