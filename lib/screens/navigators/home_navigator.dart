@@ -3,7 +3,6 @@ import 'package:pop_template/models/message.dart';
 import 'package:pop_template/screens/home.dart';
 import 'package:pop_template/screens/message_detail.dart';
 
-
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
@@ -35,15 +34,15 @@ class HomeNavigator extends StatelessWidget {
     );
   }
 
-  PageRoute<void> routeToDetailSimple(RouteSettings settings)
-  {
-    Message model = settings.arguments;
-    Widget widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
-    return MaterialPageRoute<void>(builder: (context) => widget);
-  }
+  // PageRoute<void> routeToDetailSimple(RouteSettings settings)
+  // {
+  //   Message model = settings.arguments;
+  //   Widget widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
+  //   return MaterialPageRoute<void>(builder: (context) => widget);
+  // }
 
-  PageRoute<void> routeToHome(RouteSettings settings) {
-    Widget widget = HomePage(title: "Home");
+  PageRoute<void> routeToRoot(RouteSettings settings) {
+    Widget widget = HomePage();
     return MaterialPageRoute<void>(builder: (context) => widget);
   }
 
@@ -59,7 +58,7 @@ class HomeNavigator extends StatelessWidget {
           {
             return routeToDetail(routeSettings);
           }
-          return routeToHome(routeSettings);
+          return routeToRoot(routeSettings);
         }
     );
   }

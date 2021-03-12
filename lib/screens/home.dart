@@ -5,9 +5,6 @@ import 'package:pop_template/models/message.dart';
 import 'package:pop_template/widgets/message_list.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
-  final String title;
-
   @override
   HomePageState createState() => HomePageState();
 }
@@ -28,11 +25,12 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<List<Message>> readJSONFromCache(BuildContext context) async {
-    print("readJSONFromCache");
+    print("read public messages JSON from cache");
     String response = await DefaultAssetBundle.of(context)
-        .loadString("assets/net_messages.json");
+        .loadString("assets/public_messages.json");
     //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
     Iterable it = json.decode(response);
+    print('done loading public messages');
     return List<Message>.from(it.map((model) => Message.fromJson(model)));
   }
 
@@ -48,7 +46,7 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("Home"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete_forever),

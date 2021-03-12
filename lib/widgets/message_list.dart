@@ -1,9 +1,15 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/screens/message_detail.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
+
+String getRandomString(int len) {
+  var r = Random();
+  return String.fromCharCodes(List.generate(len, (index) => r.nextInt(33) + 89));
+}
 
 class MessageList extends StatefulWidget {
   final List<Message> initialMessages;
@@ -28,7 +34,7 @@ class MessageListState extends State<MessageList> {
         Message(
             id: ++availableId,
             //icon: 'assets/amber.jpg',
-            icon: 'https://picsum.photos/250?image=9',
+            icon: 'https://picsum.photos/seed/'+getRandomString(5)+'/640/360',
             title: 'Integer quis mi a sit amet id turpis. ',
             date: DateTime.now(),
             content:
@@ -153,7 +159,7 @@ class MessageListState extends State<MessageList> {
       imageUrl: iconPath,
       placeholder: (context, url) => CircularProgressIndicator(),
       errorWidget: (context, url, error) => Icon(Icons.error),
-      fit: BoxFit.contain,
+      fit: BoxFit.cover,
     );
   }
 }

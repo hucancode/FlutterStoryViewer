@@ -65,7 +65,7 @@ class MessageDetail extends StatelessWidget {
             imageUrl: banner,
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) => Icon(Icons.error),
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
           );
   }
 }
