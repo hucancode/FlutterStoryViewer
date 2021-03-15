@@ -6,7 +6,13 @@ import 'package:pop_template/screens/navigators/profile_navigator.dart';
 import 'package:pop_template/screens/navigators/qr_navigator.dart';
 import 'package:pop_template/screens/private_messages.dart';
 
-enum TabItem { home, pm, qr, profile }
+enum TabItem 
+{ 
+  home, 
+  pm, 
+  //qr, 
+  profile,
+}
 
 class MasterPage extends StatefulWidget {
   @override
@@ -52,10 +58,10 @@ class MasterPageState extends State<MasterPage> {
           offstage: currentTab != TabItem.pm,
           child: PrivateMessagesNavigator(navigatorKey: pmRef, heroController: pmHeroController,),
         ),
-        Offstage(
-          offstage: currentTab != TabItem.qr,
-          child: QRScanNavigator(navigatorKey: qrRef),
-        ),
+        // Offstage(
+        //   offstage: currentTab != TabItem.qr,
+        //   child: QRScanNavigator(navigatorKey: qrRef),
+        // ),
         Offstage(
           offstage: currentTab != TabItem.profile,
           child: ProfileNavigator(navigatorKey: profileRef),
@@ -74,10 +80,10 @@ class MasterPageState extends State<MasterPage> {
             icon: Icon(Icons.mail),
             label: 'Messages',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code),
-            label: 'QR',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.qr_code),
+          //   label: 'QR',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',

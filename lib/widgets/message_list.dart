@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_template/models/message.dart';
-import 'package:pop_template/screens/message_detail.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 String getRandomString(int len) {
   var r = Random();
@@ -19,11 +19,13 @@ class MessageList extends StatefulWidget {
 
 class MessageListState extends State<MessageList> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
-  bool showDeleteButton = false;
+  bool selectionMode = false;
+  List<bool> isSelected = [];
   List<Message> messages = [];
-  MessageListState(this.messages);
-  void setMessage(List<Message> msg) {
-    messages = msg;
+  MessageListState(this.messages)
+  {
+    isSelected = List.filled(messages.length, false, growable: true);
+    print("isSelected.length "+ isSelected.length.toString());
   }
 
   var availableId = 4;
@@ -41,12 +43,44 @@ class MessageListState extends State<MessageList> {
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.'),
       );
       listRef.currentState.insertItem(0, duration: Duration(milliseconds: 300));
+      isSelected.insert(0, false);
+      print("isSelected.length "+ isSelected.length.toString());
     });
   }
 
-  void toggleDeleteButton() {
+  void enterMultiSelect() {
+    selectionMode = true;
+  }
+
+  void exitMultiSelect()
+  {
+    selectionMode = false;
     setState(() {
-      showDeleteButton = !showDeleteButton;
+        isSelected = List.filled(messages.length, false, growable: true);
+      });
+  }
+
+  void toggleSelect(int id)
+  {
+    final index = messages.indexWhere((u) => u.id == id);
+    if(index >= 0)
+    {
+      setState(() {
+        isSelected[index] = !isSelected[index];
+      });
+    }
+  }
+
+  void deleteSelected()
+  {
+    setState(() {
+      selectionMode = false;
+      for(var i = messages.length - 1; i >= 0; i--){
+        if(isSelected[i])
+        {
+          deleteMessage(messages[i].id);
+        }        
+      }
     });
   }
 
@@ -54,6 +88,8 @@ class MessageListState extends State<MessageList> {
     setState(() {
       final index = messages.indexWhere((u) => u.id == id);
       var message = messages.removeAt(index);
+      isSelected.removeAt(index);
+      print("isSelected.length "+ isSelected.length.toString());
       listRef.currentState.removeItem(
         index,
         (context, animation) {
@@ -64,7 +100,7 @@ class MessageListState extends State<MessageList> {
               sizeFactor:
                   CurvedAnimation(parent: animation, curve: Interval(0.0, 1.0)),
               axisAlignment: 0.0,
-              child: buildItem(message, context),
+              child: buildItem(index, message, context),
             ),
           );
         },
@@ -73,46 +109,54 @@ class MessageListState extends State<MessageList> {
     });
   }
 
-  void transitionToMessageDetail(id, title, imageName, content) {
-    Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        pageBuilder: (BuildContext context, Animation<double> animation,
-            Animation<double> secondaryAnimation) {
-          return AnimatedBuilder(
-              animation: animation,
-              builder: (BuildContext context, Widget child) {
-                return Opacity(
-                  opacity: opacityCurve.transform(animation.value),
-                  child: MessageDetail(
-                      id: id,
-                      title: title,
-                      banner: imageName,
-                      content: content),
-                );
-              });
-        },
-      ),
-    );
-  }
-
-  Widget buildItem(Message message, BuildContext context) {
-    return ListTile(
-      key: ValueKey<Message>(message),
-      title: Text(message.title),
-      subtitle: Text(message.date.toString()),
-      leading: CircleAvatar(
-        child: buildHeroWidget(context, message.id, message.icon),
-      ),
-      trailing: Visibility(
-        child: IconButton(
-          icon: Icon(Icons.delete),
-          onPressed: () => deleteMessage(message.id),
+  Widget buildItem(int index, Message message, BuildContext context) {
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.5,
+      child:
+        ListTile(
+          key: ValueKey<Message>(message),
+          selected: isSelected[index],
+          title: Text(message.title),
+          subtitle: Text(message.date.toString()),
+          selectedTileColor: Colors.amber,
+          leading: CircleAvatar(
+            child: buildHeroWidget(context, message.id, message.icon),
+          ),
+          // trailing: Visibility(
+          //   child: IconButton(
+          //     icon: Icon(Icons.delete),
+          //     onPressed: () => deleteMessage(message.id),
+          //   ),
+          //   visible: showDeleteButton,
+          // ),
+          onTap: () {
+            if(selectionMode)
+            {
+              toggleSelect(message.id);
+            }
+            else
+            {
+              Navigator.pushNamed(context, '/detail', arguments: message);
+            }
+          },
+          onLongPress: () {
+            if(!selectionMode)
+            {
+              enterMultiSelect();
+            }
+            toggleSelect(message.id);
+          },
         ),
-        visible: showDeleteButton,
-      ),
-      onTap: () => Navigator.pushNamed(context, '/detail', arguments: message),
-      //transitionToMessageDetail(message.id, message.title, message.icon, message.content),
-    );
+        actions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => deleteMessage(message.id),
+          ),
+        ],
+      );
   }
 
   @override
@@ -124,7 +168,7 @@ class MessageListState extends State<MessageList> {
             itemBuilder: (context, index, animation) {
               return FadeTransition(
                 opacity: animation,
-                child: buildItem(messages[index], context),
+                child: buildItem(index, messages[index], context),
               );
             }));
   }

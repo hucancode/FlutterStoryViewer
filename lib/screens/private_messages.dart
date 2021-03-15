@@ -34,7 +34,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
   }
 
   void toggleDeleteButton() {
-    listRef.currentState.toggleDeleteButton();
+    //listRef.currentState.toggleDeleteButton();
   }
 
   @override
