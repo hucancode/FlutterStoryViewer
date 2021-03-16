@@ -10,6 +10,7 @@ class PrivateMessages extends StatefulWidget {
 
 class PrivateMessagesState extends State<PrivateMessages> {
   final GlobalKey<MessageListState> listRef = GlobalKey();
+  bool showSelectionControl = false;
   
   static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
@@ -33,8 +34,13 @@ class PrivateMessagesState extends State<PrivateMessages> {
     return List<Message>.from(it.map((model) => Message.fromJson(model)));
   }
 
-  void toggleDeleteButton() {
-    //listRef.currentState.toggleDeleteButton();
+  void deleteSelected() {
+    listRef.currentState?.deleteSelected();
+  }
+  
+  void deselectAll()
+  {
+    listRef.currentState?.exitMultiSelect();
   }
 
   @override
@@ -43,9 +49,19 @@ class PrivateMessagesState extends State<PrivateMessages> {
       appBar: AppBar(
         title: Text("Private Messages"),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.delete_forever),
-            onPressed: toggleDeleteButton,
+          Visibility(
+            visible: showSelectionControl,
+            child: IconButton(
+              icon: Icon(Icons.undo),
+              onPressed: deselectAll,
+            )
+          ),
+          Visibility(
+            visible: showSelectionControl,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: deleteSelected,
+            )
           ),
         ],
       ),
@@ -74,7 +90,15 @@ class PrivateMessagesState extends State<PrivateMessages> {
             ),
           );
         }
-        return MessageList(key: listRef, initialMessages: snapshot.data);
+        return MessageList(key: listRef, 
+          initialMessages: snapshot.data,
+          onSelectionCountChanged: (count) {
+            setState(() {
+              print("onSelectionCountChanged "+count.toString());
+              showSelectionControl = count != 0;
+            });
+          },
+        );
       },
     );
   }

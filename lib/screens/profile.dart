@@ -18,6 +18,14 @@ class ProfileState extends State<Profile> {
     return Scaffold(
       appBar: AppBar(
         title: Text("User Profile"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+                Navigator.pushNamed(context, "/edit");
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -25,12 +33,6 @@ class ProfileState extends State<Profile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Icon(Icons.contact_mail, size: 200),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "/edit");
-                },
-                child: Text('Edit Profile!'),
-              ),
             ]),
       ),
     );

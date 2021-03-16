@@ -50,6 +50,7 @@ class HomePageState extends State<HomePage> {
   void deleteSelected() {
     listRef.currentState?.deleteSelected();
   }
+
   void deselectAll()
   {
     listRef.currentState?.exitMultiSelect();
@@ -180,7 +181,9 @@ class HomePageState extends State<HomePage> {
         return MessageList(key: listRef, 
         initialMessages: snapshot.data,
         onSelectionCountChanged: (count) {
-          showSelectionControl = count != 0;
+          setState(() {
+            showSelectionControl = count != 0;
+          });
         });
       },
     );

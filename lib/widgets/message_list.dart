@@ -15,7 +15,6 @@ typedef SelectionCountCallback = void Function(int);
 
 class MessageList extends StatefulWidget {
   final List<Message>? initialMessages;
-
   final SelectionCountCallback? onSelectionCountChanged;
   
   MessageList({
@@ -65,18 +64,21 @@ class MessageListState extends State<MessageList> {
   }
 
   void enterMultiSelect(int id) {
+    print('enterMultiSelect '+id.toString());
     final index = messages.indexWhere((u) => u.id == id);
     if(index >= 0)
     {
-      setState(() {
+      //setState(() {
         selectionCount = 1;
-      });
+        onSelectionCountChanged?.call(selectionCount);
+      //});
     }
   }
 
   void exitMultiSelect()
   {
     selectionCount = 0;
+    print('exitMultiSelect');
     onSelectionCountChanged?.call(selectionCount);
     setState(() {
       isSelected = List.filled(messages.length, false, growable: true);
@@ -86,6 +88,7 @@ class MessageListState extends State<MessageList> {
   void toggleSelect(int id)
   {
     final index = messages.indexWhere((u) => u.id == id);
+    print('toggleSelect '+ id.toString());
     if(index >= 0)
     {
       setState(() {
@@ -118,10 +121,10 @@ class MessageListState extends State<MessageList> {
   }
 
   void deleteMessage(int id) {
+    final index = messages.indexWhere((u) => u.id == id);
+    var message = messages.removeAt(index);
+    isSelected.removeAt(index);
     setState(() {
-      final index = messages.indexWhere((u) => u.id == id);
-      var message = messages.removeAt(index);
-      isSelected.removeAt(index);
       print("isSelected.length "+ isSelected.length.toString());
       listRef.currentState?.removeItem(
         index,
@@ -142,14 +145,19 @@ class MessageListState extends State<MessageList> {
     });
   }
 
+  void addToFavorite(int id) {
+    final index = messages.indexWhere((u) => u.id == id);
+    var message = messages.elementAt(index);
+    
+  }
   Widget buildItem(int index, Message message, BuildContext context) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
-      actionExtentRatio: 0.5,
+      actionExtentRatio: 0.25,
       child:
         ListTile(
           key: ValueKey<Message>(message),
-          selected: isSelected[index],
+          selected: index<isSelected.length?isSelected[index]:false,
           title: Text(message.title??"Untitled"),
           subtitle: Text(message.date.toString()),
           selectedTileColor: Colors.amber,
@@ -183,6 +191,12 @@ class MessageListState extends State<MessageList> {
             color: Colors.red,
             icon: Icons.delete,
             onTap: () => deleteMessage(message.id),
+          ),
+          IconSlideAction(
+            caption: 'Favorite',
+            color: Colors.amber,
+            icon: Icons.favorite,
+            onTap: () => addToFavorite(message.id),
           ),
         ],
       );
