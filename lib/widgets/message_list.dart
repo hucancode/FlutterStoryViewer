@@ -14,12 +14,14 @@ String getRandomString(int len) {
 typedef SelectionCountCallback = void Function(int);
 typedef MessageDeletedCallback = void Function(int);
 typedef SingleMessageDeletedCallback = void Function();
+typedef FavoriteChangedCallback = void Function(int, bool);
 
 class MessageList extends StatefulWidget {
   final List<Message>? initialMessages;
   final SelectionCountCallback? onSelectionCountChanged;
   final MessageDeletedCallback? onMessageDeleted;
   final SingleMessageDeletedCallback? onSingleMessageDeleted;
+  final FavoriteChangedCallback? onFavoriteChanged;
   
   MessageList({
     Key? key, 
@@ -27,6 +29,7 @@ class MessageList extends StatefulWidget {
     this.onSelectionCountChanged,
     this.onMessageDeleted,
     this.onSingleMessageDeleted,
+    this.onFavoriteChanged,
     }) : super(key: key);
   MessageListState createState()
   {
@@ -35,6 +38,7 @@ class MessageList extends StatefulWidget {
       onSelectionCountChanged: onSelectionCountChanged, 
       onMessageDeleted: onMessageDeleted,
       onSingleMessageDeleted: onSingleMessageDeleted,
+      onFavoriteChanged: onFavoriteChanged,
     );
   }
 }
@@ -42,18 +46,23 @@ class MessageList extends StatefulWidget {
 class MessageListState extends State<MessageList> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
   List<bool> isSelected = [];
+  List<bool> favorites = [];
   int selectionCount = 0;
   List<Message> messages;
   final SelectionCountCallback? onSelectionCountChanged;
   final MessageDeletedCallback? onMessageDeleted;
   final SingleMessageDeletedCallback? onSingleMessageDeleted;
-  MessageListState({required this.messages, 
-  this.onSelectionCountChanged, 
-  this.onMessageDeleted,
-  this.onSingleMessageDeleted,
+  final FavoriteChangedCallback? onFavoriteChanged;
+  MessageListState({
+    required this.messages, 
+    this.onSelectionCountChanged, 
+    this.onMessageDeleted,
+    this.onSingleMessageDeleted,
+    this.onFavoriteChanged,
   })
   {
     isSelected = List.filled(messages.length, false, growable: true);
+    favorites = List.filled(messages.length, false, growable: true);
     print("isSelected.length "+ isSelected.length.toString());
   }
 
@@ -73,7 +82,7 @@ class MessageListState extends State<MessageList> {
       );
       listRef.currentState?.insertItem(0, duration: Duration(milliseconds: 300));
       isSelected.insert(0, false);
-      print("isSelected.length "+ isSelected.length.toString());
+      favorites.insert(0, false);
     });
   }
 
@@ -145,6 +154,7 @@ class MessageListState extends State<MessageList> {
       onSingleMessageDeleted?.call();
     }
     isSelected.removeAt(index);
+    favorites.removeAt(index);
     setState(() {
       print("isSelected.length "+ isSelected.length.toString());
       listRef.currentState?.removeItem(
@@ -169,7 +179,10 @@ class MessageListState extends State<MessageList> {
   void addToFavorite(int id) {
     final index = messages.indexWhere((u) => u.id == id);
     var message = messages.elementAt(index);
-    
+    setState(() {
+      favorites[index] = true;
+    });
+    onFavoriteChanged?.call(message.id, true);
   }
   Widget buildItem(int index, Message message, BuildContext context) {
     return Slidable(
@@ -185,13 +198,10 @@ class MessageListState extends State<MessageList> {
           leading: CircleAvatar(
             child: buildHeroWidget(context, message.id, message.icon??"no_icon"),
           ),
-          // trailing: Visibility(
-          //   child: IconButton(
-          //     icon: Icon(Icons.delete),
-          //     onPressed: () => deleteMessage(message.id),
-          //   ),
-          //   visible: showDeleteButton,
-          // ),
+          trailing: Visibility(
+            child: Icon(Icons.favorite),
+            visible: favorites[index],
+          ),
           onTap: () {
             if(selectionCount > 0)
             {

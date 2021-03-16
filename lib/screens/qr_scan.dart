@@ -7,13 +7,6 @@ class QRScan extends StatefulWidget {
 
 class QRScanState extends State<QRScan> {
   QRScanPayload? payload;
-  void setPayload(QRScanPayload obj)
-  {
-    setState(() {
-      payload = obj;
-    });
-    
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,11 +26,14 @@ class QRScanState extends State<QRScan> {
                 "\nMinor: "+
                 (payload?.minor.toString()??"_")
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, payload);
-                },
-                child: Text('Submit this result!'),
+              Visibility(
+                visible: (payload is QRScanPayload),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, payload);
+                  },
+                  child: Text('Submit this result!'),
+                ),
               ),
               TextButton(
                 onPressed: () {

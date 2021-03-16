@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
-import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/screens/home.dart';
 import 'package:pop_template/screens/message_detail.dart';
 

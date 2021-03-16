@@ -29,12 +29,15 @@ class ProfileState extends State<Profile> {
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () {
-                Navigator.pushNamed(context, "/edit").then((value) 
+                Navigator.pushNamed(context, "/edit").then((result) 
                 {
-                  final snackBar = SnackBar(
-                    content: Text('All changes are saved!'),
-                    duration: Duration(milliseconds: 800));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  if(result is bool && result)
+                  {
+                    final snackBar = SnackBar(
+                      content: Text('All changes are saved!'),
+                      duration: Duration(milliseconds: 800));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 });
             },
           ),

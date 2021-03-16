@@ -42,6 +42,7 @@ class HomePageState extends State<HomePage> {
   {
     setState(() {
       selectedCategory = cat;
+      cat++;
       final snackBar = SnackBar(
           content: Text('Now showing Category $cat'),
           duration: Duration(milliseconds: 1800));
@@ -228,7 +229,13 @@ class HomePageState extends State<HomePage> {
               ),
               content: Text('$count messages have been deleted!'),
               duration: Duration(milliseconds: 2500));
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+        onFavoriteChanged: (id, value) {
+          final snackBar = SnackBar(
+              content: Text('Message id - $id has been added to favorite!'),
+              duration: Duration(milliseconds: 2000));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         },
         );
       },

@@ -27,7 +27,7 @@ class ProfileEditState extends State<ProfileEdit> {
             Icon(Icons.contact_page, size: 200),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
               child: Text('Save!'),
             ),
