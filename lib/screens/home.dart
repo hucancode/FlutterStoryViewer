@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
+import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/widgets/message_list.dart';
 
 class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
   @override
   HomePageState createState() => HomePageState();
 }
@@ -40,6 +42,10 @@ class HomePageState extends State<HomePage> {
   {
     setState(() {
       selectedCategory = cat;
+      final snackBar = SnackBar(
+          content: Text('Now showing Category $cat'),
+          duration: Duration(milliseconds: 1800));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
 
@@ -158,7 +164,27 @@ class HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addFakeMessage,
+        onPressed: () {
+          Navigator.pushNamed(context, "/qr").then((scanResult) {
+            if(scanResult is QRScanPayload)
+            {
+              final snackBar = SnackBar(
+                    content: Text('New beacon detected, fetching mail...'),
+                    duration: Duration(milliseconds: 1600));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              addFakeMessage();
+              addFakeMessage();
+              addFakeMessage();
+            }
+            else
+            {
+              final snackBar = SnackBar(
+                    content: Text('No beacon detected!'),
+                    duration: Duration(milliseconds: 1000));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            }
+          });
+        },
         tooltip: 'QR Scan',
         child: Icon(Icons.qr_code),
       ),
@@ -184,7 +210,14 @@ class HomePageState extends State<HomePage> {
           setState(() {
             showSelectionControl = count != 0;
           });
-        });
+        },
+        onMessageDeleted: (count) {
+          final snackBar = SnackBar(
+                    content: Text('$count messages have been deleted!'),
+                    duration: Duration(milliseconds: 1000));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+        );
       },
     );
   }

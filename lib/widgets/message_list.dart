@@ -12,21 +12,25 @@ String getRandomString(int len) {
 }
 
 typedef SelectionCountCallback = void Function(int);
+typedef MessageDeletedCallback = void Function(int);
 
 class MessageList extends StatefulWidget {
   final List<Message>? initialMessages;
   final SelectionCountCallback? onSelectionCountChanged;
+  final MessageDeletedCallback? onMessageDeleted;
   
   MessageList({
     Key? key, 
     this.initialMessages, 
-    this.onSelectionCountChanged
+    this.onSelectionCountChanged,
+    this.onMessageDeleted
     }) : super(key: key);
   MessageListState createState()
   {
     return MessageListState(
       messages: initialMessages??[], 
-      onSelectionCountChanged: onSelectionCountChanged
+      onSelectionCountChanged: onSelectionCountChanged, 
+      onMessageDeleted: onMessageDeleted
     );
   }
 }
@@ -37,7 +41,8 @@ class MessageListState extends State<MessageList> {
   int selectionCount = 0;
   List<Message> messages;
   final SelectionCountCallback? onSelectionCountChanged;
-  MessageListState({required this.messages, this.onSelectionCountChanged})
+  final MessageDeletedCallback? onMessageDeleted;
+  MessageListState({required this.messages, this.onSelectionCountChanged, this.onMessageDeleted})
   {
     isSelected = List.filled(messages.length, false, growable: true);
     print("isSelected.length "+ isSelected.length.toString());
@@ -111,12 +116,15 @@ class MessageListState extends State<MessageList> {
     //setState(() {
       selectionCount = 0;
       onSelectionCountChanged?.call(selectionCount);
+      int deleted = 0;
       for(var i = messages.length - 1; i >= 0; i--){
         if(isSelected[i])
         {
           deleteMessage(messages[i].id);
+          deleted++;
         }
       }
+      onMessageDeleted?.call(deleted);
     //});
   }
 

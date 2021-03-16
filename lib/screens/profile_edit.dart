@@ -20,11 +20,18 @@ class ProfileEditState extends State<ProfileEdit> {
         title: Text("Profile Edit"),
       ),
       body: Center(
-        child: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Go Back!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.contact_page, size: 200),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Save!'),
+            ),
+          ]
         ),
       ),
     );

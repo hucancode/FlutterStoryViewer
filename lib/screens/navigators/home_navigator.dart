@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
+import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/screens/home.dart';
 import 'package:pop_template/screens/message_detail.dart';
+
+import '../home.dart';
+import '../qr_scan.dart';
+import '../qr_scan_result.dart';
 
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
+  static const String qr = '/qr';
+  static const String qrResult = '/qr_result';
   final GlobalKey<NavigatorState> navigatorKey;
   final HeroController heroController;
   
@@ -48,6 +55,16 @@ class HomeNavigator extends StatelessWidget {
   //   return MaterialPageRoute<void>(builder: (context) => widget);
   // }
 
+  PageRoute<void> routeToQR(RouteSettings settings) {
+    Widget widget = QRScan();
+    return MaterialPageRoute<void>(builder: (context) => widget);
+  }
+
+  PageRoute<void> routeToQRResult(RouteSettings settings) {
+    Widget widget = QRScanResult();
+    return MaterialPageRoute<void>(builder: (context) => widget);
+  }
+
   PageRoute<void> routeToRoot(RouteSettings settings) {
     Widget widget = HomePage();
     return MaterialPageRoute<void>(builder: (context) => widget);
@@ -64,6 +81,14 @@ class HomeNavigator extends StatelessWidget {
           if(routeSettings.name == detail)
           {
             return routeToDetail(routeSettings);
+          }
+          if(routeSettings.name == qr)
+          {
+            return routeToQR(routeSettings);
+          }
+          if(routeSettings.name == qrResult)
+          {
+            return routeToQRResult(routeSettings);
           }
           return routeToRoot(routeSettings);
         }

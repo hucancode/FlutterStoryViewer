@@ -19,10 +19,23 @@ class ProfileState extends State<Profile> {
       appBar: AppBar(
         title: Text("User Profile"),
         actions: <Widget>[
+          Visibility(
+            visible: false,//fix appbar title alignment
+            child: IconButton(
+              icon: Icon(Icons.cloud),
+              onPressed: () => null,
+            ),
+          ),
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () {
-                Navigator.pushNamed(context, "/edit");
+                Navigator.pushNamed(context, "/edit").then((value) 
+                {
+                  final snackBar = SnackBar(
+                    content: Text('All changes are saved!'),
+                    duration: Duration(milliseconds: 800));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                });
             },
           ),
         ],
