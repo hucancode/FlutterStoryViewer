@@ -176,13 +176,6 @@ class HomePageState extends State<HomePage> {
               addFakeMessage();
               addFakeMessage();
             }
-            else
-            {
-              final snackBar = SnackBar(
-                    content: Text('No beacon detected!'),
-                    duration: Duration(milliseconds: 1000));
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            }
           });
         },
         tooltip: 'QR Scan',
@@ -211,10 +204,30 @@ class HomePageState extends State<HomePage> {
             showSelectionControl = count != 0;
           });
         },
+        onSingleMessageDeleted: () {
+          final snackBar = SnackBar(
+              action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () {
+                  addFakeMessage();
+                },
+              ),
+              content: Text('Deleted!'),
+              duration: Duration(milliseconds: 2500));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
         onMessageDeleted: (count) {
           final snackBar = SnackBar(
-                    content: Text('$count messages have been deleted!'),
-                    duration: Duration(milliseconds: 1000));
+              action: SnackBarAction(
+                label: 'Undo All',
+                onPressed: () {
+                  addFakeMessage();
+                  addFakeMessage();
+                  addFakeMessage();
+                },
+              ),
+              content: Text('$count messages have been deleted!'),
+              duration: Duration(milliseconds: 2500));
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
         },
         );

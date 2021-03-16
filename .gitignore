@@ -71,4 +71,3 @@
 .flutter-plugins-dependencies
 pubspec.lock
 ios/Podfile.lock
-ios/Podfile.lock

@@ -43,7 +43,10 @@ class QRScanState extends State<QRScan> {
                 onPressed: () {
                   Navigator.pushNamed(context, "/qr_result").then((scanResult) {
                     setState(() {
-                      payload = scanResult as QRScanPayload;
+                      if(scanResult is QRScanPayload)
+                      {
+                        payload = scanResult;
+                      }
                     });
                     
                   });

@@ -13,24 +13,28 @@ String getRandomString(int len) {
 
 typedef SelectionCountCallback = void Function(int);
 typedef MessageDeletedCallback = void Function(int);
+typedef SingleMessageDeletedCallback = void Function();
 
 class MessageList extends StatefulWidget {
   final List<Message>? initialMessages;
   final SelectionCountCallback? onSelectionCountChanged;
   final MessageDeletedCallback? onMessageDeleted;
+  final SingleMessageDeletedCallback? onSingleMessageDeleted;
   
   MessageList({
     Key? key, 
     this.initialMessages, 
     this.onSelectionCountChanged,
-    this.onMessageDeleted
+    this.onMessageDeleted,
+    this.onSingleMessageDeleted,
     }) : super(key: key);
   MessageListState createState()
   {
     return MessageListState(
       messages: initialMessages??[], 
       onSelectionCountChanged: onSelectionCountChanged, 
-      onMessageDeleted: onMessageDeleted
+      onMessageDeleted: onMessageDeleted,
+      onSingleMessageDeleted: onSingleMessageDeleted,
     );
   }
 }
@@ -42,7 +46,12 @@ class MessageListState extends State<MessageList> {
   List<Message> messages;
   final SelectionCountCallback? onSelectionCountChanged;
   final MessageDeletedCallback? onMessageDeleted;
-  MessageListState({required this.messages, this.onSelectionCountChanged, this.onMessageDeleted})
+  final SingleMessageDeletedCallback? onSingleMessageDeleted;
+  MessageListState({required this.messages, 
+  this.onSelectionCountChanged, 
+  this.onMessageDeleted,
+  this.onSingleMessageDeleted,
+  })
   {
     isSelected = List.filled(messages.length, false, growable: true);
     print("isSelected.length "+ isSelected.length.toString());
@@ -120,7 +129,7 @@ class MessageListState extends State<MessageList> {
       for(var i = messages.length - 1; i >= 0; i--){
         if(isSelected[i])
         {
-          deleteMessage(messages[i].id);
+          deleteMessage(messages[i].id, popEvent: false);
           deleted++;
         }
       }
@@ -128,9 +137,13 @@ class MessageListState extends State<MessageList> {
     //});
   }
 
-  void deleteMessage(int id) {
+  void deleteMessage(int id,{bool popEvent = true}) {
     final index = messages.indexWhere((u) => u.id == id);
     var message = messages.removeAt(index);
+    if(popEvent)
+    {
+      onSingleMessageDeleted?.call();
+    }
     isSelected.removeAt(index);
     setState(() {
       print("isSelected.length "+ isSelected.length.toString());
