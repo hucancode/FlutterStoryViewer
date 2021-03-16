@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -11,18 +11,34 @@ String getRandomString(int len) {
   return String.fromCharCodes(List.generate(len, (index) => r.nextInt(33) + 89));
 }
 
+typedef SelectionCountCallback = void Function(int);
+
 class MessageList extends StatefulWidget {
-  final List<Message> initialMessages;
-  MessageList({Key key, this.initialMessages}) : super(key: key);
-  MessageListState createState() => MessageListState(initialMessages);
+  final List<Message>? initialMessages;
+
+  final SelectionCountCallback? onSelectionCountChanged;
+  
+  MessageList({
+    Key? key, 
+    this.initialMessages, 
+    this.onSelectionCountChanged
+    }) : super(key: key);
+  MessageListState createState()
+  {
+    return MessageListState(
+      messages: initialMessages??[], 
+      onSelectionCountChanged: onSelectionCountChanged
+    );
+  }
 }
 
 class MessageListState extends State<MessageList> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
-  bool selectionMode = false;
   List<bool> isSelected = [];
-  List<Message> messages = [];
-  MessageListState(this.messages)
+  int selectionCount = 0;
+  List<Message> messages;
+  final SelectionCountCallback? onSelectionCountChanged;
+  MessageListState({required this.messages, this.onSelectionCountChanged})
   {
     isSelected = List.filled(messages.length, false, growable: true);
     print("isSelected.length "+ isSelected.length.toString());
@@ -42,21 +58,28 @@ class MessageListState extends State<MessageList> {
             content:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.'),
       );
-      listRef.currentState.insertItem(0, duration: Duration(milliseconds: 300));
+      listRef.currentState?.insertItem(0, duration: Duration(milliseconds: 300));
       isSelected.insert(0, false);
       print("isSelected.length "+ isSelected.length.toString());
     });
   }
 
-  void enterMultiSelect() {
-    selectionMode = true;
+  void enterMultiSelect(int id) {
+    final index = messages.indexWhere((u) => u.id == id);
+    if(index >= 0)
+    {
+      setState(() {
+        selectionCount = 1;
+      });
+    }
   }
 
   void exitMultiSelect()
   {
-    selectionMode = false;
+    selectionCount = 0;
+    onSelectionCountChanged?.call(selectionCount);
     setState(() {
-        isSelected = List.filled(messages.length, false, growable: true);
+      isSelected = List.filled(messages.length, false, growable: true);
       });
   }
 
@@ -68,20 +91,30 @@ class MessageListState extends State<MessageList> {
       setState(() {
         isSelected[index] = !isSelected[index];
       });
+      if(isSelected[index])
+      {
+        selectionCount++;
+      }
+      else
+      {
+        selectionCount--;
+      }
+      onSelectionCountChanged?.call(selectionCount);
     }
   }
 
   void deleteSelected()
   {
-    setState(() {
-      selectionMode = false;
+    //setState(() {
+      selectionCount = 0;
+      onSelectionCountChanged?.call(selectionCount);
       for(var i = messages.length - 1; i >= 0; i--){
         if(isSelected[i])
         {
           deleteMessage(messages[i].id);
-        }        
+        }
       }
-    });
+    //});
   }
 
   void deleteMessage(int id) {
@@ -90,7 +123,7 @@ class MessageListState extends State<MessageList> {
       var message = messages.removeAt(index);
       isSelected.removeAt(index);
       print("isSelected.length "+ isSelected.length.toString());
-      listRef.currentState.removeItem(
+      listRef.currentState?.removeItem(
         index,
         (context, animation) {
           return FadeTransition(
@@ -117,11 +150,11 @@ class MessageListState extends State<MessageList> {
         ListTile(
           key: ValueKey<Message>(message),
           selected: isSelected[index],
-          title: Text(message.title),
+          title: Text(message.title??"Untitled"),
           subtitle: Text(message.date.toString()),
           selectedTileColor: Colors.amber,
           leading: CircleAvatar(
-            child: buildHeroWidget(context, message.id, message.icon),
+            child: buildHeroWidget(context, message.id, message.icon??"no_icon"),
           ),
           // trailing: Visibility(
           //   child: IconButton(
@@ -131,7 +164,7 @@ class MessageListState extends State<MessageList> {
           //   visible: showDeleteButton,
           // ),
           onTap: () {
-            if(selectionMode)
+            if(selectionCount > 0)
             {
               toggleSelect(message.id);
             }
@@ -141,10 +174,6 @@ class MessageListState extends State<MessageList> {
             }
           },
           onLongPress: () {
-            if(!selectionMode)
-            {
-              enterMultiSelect();
-            }
             toggleSelect(message.id);
           },
         ),
@@ -178,7 +207,7 @@ class MessageListState extends State<MessageList> {
   static const opacityCurve =
       const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
 
-  static RectTween customTween(Rect begin, Rect end) {
+  static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 
@@ -198,12 +227,13 @@ class MessageListState extends State<MessageList> {
   }
 
   Widget buildMessageIcon(String iconPath) {
-    //return Image.asset(iconPath, fit: BoxFit.contain);
-    return CachedNetworkImage(
-      imageUrl: iconPath,
-      placeholder: (context, url) => CircularProgressIndicator(),
-      errorWidget: (context, url, error) => Icon(Icons.error),
-      fit: BoxFit.cover,
-    );
+    //return Image.asset(iconPath, fit: BoxFit.cover);
+    // return CachedNetworkImage(
+    //   imageUrl: iconPath,
+    //   placeholder: (context, url) => CircularProgressIndicator(),
+    //   errorWidget: (context, url, error) => Icon(Icons.error),
+    //   fit: BoxFit.cover,
+    // );
+    return Image.network(iconPath, fit: BoxFit.cover);
   }
 }

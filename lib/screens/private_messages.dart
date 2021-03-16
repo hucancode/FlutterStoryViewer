@@ -11,7 +11,7 @@ class PrivateMessages extends StatefulWidget {
 class PrivateMessagesState extends State<PrivateMessages> {
   final GlobalKey<MessageListState> listRef = GlobalKey();
   
-  static RectTween customTween(Rect begin, Rect end) {
+  static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 

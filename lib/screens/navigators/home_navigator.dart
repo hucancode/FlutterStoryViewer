@@ -9,22 +9,29 @@ class HomeNavigator extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final HeroController heroController;
   
-  HomeNavigator({this.navigatorKey, this.heroController});
+  HomeNavigator({required this.navigatorKey, required this.heroController});
   
   static const opacityCurve =
       const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
   
   PageRoute<void> routeToDetail(RouteSettings settings)
   {
-    Message model = settings.arguments;
-    Widget widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
-
+    Widget widget;
+    if(settings.arguments is! Message)
+    {
+      widget = MessageDetail(id: -1);
+    }
+    else
+    {
+      Message model = settings.arguments as Message;
+      widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
+    }
     return PageRouteBuilder<void>(
       pageBuilder: (BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation) {
         return AnimatedBuilder(
             animation: animation,
-            builder: (BuildContext context, Widget child) {
+            builder: (BuildContext context, Widget? child) {
               return Opacity(
                 opacity: opacityCurve.transform(animation.value),
                 child: widget,

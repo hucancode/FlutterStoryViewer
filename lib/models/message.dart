@@ -1,19 +1,19 @@
 class Message {
   int id;
-  String icon;
-  String title;
-  DateTime date;
-  String content;
+  String? icon;
+  String? title;
+  DateTime? date;
+  String? content;
   
   Message({
-    this.id,
+    required this.id,
     this.icon,
     this.title,
     this.date,
     this.content
   })
   {
-    print("new Message "+id.toString()+ " "+title);
+    print("new Message "+id.toString()+ " "+(title??"null"));
   }
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(

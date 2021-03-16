@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class RadialExpansion extends StatelessWidget {
   RadialExpansion({
-    Key key,
-    this.maxRadius,
-    this.child,
+    Key? key,
+    required this.maxRadius,
+    required this.child,
   }) : clipRectSize = 2.0 * (maxRadius / math.sqrt2),
        super(key: key);
 

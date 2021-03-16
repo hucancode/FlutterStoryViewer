@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
@@ -6,22 +6,22 @@ import 'package:pop_template/widgets/radial_expansion.dart';
 class MessageDetail extends StatelessWidget {
   static const double kMinRadius = 32.0;
   static const double kMaxRadius = 128.0;
-  static RectTween customTween(Rect begin, Rect end) {
+  static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 
   final int id;
-  final String title;
-  final String banner;
-  final String content;
+  final String? title;
+  final String? banner;
+  final String? content;
 
-  MessageDetail({Key key, this.id, this.title, this.banner, this.content})
+  MessageDetail({Key? key, required this.id, this.title, this.banner, this.content})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          title: Text(title??"Untitled"),
         ),
         body: Container(
           color: Theme.of(context).canvasColor,
@@ -37,7 +37,7 @@ class MessageDetail extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(20.0),
                 child: Text(
-                  content,
+                  content??"No content.",
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textScaleFactor: 1.0,
                 ),
@@ -59,13 +59,14 @@ class MessageDetail extends StatelessWidget {
     );
   }
 
-  CachedNetworkImage buildMessageBanner() {
-    //return Image.asset(banner, fit: BoxFit.contain);
-    return CachedNetworkImage(
-            imageUrl: banner,
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
-            fit: BoxFit.cover,
-          );
+  Widget buildMessageBanner() {
+    //return Image.asset(banner, fit: BoxFit.cover);
+    // return CachedNetworkImage(
+    //         imageUrl: banner,
+    //         placeholder: (context, url) => CircularProgressIndicator(),
+    //         errorWidget: (context, url, error) => Icon(Icons.error),
+    //         fit: BoxFit.cover,
+    //       );
+    return Image.network(banner??"", fit: BoxFit.cover);
   }
 }

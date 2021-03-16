@@ -12,8 +12,9 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final GlobalKey<MessageListState> listRef = GlobalKey();
   int selectedCategory = 0;
+  bool showSelectionControl = false;
   
-  static RectTween customTween(Rect begin, Rect end) {
+  static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 
@@ -43,15 +44,15 @@ class HomePageState extends State<HomePage> {
   }
 
   void addFakeMessage() {
-    listRef.currentState.addMessage();
+    listRef.currentState?.addMessage();
   }
 
   void deleteSelected() {
-    listRef.currentState.deleteSelected();
+    listRef.currentState?.deleteSelected();
   }
   void deselectAll()
   {
-    listRef.currentState.exitMultiSelect();
+    listRef.currentState?.exitMultiSelect();
   }
 
   @override
@@ -60,13 +61,19 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Home"),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: deselectAll,
+          Visibility(
+            visible: showSelectionControl,
+            child: IconButton(
+              icon: Icon(Icons.undo),
+              onPressed: deselectAll,
+            )
           ),
-          IconButton(
-            icon: Icon(Icons.delete_forever),
-            onPressed: deleteSelected,
+          Visibility(
+            visible: showSelectionControl,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: deleteSelected,
+            )
           ),
         ],
       ),
@@ -170,7 +177,11 @@ class HomePageState extends State<HomePage> {
             ),
           );
         }
-        return MessageList(key: listRef, initialMessages: snapshot.data);
+        return MessageList(key: listRef, 
+        initialMessages: snapshot.data,
+        onSelectionCountChanged: (count) {
+          showSelectionControl = count != 0;
+        });
       },
     );
   }

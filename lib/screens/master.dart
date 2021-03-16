@@ -3,7 +3,7 @@ import 'package:pop_template/screens/home.dart';
 import 'package:pop_template/screens/navigators/home_navigator.dart';
 import 'package:pop_template/screens/navigators/pm_navigator.dart';
 import 'package:pop_template/screens/navigators/profile_navigator.dart';
-import 'package:pop_template/screens/navigators/qr_navigator.dart';
+// import 'package:pop_template/screens/navigators/qr_navigator.dart';
 import 'package:pop_template/screens/private_messages.dart';
 
 enum TabItem 
@@ -21,8 +21,8 @@ class MasterPage extends StatefulWidget {
 
 class MasterPageState extends State<MasterPage> {
 
-  HeroController homeHeroController;
-  HeroController pmHeroController;
+  HeroController homeHeroController = HeroController(createRectTween: HomePageState.customTween);
+  HeroController pmHeroController = HeroController(createRectTween: PrivateMessagesState.customTween);
   //HeroController qrHeroController;
   //HeroController profileHeroController;
 
@@ -42,8 +42,6 @@ class MasterPageState extends State<MasterPage> {
   @override
   void initState() {
     super.initState();
-    homeHeroController = HeroController(createRectTween: HomePageState.customTween);
-    pmHeroController = HeroController(createRectTween: PrivateMessagesState.customTween);
   }
 
   @override

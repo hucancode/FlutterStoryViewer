@@ -5,7 +5,7 @@ import 'package:pop_template/screens/qr_scan_result.dart';
 class QRScanNavigator extends StatelessWidget {
   static const String root = '/';
   static const String result = '/result';
-  QRScanNavigator({this.navigatorKey});
+  QRScanNavigator({required this.navigatorKey});
   final GlobalKey<NavigatorState> navigatorKey;
 
   @override

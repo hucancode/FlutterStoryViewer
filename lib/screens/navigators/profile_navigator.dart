@@ -5,7 +5,7 @@ import 'package:pop_template/screens/profile_edit.dart';
 class ProfileNavigator extends StatelessWidget {
   static const String root = '/';
   static const String edit = '/edit';
-  ProfileNavigator({this.navigatorKey});
+  ProfileNavigator({required this.navigatorKey});
   final GlobalKey<NavigatorState> navigatorKey;
   
   @override
