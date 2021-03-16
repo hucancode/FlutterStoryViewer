@@ -200,7 +200,7 @@ class MessageListState extends State<MessageList> {
           ),
           trailing: Visibility(
             child: Icon(Icons.favorite),
-            visible: favorites[index],
+            visible: index<favorites.length?favorites[index]:false,
           ),
           onTap: () {
             if(selectionCount > 0)
