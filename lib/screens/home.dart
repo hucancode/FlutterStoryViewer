@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/models/qr_scan_payload.dart';
+import 'package:pop_template/widgets/at_pop_adapter.dart';
 import 'package:pop_template/widgets/message_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -47,6 +48,24 @@ class HomePageState extends State<HomePage> {
           content: Text('Now showing Category $cat'),
           duration: Duration(milliseconds: 1800));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+    AtPopAdapter.login(userName: 'b58a39c4a7a9711ce', password: '64641286464128', ).then((client)
+    {
+      final snackBar = SnackBar(
+          content: Text('Login OK! now fetching mails'),
+          duration: Duration(milliseconds: 1800));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      AtPopAdapter.fetch(client: client, maxResult: 10).then((result) 
+      {
+        listRef.currentState?.clearAll();
+        for (final message in result) {
+          listRef.currentState?.addMessage(title: message.decodeSubject(), content: message.body.toString());
+        }
+        final snackBar = SnackBar(
+          content: Text('fetched '+result.length.toString()+' mails'),
+          duration: Duration(milliseconds: 1800));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
     });
   }
 

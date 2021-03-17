@@ -44,6 +44,8 @@ class MessageList extends StatefulWidget {
 }
 
 class MessageListState extends State<MessageList> {
+  static const DUMMY_TITLE = 'Integer quis mi a sit amet id turpis. ';
+  static const DUMMY_CONTENT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.';
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
   List<bool> isSelected = [];
   List<bool> favorites = [];
@@ -66,8 +68,23 @@ class MessageListState extends State<MessageList> {
     print("isSelected.length "+ isSelected.length.toString());
   }
 
+  void clearAll()
+  {
+    setState(() {
+      for (var i = 0; i <= messages.length - 1; i++) {
+        listRef.currentState?.removeItem(0,
+          (BuildContext context, Animation<double> animation) {
+        return Container();
+      });
+      }
+    });
+    messages.clear();
+    isSelected.clear();
+    favorites.clear();
+  }
+
   var availableId = 4;
-  void addMessage() {
+  void addMessage({String title = DUMMY_TITLE, String content = DUMMY_CONTENT}) {
     setState(() {
       messages.insert(
         0,
@@ -75,10 +92,9 @@ class MessageListState extends State<MessageList> {
             id: ++availableId,
             //icon: 'assets/amber.jpg',
             icon: 'https://picsum.photos/seed/'+getRandomString(5)+'/640/360',
-            title: 'Integer quis mi a sit amet id turpis. ',
+            title: title,
             date: DateTime.now(),
-            content:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.'),
+            content: content),
       );
       listRef.currentState?.insertItem(0, duration: Duration(milliseconds: 300));
       isSelected.insert(0, false);
