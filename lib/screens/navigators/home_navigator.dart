@@ -12,10 +12,9 @@ class HomeNavigator extends StatelessWidget {
   static const String detail = '/detail';
   static const String qr = '/qr';
   static const String qrResult = '/qr_result';
-  final GlobalKey<NavigatorState> navigatorKey;
   final HeroController heroController;
   
-  HomeNavigator({required this.navigatorKey, required this.heroController});
+  HomeNavigator({required this.heroController});
   
   static const opacityCurve =
       const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
@@ -72,7 +71,6 @@ class HomeNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-        key: navigatorKey,
         observers: [heroController],
         initialRoute: root,
         onGenerateRoute: (RouteSettings routeSettings)

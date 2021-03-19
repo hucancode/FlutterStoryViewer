@@ -6,14 +6,6 @@ import 'package:pop_template/screens/navigators/profile_navigator.dart';
 // import 'package:pop_template/screens/navigators/qr_navigator.dart';
 import 'package:pop_template/screens/private_messages.dart';
 
-enum TabItem 
-{ 
-  home, 
-  pm, 
-  //qr, 
-  profile,
-}
-
 class MasterPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => MasterPageState();
@@ -31,11 +23,11 @@ class MasterPageState extends State<MasterPage> {
   var qrRef = GlobalKey<NavigatorState>();
   var profileRef = GlobalKey<NavigatorState>();
 
-  TabItem currentTab = TabItem.home;
+  int currentTab = 0;
 
   void selectTab(int index) {
     setState(() {
-      currentTab = TabItem.values[index];
+      currentTab = index;
     });
   }
 
@@ -47,27 +39,18 @@ class MasterPageState extends State<MasterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: <Widget>[
-        Offstage(
-          offstage: currentTab != TabItem.home,
-          child: HomeNavigator(navigatorKey: homeRef, heroController: homeHeroController,),
-        ),
-        Offstage(
-          offstage: currentTab != TabItem.pm,
-          child: PrivateMessagesNavigator(navigatorKey: pmRef, heroController: pmHeroController,),
-        ),
-        // Offstage(
-        //   offstage: currentTab != TabItem.qr,
-        //   child: QRScanNavigator(navigatorKey: qrRef),
-        // ),
-        Offstage(
-          offstage: currentTab != TabItem.profile,
-          child: ProfileNavigator(navigatorKey: profileRef),
-        ),
-      ]),
+      body: IndexedStack(
+        index: currentTab,
+        children: <Widget>[
+          HomeNavigator(heroController: homeHeroController),
+          PrivateMessagesNavigator(heroController: pmHeroController),
+          // QRScanNavigator(),
+          ProfileNavigator(),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: currentTab.index,
+        currentIndex: currentTab,
         onTap: selectTab,
         items: [
           BottomNavigationBarItem(

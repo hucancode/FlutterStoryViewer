@@ -6,10 +6,9 @@ import 'package:pop_template/screens/private_messages.dart';
 class PrivateMessagesNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
-  final GlobalKey<NavigatorState> navigatorKey;
   final HeroController heroController;
   
-  PrivateMessagesNavigator({required this.navigatorKey, required this.heroController});
+  PrivateMessagesNavigator({required this.heroController});
   
   static const opacityCurve =
       const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
@@ -56,7 +55,6 @@ class PrivateMessagesNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-        key: navigatorKey,
         observers: [heroController],
         initialRoute: root,
         onGenerateRoute: (RouteSettings routeSettings)
