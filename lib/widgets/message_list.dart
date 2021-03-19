@@ -35,10 +35,6 @@ class MessageList extends StatefulWidget {
   {
     return MessageListState(
       messages: initialMessages??[], 
-      onSelectionCountChanged: onSelectionCountChanged, 
-      onMessageDeleted: onMessageDeleted,
-      onSingleMessageDeleted: onSingleMessageDeleted,
-      onFavoriteChanged: onFavoriteChanged,
     );
   }
 }
@@ -51,16 +47,8 @@ class MessageListState extends State<MessageList> {
   List<bool> favorites = [];
   int selectionCount = 0;
   List<Message> messages;
-  final SelectionCountCallback? onSelectionCountChanged;
-  final MessageDeletedCallback? onMessageDeleted;
-  final SingleMessageDeletedCallback? onSingleMessageDeleted;
-  final FavoriteChangedCallback? onFavoriteChanged;
   MessageListState({
     required this.messages, 
-    this.onSelectionCountChanged, 
-    this.onMessageDeleted,
-    this.onSingleMessageDeleted,
-    this.onFavoriteChanged,
   })
   {
     isSelected = List.filled(messages.length, false, growable: true);
@@ -109,7 +97,7 @@ class MessageListState extends State<MessageList> {
     {
       //setState(() {
         selectionCount = 1;
-        onSelectionCountChanged?.call(selectionCount);
+        widget.onSelectionCountChanged?.call(selectionCount);
       //});
     }
   }
@@ -118,7 +106,7 @@ class MessageListState extends State<MessageList> {
   {
     selectionCount = 0;
     print('exitMultiSelect');
-    onSelectionCountChanged?.call(selectionCount);
+    widget.onSelectionCountChanged?.call(selectionCount);
     setState(() {
       isSelected = List.filled(messages.length, false, growable: true);
       });
@@ -141,7 +129,7 @@ class MessageListState extends State<MessageList> {
       {
         selectionCount--;
       }
-      onSelectionCountChanged?.call(selectionCount);
+      widget.onSelectionCountChanged?.call(selectionCount);
     }
   }
 
@@ -149,7 +137,7 @@ class MessageListState extends State<MessageList> {
   {
     //setState(() {
       selectionCount = 0;
-      onSelectionCountChanged?.call(selectionCount);
+      widget.onSelectionCountChanged?.call(selectionCount);
       int deleted = 0;
       for(var i = messages.length - 1; i >= 0; i--){
         if(isSelected[i])
@@ -158,7 +146,7 @@ class MessageListState extends State<MessageList> {
           deleted++;
         }
       }
-      onMessageDeleted?.call(deleted);
+      widget.onMessageDeleted?.call(deleted);
     //});
   }
 
@@ -167,7 +155,7 @@ class MessageListState extends State<MessageList> {
     var message = messages.removeAt(index);
     if(popEvent)
     {
-      onSingleMessageDeleted?.call();
+      widget.onSingleMessageDeleted?.call();
     }
     isSelected.removeAt(index);
     favorites.removeAt(index);
@@ -198,7 +186,7 @@ class MessageListState extends State<MessageList> {
     setState(() {
       favorites[index] = true;
     });
-    onFavoriteChanged?.call(message.id, true);
+    widget.onFavoriteChanged?.call(message.id, true);
   }
   Widget buildItem(int index, Message message, BuildContext context) {
     return Slidable(
