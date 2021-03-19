@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
@@ -123,7 +124,10 @@ class HomePageState extends State<HomePage> {
                         'assets/pop_icon.png', 
                         fit: BoxFit.contain),
                     ),
-                    Text('@POP'),
+                    Text(
+                      '@POP',
+                      style: TextStyle(fontSize: 30, color: Colors.orange),
+                    ),
                   ],
                 ),
               ),
