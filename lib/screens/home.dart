@@ -113,10 +113,18 @@ class HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: ListTile(
-                title: Text('@POP'),
-                leading: CircleAvatar(
-                  child: Image.asset('assets/pop_icon.png', fit: BoxFit.contain),
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: Image.asset(
+                        'assets/pop_icon.png', 
+                        fit: BoxFit.contain),
+                    ),
+                    Text('@POP'),
+                  ],
                 ),
               ),
               decoration: BoxDecoration(
