@@ -1,4 +1,4 @@
-package com.example.pop_template
+package hucancode.popexperiment
 
 import io.flutter.embedding.android.FlutterActivity
 
