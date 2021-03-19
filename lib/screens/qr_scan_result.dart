@@ -15,17 +15,18 @@ class QRScanResultState extends State<QRScanResult> {
       ),
       body: Center(
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.qr_code, size: 200),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, payload);
-                },
-                child: Text('Submit this result!'),
-              ),
-            ]),
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.qr_code, size: 200),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, payload);
+              },
+              child: Text('Submit this result!'),
+            ),
+          ],
+        ),
       ),
     );
   }
