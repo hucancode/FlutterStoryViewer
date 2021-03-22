@@ -223,13 +223,7 @@ class HomePageState extends State<HomePage> {
       future: loginAndFetchMail(context),
       builder: (BuildContext context, AsyncSnapshot<List<MimeMessage>> snapshot) {
         if (!snapshot.hasData) {
-          return Text(
-            'Loading...',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-            ),
-          );
+          return CircularProgressIndicator();
         }
         return MimeMessageList(key: listRef, 
         initialMessages: snapshot.data,
