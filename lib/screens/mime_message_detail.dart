@@ -43,6 +43,7 @@ class MimeMessageDetailState extends State<MimeMessageDetail> with TickerProvide
 
   Widget buildMessageViewer()
   {
+    // TODO: move this to future builder
     String content = widget.message.transformToHtml(blockExternalImages: false, emptyMessageText: 'Nothing here, move on!');
     final String contentBase64 = base64Encode(const Utf8Encoder().convert(content));
     String url = 'data:text/html;base64,$contentBase64';
@@ -72,12 +73,14 @@ class MimeMessageDetailState extends State<MimeMessageDetail> with TickerProvide
         ),
         Visibility(
           child: Container(
+            decoration: BoxDecoration(color: Colors.white),
             alignment: Alignment.center,
             child: CircularProgressIndicator(
               // value: progress/100,
             ),
           ),
-          visible: progress < 100),
+          visible: progress < 100
+        ),
       ],
     )
     ;
