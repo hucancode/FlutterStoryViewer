@@ -71,7 +71,6 @@ class MimeMessageListState extends State<MimeMessageList> {
     favorites.clear();
   }
 
-  var availableId = 4;
   void addMessage(MimeMessage message) {
     setState(() {
       messages.insert(0, message);
@@ -181,104 +180,76 @@ class MimeMessageListState extends State<MimeMessageList> {
   }
 
   Widget buildItem(int index, MimeMessage message, BuildContext context) {
+    print('mime_message_list - buildItem');
     String title = message.decodeSubject()??"Untitled";
     DateTime date = message.decodeDate()??DateTime.now();
     String dateStr = DateFormat('yyyy-MM-dd hh:mm').format(date);
-    String iconUrl = 'https://picsum.photos/seed/'+getRandomString(5)+'/128/128';
+    String iconUrl = 'https://picsum.photos/seed/'+index.toString()+'/128/128';
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
-      child:
-        ListTile(
-          key: ValueKey<MimeMessage>(message),
-          selected: index<isSelected.length?isSelected[index]:false,
-          title: Text(title),
-          subtitle: Text(dateStr),
-          selectedTileColor: Colors.amber,
-          leading: CircleAvatar(
-            child: buildHeroWidget(context, message.uid??0, iconUrl),
-          ),
-          trailing: Visibility(
-            child: Icon(Icons.favorite),
-            visible: index<favorites.length?favorites[index]:false,
-          ),
-          onTap: () {
-            if(selectionCount > 0)
-            {
-              toggleSelect(message.uid);
-            }
-            else
-            {
-              Navigator.pushNamed(context, '/mime_detail', arguments: message);
-            }
-          },
-          onLongPress: () {
-            toggleSelect(message.uid);
-          },
+      child: ListTile(
+        key: ValueKey<MimeMessage>(message),
+        selected: index<isSelected.length?isSelected[index]:false,
+        title: Text(title),
+        subtitle: Text(dateStr),
+        selectedTileColor: Colors.amber,
+        leading: CircleAvatar(
+          child: buildMessageIcon(iconUrl),
         ),
-        actions: <Widget>[
-          IconSlideAction(
-            caption: 'Delete',
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () => deleteMessage(message.uid),
-          ),
-          IconSlideAction(
-            caption: 'Favorite',
-            color: Colors.amber,
-            icon: Icons.favorite,
-            onTap: () => addToFavorite(message.uid),
-          ),
-        ],
-      );
+        trailing: Visibility(
+          child: Icon(Icons.favorite),
+          visible: index<favorites.length?favorites[index]:false,
+        ),
+        onTap: () {
+          if(selectionCount > 0)
+          {
+            toggleSelect(message.uid);
+          }
+          else
+          {
+            Navigator.pushNamed(context, '/mime_detail', arguments: message);
+          }
+        },
+        onLongPress: () {
+          toggleSelect(message.uid);
+        },
+      ),
+      actions: <Widget>[
+        IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () => deleteMessage(message.uid),
+        ),
+        IconSlideAction(
+          caption: 'Favorite',
+          color: Colors.amber,
+          icon: Icons.favorite,
+          onTap: () => addToFavorite(message.uid),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    print('mime_message_list build');
     return Expanded(
-        child: AnimatedList(
-            key: listRef,
-            initialItemCount: messages.length,
-            itemBuilder: (context, index, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: buildItem(index, messages[index], context),
-              );
-            }));
-  }
-
-  static const double kMinRadius = 32.0;
-  static const double kMaxRadius = 128.0;
-  static const opacityCurve =
-      const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
-
-  static RectTween customTween(Rect? begin, Rect? end) {
-    return MaterialRectCenterArcTween(begin: begin, end: end);
-  }
-
-  Widget buildHeroWidget(BuildContext context, int id, String iconPath) {
-    return Container(
-      width: kMinRadius * 2.0,
-      height: kMinRadius * 2.0,
-      child: Hero(
-        createRectTween: customTween,
-        tag: id,
-        child: RadialExpansion(
-          maxRadius: kMaxRadius,
-          child: buildMessageIcon(iconPath),
-        ),
+      child: AnimatedList(
+        key: listRef,
+        initialItemCount: messages.length,
+        itemBuilder: (context, index, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: buildItem(index, messages[index], context),
+          );
+        },
       ),
     );
   }
 
   Widget buildMessageIcon(String iconPath) {
-    //return Image.asset(iconPath, fit: BoxFit.cover);
-    // return CachedNetworkImage(
-    //   imageUrl: iconPath,
-    //   placeholder: (context, url) => CircularProgressIndicator(),
-    //   errorWidget: (context, url, error) => Icon(Icons.error),
-    //   fit: BoxFit.cover,
-    // );
-    return Image.network(iconPath, fit: BoxFit.cover);
+    return ClipOval(child: Image.network(iconPath, fit: BoxFit.cover));
   }
 }
