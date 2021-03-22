@@ -41,7 +41,7 @@ class ProfileState extends State<Profile> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: Icon(editMode?Icons.check:Icons.edit),
             onPressed: () {
               if (!editMode) {
                 enterEditMode();
