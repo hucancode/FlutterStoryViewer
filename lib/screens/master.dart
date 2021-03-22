@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/screens/home.dart';
 import 'package:pop_template/screens/navigators/home_navigator.dart';
 import 'package:pop_template/screens/navigators/pm_navigator.dart';
 import 'package:pop_template/screens/navigators/profile_navigator.dart';
-// import 'package:pop_template/screens/navigators/qr_navigator.dart';
 import 'package:pop_template/screens/private_messages.dart';
 
 class MasterPage extends StatefulWidget {
@@ -44,7 +42,6 @@ class MasterPageState extends State<MasterPage> {
         children: <Widget>[
           HomeNavigator(heroController: homeHeroController),
           PrivateMessagesNavigator(heroController: pmHeroController),
-          // QRScanNavigator(),
           ProfileNavigator(),
         ],
       ),
@@ -61,10 +58,6 @@ class MasterPageState extends State<MasterPage> {
             icon: Icon(Icons.mail),
             label: 'Messages',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.qr_code),
-          //   label: 'QR',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',

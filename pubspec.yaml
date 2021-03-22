@@ -23,16 +23,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.0
-  # cached_network_image: ^2.5.1
+  intl: ^0.16.1
+  http: ^0.12.2
+  xml: ^4.2.0
   flutter_beacon: ^0.3.0
   flutter_geofence: ^0.4.0
-  enough_mail: ^0.3.0
-  xml: ^5.0.2
+  # enough_mail: ^0.3.0
+  enough_mail_html: ^0.3.0
+  webview_flutter: ^2.0.2
   animations: ^2.0.0
   cupertino_icons: ^1.0.2
   flutter_slidable: ^0.6.0-nullsafety.0
   # flutter_slidable: ^0.5.7
+  # cached_network_image: ^2.5.1
 
 dev_dependencies:
   flutter_test:

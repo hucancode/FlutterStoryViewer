@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:enough_mail/enough_mail.dart';
 import 'package:pop_template/models/message.dart';
-import 'package:pop_template/screens/home.dart';
+import 'package:pop_template/screens/home_legacy.dart';
+import 'package:pop_template/screens//home.dart';
 import 'package:pop_template/screens/message_detail.dart';
-
-import '../home.dart';
-import '../qr_scan.dart';
-import '../qr_scan_result.dart';
+import 'package:pop_template/screens/mime_message_detail.dart';
+import 'package:pop_template/screens//qr_scan.dart';
+import 'package:pop_template/screens//qr_scan_result.dart';
 
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
+  static const String mimeDetail = '/mime_detail';
   static const String qr = '/qr';
   static const String qrResult = '/qr_result';
   final HeroController heroController;
@@ -46,12 +48,21 @@ class HomeNavigator extends StatelessWidget {
     );
   }
 
-  // PageRoute<void> routeToDetailSimple(RouteSettings settings)
-  // {
-  //   Message model = settings.arguments;
-  //   Widget widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
-  //   return MaterialPageRoute<void>(builder: (context) => widget);
-  // }
+  PageRoute<void> routeToMimeDetail(RouteSettings settings)
+  {
+    Widget widget;
+    if(settings.arguments is! MimeMessage)
+    {
+      MimeMessage model = MimeMessage();
+      widget = MimeMessageDetail(model);
+    }
+    else
+    {
+      MimeMessage model = settings.arguments as MimeMessage;
+      widget = MimeMessageDetail(model);
+    }    
+    return MaterialPageRoute<void>(builder: (context) => widget);
+  }
 
   PageRoute<void> routeToQR(RouteSettings settings) {
     Widget widget = QRScan();
@@ -78,6 +89,10 @@ class HomeNavigator extends StatelessWidget {
           if(routeSettings.name == detail)
           {
             return routeToDetail(routeSettings);
+          }
+          if(routeSettings.name == mimeDetail)
+          {
+            return routeToMimeDetail(routeSettings);
           }
           if(routeSettings.name == qr)
           {

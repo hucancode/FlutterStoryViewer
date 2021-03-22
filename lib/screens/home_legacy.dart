@@ -1,27 +1,22 @@
 import 'dart:convert';
 import 'dart:ui';
-import 'package:enough_mail/enough_mail.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/models/qr_scan_payload.dart';
-import 'package:pop_template/widgets/at_pop_adapter.dart';
+import 'package:pop_template/widgets/message_list.dart';
 import 'package:pop_template/widgets/mime_message_list.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+class _HomePage extends StatefulWidget {
+  _HomePage({Key? key}) : super(key: key);
   @override
-  HomePageState createState() => HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  final GlobalKey<MimeMessageListState> listRef = GlobalKey();
+class _HomePageState extends State<_HomePage> {
+  final GlobalKey<MessageListState> listRef = GlobalKey();
   int selectedCategory = 0;
   bool showSelectionControl = false;
-  
-  static RectTween customTween(Rect? begin, Rect? end) {
-    return MaterialRectCenterArcTween(begin: begin, end: end);
-  }
 
   Future<List<Message>> fetchJsonFromNet(BuildContext context) async {
     print("fetchJsonFromNet");
@@ -41,24 +36,6 @@ class HomePageState extends State<HomePage> {
     return List<Message>.from(it.map((model) => Message.fromJson(model)));
   }
 
-  Future<List<MimeMessage>> loginAndFetchMail(BuildContext context) async {
-    ImapClient? client = await AtPopAdapter.login(userName: 'b58a39c4a7a9711ce', password: '64641286464128');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Login OK! now fetching mails'),
-        duration: Duration(milliseconds: 1800)
-      )
-    );
-    List<MimeMessage> result = await AtPopAdapter.fetch(client: client, maxResult: 10);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('fetched '+result.length.toString()+' mails'),
-        duration: Duration(milliseconds: 1800)
-      )
-    );
-    return result;
-  }
-
   void selectCategory(int cat)
   {
     setState(() {
@@ -72,8 +49,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void addFakeMessage() {
-    MimeMessage message = MimeMessage();
-    listRef.currentState?.addMessage(message);
+    listRef.currentState?.addMessage();
   }
 
   void deleteSelected() {
@@ -218,10 +194,10 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  FutureBuilder<List<MimeMessage>> buildMessageList(BuildContext context) {
+  FutureBuilder<List<Message>> buildMessageList(BuildContext context) {
     return FutureBuilder(
-      future: loginAndFetchMail(context),
-      builder: (BuildContext context, AsyncSnapshot<List<MimeMessage>> snapshot) {
+      future: readJSONFromCache(context),
+      builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (!snapshot.hasData) {
           return Text(
             'Loading...',
@@ -231,7 +207,7 @@ class HomePageState extends State<HomePage> {
             ),
           );
         }
-        return MimeMessageList(key: listRef, 
+        return MessageList(key: listRef, 
         initialMessages: snapshot.data,
         onSelectionCountChanged: (count) {
           setState(() {
