@@ -82,8 +82,7 @@ class MimeMessageDetailState extends State<MimeMessageDetail> with TickerProvide
           visible: progress < 100
         ),
       ],
-    )
-    ;
+    );
   }
 
   FutureOr<NavigationDecision> onWebNavigation(NavigationRequest request) {

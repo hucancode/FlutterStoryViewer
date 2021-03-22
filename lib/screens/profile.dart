@@ -43,13 +43,45 @@ class ProfileState extends State<Profile> {
           ),
         ],
       ),
-      body: Center(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.contact_mail, size: 200),
-            ]),
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              child: SizedBox(
+                height: 150,
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/avatar_male.png'
+                  ),
+                ),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 50),
+            ),
+            ListTile(
+                leading: Icon(Icons.emoji_emotions),
+                title: Text("Male"),
+              ),
+            ListTile(
+              leading: Icon(Icons.near_me_sharp),
+              title: Text("Marugame - Kagawa - Japan"),
+            ),
+            ListTile(
+              leading: Icon(Icons.cake),
+              title: Text("13/11/1991"),
+            ),
+            ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text("Single"),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text("Cam Giang - Hai Duong - Vietnam"),
+            ),
+          ],
+        ),
       ),
     );
   }
