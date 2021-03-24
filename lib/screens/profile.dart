@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
+
+const int SAVE_VERSION = 1;
 
 class Profile extends StatefulWidget {
   ProfileState createState() => ProfileState();
 }
 
 class ProfileState extends State<Profile> {
-  List<bool> selectedGender = [true, false];
-  List<bool> selectedMarriageStatus = [true, false, false];
-  int selectedLocation = 0;
-  int selectedHometown = 0;
+  int gender = 0;
+  int marriageStatus = 0;
+  List<String> prefectureNames = [];
+  DateTime birthDay = DateTime.now();
+  int addressWork = 0;
+  int addressHome = 0;
 
   double bodyPadding = 20;
   double iconSize = 24;
 
   bool editMode = false;
+  bool isBusy = false;
+
+  @override
+  void initState()
+  {
+    super.initState();
+    loadUserPrefs();
+  }
 
   void enterEditMode() {
     setState(() {
@@ -25,6 +40,81 @@ class ProfileState extends State<Profile> {
     setState(() {
       editMode = false;
     });
+    saveUserPrefs();
+  }
+
+  Future<void> readPrefectures() async {
+    print("read japan prefectures JSON");
+    String response = await DefaultAssetBundle.of(context)
+        .loadString("assets/japan_prefectures.json");
+    print('reading japan prefectures JSON response = ${response.length}');
+    prefectureNames = List.from(json.decode(response));
+    print('done reading japan prefectures ${prefectureNames.length}');
+  }
+
+  Future<void> loadUserPrefs() async
+  {
+    setState(() {
+      isBusy = true;
+    });
+    print('begin loading user prefs');
+    await readPrefectures();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int version = prefs.getInt('save_version') ?? SAVE_VERSION;
+    print('loading user prefs version = $version');
+    if(version < SAVE_VERSION)
+    {
+      // performUpgrade(version, SAVE_VERSION);
+    }
+    else
+    {
+      gender = (prefs.getBool('gender')?? true)?1:0;
+      marriageStatus = prefs.getInt('marriage') ?? 0;
+      birthDay = DateTime.tryParse(prefs.getString('birthday') ?? "")??DateTime.now();
+      addressWork = prefs.getInt('address_work') ?? 0;
+      addressHome = prefs.getInt('address_home') ?? 0;
+    }
+
+    print('loaded user prefs '
+    'gender = $gender, '
+    'marriageStatus = $marriageStatus, '
+    'birthDay = $birthDay, '
+    'addressWork = $addressWork, '
+    'addressHome = $addressHome, ');
+    setState(() {
+      isBusy = false;
+    });
+  }
+
+  void handleSavePref(String key, bool success)
+  {
+    if(!success)
+    {
+      print('error while saving user pref - $key');
+    }
+  }
+
+  Future<void> saveUserPrefs() async
+  {
+    setState(() {
+      isBusy = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('save_version', SAVE_VERSION).
+      then((success) => handleSavePref('save_version', success));
+    await prefs.setBool('gender', gender==1?true:false).
+      then((success) => handleSavePref('gender', success));
+    await prefs.setInt('marriage', marriageStatus).
+      then((success) => handleSavePref('marriage', success));
+    await prefs.setString('birthday', birthDay.toString()).
+      then((success) => handleSavePref('birthday', success));
+    await prefs.setInt('address_work', addressWork).
+      then((success) => handleSavePref('address_work', success));
+    await prefs.setInt('address_home', addressHome).
+      then((success) => handleSavePref('address_home', success));
+    setState(() {
+      isBusy = false;
+    });
   }
 
   @override
@@ -35,10 +125,7 @@ class ProfileState extends State<Profile> {
         actions: <Widget>[
           Visibility(
             visible: false, //fix appbar title alignment
-            child: IconButton(
-              icon: Icon(Icons.cloud),
-              onPressed: () => null,
-            ),
+            child: Icon(Icons.android),
           ),
           IconButton(
             icon: Icon(editMode?Icons.check:Icons.edit),
@@ -53,36 +140,49 @@ class ProfileState extends State<Profile> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: bodyPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            buildAvatar(),
-            buildGender(),
-            buildMariageStatus(context),
-            buildBirthday(),
-            buildLocation(),
-            buildHometown(),
-          ],
-        ),
+      body: isBusy?CircularProgressIndicator(): buildBody(context),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: bodyPadding),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          buildAvatar(),
+          buildGender(),
+          buildMariageStatus(context),
+          buildBirthday(),
+          buildLocation(),
+          buildHometown(),
+        ],
       ),
     );
   }
 
   ListTile buildHometown() {
-    Widget editWidget = TextButton(
-      onPressed: () => null, 
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 9),
-        child: Text("Cam Giang - Hai Duong - Vietnam")
-      ),
+    final prefecture = prefectureNames[addressHome];
+    List<int> ids = List.generate(prefectureNames.length, (index) => index);
+    Widget editWidget = DropdownButton<int>(
+      isExpanded: true,
+      value: addressHome,
+      items: ids.map((id) 
+      {
+        return DropdownMenuItem(
+          value: id,
+          child: Text(prefectureNames[id]),
+        );
+      }).toList(),
+      onChanged: (int? val) 
+      {
+        setState(() {
+          addressHome = val??0;
+        });
+      },
     );
-    Widget displayWidget = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Text("Cam Giang - Hai Duong - Vietnam")
-    );
+    Widget displayWidget = Text(prefecture);
     return ListTile(
       leading: Icon(Icons.home),
       title: editMode?editWidget:displayWidget,
@@ -90,17 +190,26 @@ class ProfileState extends State<Profile> {
   }
 
   ListTile buildLocation() {
-    Widget editWidget = TextButton(
-      onPressed: () => null, 
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 9),
-        child: Text("Marugame - Kagawa - Japan")
-      ),
+    final prefecture = prefectureNames[addressWork];
+    List<int> ids = List.generate(prefectureNames.length, (index) => index);
+    Widget editWidget = DropdownButton<int>(
+      isExpanded: true,
+      value: addressWork,
+      items: ids.map((id) 
+      {
+        return DropdownMenuItem(
+          value: id,
+          child: Text(prefectureNames[id]),
+        );
+      }).toList(),
+      onChanged: (int? val) 
+      {
+        setState(() {
+          addressWork = val??0;
+        });
+      },
     );
-    Widget displayWidget = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Text("Marugame - Kagawa - Japan")
-    );
+    Widget displayWidget = Text(prefecture);
     return ListTile(
       leading: Icon(Icons.my_location),
       title: editMode?editWidget:displayWidget,
@@ -108,17 +217,15 @@ class ProfileState extends State<Profile> {
   }
 
   ListTile buildBirthday() {
+    final format = DateFormat('dd/M/yyyy');
+    final birthDayStr = format.format(birthDay);
+
     Widget editWidget = TextButton(
       onPressed: () => null, 
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 9),
-        child: Text("13/11/1991")
-      ),
+      child: Text(birthDayStr),
     );
-    Widget displayWidget = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Text("13/11/1991")
-    );
+    
+    Widget displayWidget = Text(birthDayStr);
     return ListTile(
       leading: Icon(Icons.cake),
       title: editMode?editWidget:displayWidget,
@@ -149,8 +256,10 @@ class ProfileState extends State<Profile> {
         (itemCount + 1) * borderWidth;
     double itemWidth = contentWidth / itemCount;
     double itemHeight = iconSize - borderWidth * 4;
+    var selected = List.filled(2, false);
+    selected[gender] = true;
     Widget editWidget = ToggleButtons(
-      isSelected: selectedGender,
+      isSelected: selected,
       children: [
         Container(
           alignment: Alignment.center,
@@ -167,15 +276,12 @@ class ProfileState extends State<Profile> {
       ],
       onPressed: (int index) {
         setState(() {
-          selectedGender = List.filled(2, false);
-          selectedGender[index] = true;
+          gender = index;
         });
       },
     );
-    Widget displayWidget = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Text("Male"),
-    );
+    final genderString = gender==0?'Male':'Female';
+    Widget displayWidget = Text(genderString);
     return ListTile(
       leading: Icon(Icons.emoji_emotions, size: iconSize),
       title: editMode ? editWidget : displayWidget,
@@ -194,8 +300,10 @@ class ProfileState extends State<Profile> {
         (itemCount + 1) * borderWidth;
     double itemWidth = contentWidth / itemCount;
     double itemHeight = iconSize - borderWidth * 4;
+    var selected = List.filled(3, false);
+    selected[marriageStatus] = true;
     Widget editWidget = ToggleButtons(
-      isSelected: selectedMarriageStatus,
+      isSelected: selected,
       children: [
         Container(
             width: itemWidth,
@@ -215,15 +323,13 @@ class ProfileState extends State<Profile> {
       ],
       onPressed: (int index) {
         setState(() {
-          selectedMarriageStatus = List.filled(3, false);
-          selectedMarriageStatus[index] = true;
+          marriageStatus = index;
         });
       },
     );
-    Widget displayWidget = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Text("Single")
-    );
+    final marriageStatusString = marriageStatus==0?'Single':
+    marriageStatus==1?'Married':'Divorced';
+    Widget displayWidget = Text(marriageStatusString);
 
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: contentPadding),
