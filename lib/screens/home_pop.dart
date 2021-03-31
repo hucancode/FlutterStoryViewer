@@ -8,13 +8,13 @@ import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/widgets/at_pop_adapter.dart';
 import 'package:pop_template/widgets/mime_message_list.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+class PopHomePage extends StatefulWidget {
+  PopHomePage({Key? key}) : super(key: key);
   @override
-  HomePageState createState() => HomePageState();
+  PopHomePageState createState() => PopHomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class PopHomePageState extends State<PopHomePage> {
   final GlobalKey<MimeMessageListState> listRef = GlobalKey();
   int selectedCategory = 0;
   bool showSelectionControl = false;
