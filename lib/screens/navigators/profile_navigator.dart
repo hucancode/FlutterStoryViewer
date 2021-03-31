@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pop_template/screens/profile.dart';
-import 'package:pop_template/screens/profile_edit.dart';
 
 class ProfileNavigator extends StatelessWidget {
   static const String root = '/';
@@ -14,9 +13,7 @@ class ProfileNavigator extends StatelessWidget {
         {
           if(routeSettings.name == edit)
           {
-            return MaterialPageRoute(
-              builder: (context) => ProfileEdit(),
-              );
+            // return edit page here
           }
           return MaterialPageRoute(
               builder: (context) => Profile(),
