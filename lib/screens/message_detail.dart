@@ -28,30 +28,29 @@ class MessageDetail extends StatelessWidget {
         appBar: AppBar(
           title: Text(title??"Untitled"),
         ),
-        body: buildMessageViewer(),
-        // Container(
-        //   color: Theme.of(context).canvasColor,
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.start,
-        //     mainAxisSize: MainAxisSize.max,
-        //     children: [
-        //       SizedBox(
-        //         width: kMaxRadius * 2.0,
-        //         height: kMaxRadius * 2.0,
-        //         child: buildHeroWidget(context),
-        //       ),
-        //       Padding(
-        //         padding: EdgeInsets.all(20.0),
-        //         child: Text(
-        //           content??"No content.",
-        //           style: TextStyle(fontWeight: FontWeight.bold),
-        //           textScaleFactor: 1.0,
-        //         ),
-        //       ),
-        //       const SizedBox(width: double.infinity, height: 16.0),
-        //     ],
-        //   ),
-        // ),
+        body: Container(
+          color: Theme.of(context).canvasColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(
+                width: kMaxRadius * 2.0,
+                height: kMaxRadius * 2.0,
+                child: buildHeroWidget(context),
+              ),
+              Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text(
+                  content??"No content.",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textScaleFactor: 1.0,
+                ),
+              ),
+              const SizedBox(width: double.infinity, height: 16.0),
+            ],
+          ),
+        ),
         );
   }
 
@@ -65,41 +64,6 @@ class MessageDetail extends StatelessWidget {
       ),
     );
   }
-  
-
-  Widget buildMessageViewer()
-  {
-    final String contentBase64 = base64Encode(const Utf8Encoder().convert(content??""));
-    String url = 'data:text/html;base64,$contentBase64';
-    
-    return WebView(
-          initialUrl: url,
-          javascriptMode: JavascriptMode.unrestricted,
-          onWebViewCreated: (WebViewController webViewController) {
-            controller.complete(webViewController);
-          },
-          onProgress: (int progress) {
-            print("WebView is loading (progress : $progress%)");
-          },
-          navigationDelegate: onWebNavigation,
-          onPageStarted: (String url) {
-            print('Page started loading: $url');
-          },
-          onPageFinished: (String url) {
-            print('Page finished loading: $url');
-          },
-          gestureNavigationEnabled: true,
-        );
-  }
-
-  FutureOr<NavigationDecision> onWebNavigation(NavigationRequest request) {
-          if (request.url.startsWith('https://www.youtube.com/')) {
-            print('blocking navigation to $request}');
-            return NavigationDecision.prevent;
-          }
-          print('allowing navigation to $request');
-          return NavigationDecision.navigate;
-        }
 
   Widget buildMessageBanner() {
     //return Image.asset(banner, fit: BoxFit.cover);
