@@ -7,16 +7,20 @@ import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/widgets/message_list.dart';
 import 'package:pop_template/widgets/mime_message_list.dart';
 
-class _HomePage extends StatefulWidget {
-  _HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<_HomePage> {
+class HomePageState extends State<HomePage> {
   final GlobalKey<MessageListState> listRef = GlobalKey();
   int selectedCategory = 0;
   bool showSelectionControl = false;
+  
+  static RectTween customTween(Rect? begin, Rect? end) {
+    return MaterialRectCenterArcTween(begin: begin, end: end);
+  }
 
   Future<List<Message>> fetchJsonFromNet(BuildContext context) async {
     print("fetchJsonFromNet");

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/screens/home.dart';
+import 'package:pop_template/screens/home_legacy.dart';
+import 'package:pop_template/screens/home_pop.dart';
 import 'package:pop_template/screens/navigators/home_navigator.dart';
 import 'package:pop_template/screens/navigators/pm_navigator.dart';
 import 'package:pop_template/screens/navigators/profile_navigator.dart';

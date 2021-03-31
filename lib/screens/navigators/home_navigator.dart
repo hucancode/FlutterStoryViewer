@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:enough_mail/enough_mail.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/screens/home_legacy.dart';
-import 'package:pop_template/screens//home.dart';
+import 'package:pop_template/screens/home_pop.dart';
 import 'package:pop_template/screens/message_detail.dart';
 import 'package:pop_template/screens/mime_message_detail.dart';
 import 'package:pop_template/screens//qr_scan.dart';
