@@ -35,8 +35,8 @@ class MessageDetail extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width,//kMaxRadius * 2.0,
-                height: 150,//kMaxRadius * 2.0,
+                width: double.infinity,//kMaxRadius * 2.0,
+                height: 120,//kMaxRadius * 2.0,
                 child: buildHeroWidget(context),
               ),
               Padding(
