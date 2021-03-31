@@ -35,8 +35,8 @@ class MessageDetail extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               SizedBox(
-                width: kMaxRadius * 2.0,
-                height: kMaxRadius * 2.0,
+                width: MediaQuery.of(context).size.width,//kMaxRadius * 2.0,
+                height: 150,//kMaxRadius * 2.0,
                 child: buildHeroWidget(context),
               ),
               Padding(
@@ -51,16 +51,21 @@ class MessageDetail extends StatelessWidget {
             ],
           ),
         ),
-        );
+      );
   }
 
   Hero buildHeroWidget(BuildContext context) {
     return Hero(
       createRectTween: customTween,
       tag: id,
-      child: RadialExpansion(
-        maxRadius: kMaxRadius,
-        child: buildMessageBanner(),
+      child: ClipRect(
+        child: Transform.scale(
+          scale: 2.1,
+          child: RadialExpansion(
+            maxRadius: kMaxRadius,
+            child: buildMessageBanner(),
+          ),
+        ),
       ),
     );
   }
