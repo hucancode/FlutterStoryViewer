@@ -18,17 +18,17 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
         id: json["id"],
-        icon: json["icon"],
+        icon: json["thumbnail"],
         title: json["title"],
-        date: DateTime.parse(json["date"]),
+        date: DateTime.parse(json["createdAt"]),
         content: json["content"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
-        "icon": icon,
+        "thumbnail": icon,
         "title": title,
-        "date": date,
+        "createdAt": date,
         "content": content,
     };
 }

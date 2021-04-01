@@ -71,3 +71,4 @@
 .flutter-plugins-dependencies
 pubspec.lock
 ios/Podfile.lock
+lib/generated_plugin_registrant.dart

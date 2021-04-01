@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/models/qr_scan_payload.dart';
 import 'package:pop_template/widgets/message_list.dart';
-import 'package:pop_template/widgets/mime_message_list.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -23,11 +22,28 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<List<Message>> fetchJsonFromNet(BuildContext context) async {
+    const serverEndpoint = 'pop-ex.atpop.info:3100';
+    const selectAPI = '/entry';
     print("fetchJsonFromNet");
-    var response = await http.get(Uri.https('example.com', '/path/to/json'));
-    //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
-    Iterable it = json.decode(response.body);
-    return List<Message>.from(it.map((model) => Message.fromJson(model)));
+    try {      
+      var uri = Uri.https(serverEndpoint, selectAPI);
+      var response = await http.get(uri).timeout(Duration(seconds: 10), onTimeout: (){
+        print('request timed out {$uri.toString()}');
+        return null;
+      });
+      if (response.statusCode == 200)
+      {
+        //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
+        print('response.body = ${response.body}');
+        var responseJson = json.decode(response.body);
+        Iterable models = responseJson['data'];
+        return List<Message>.from(models.map((model) => Message.fromJson(model)));
+      }
+      print('response.statusCode = ${response.statusCode}: ${response.body}');
+    } on Exception catch (e) {
+      print('error while fetching json ${e.toString()}');
+    }
+    return List<Message>.empty();
   }
 
   Future<List<Message>> readJSONFromCache(BuildContext context) async {
@@ -200,7 +216,7 @@ class HomePageState extends State<HomePage> {
 
   FutureBuilder<List<Message>> buildMessageList(BuildContext context) {
     return FutureBuilder(
-      future: readJSONFromCache(context),
+      future: fetchJsonFromNet(context),
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (!snapshot.hasData) {
           return Text(
@@ -211,6 +227,7 @@ class HomePageState extends State<HomePage> {
             ),
           );
         }
+        print('buildMessageList data ready ${snapshot.data?.length??0}');
         return MessageList(key: listRef, 
         initialMessages: snapshot.data,
         onSelectionCountChanged: (count) {
