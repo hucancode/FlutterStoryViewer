@@ -9,6 +9,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:pop_template/widgets/radial_expansion.dart';
 
 class MessageDetail extends StatelessWidget {
+  static const FETCH_CONTENT_AGAIN = false;
+  static const NO_CONTENT = "Seems no content 😀";
   final Completer<WebViewController> controller = Completer<WebViewController>();
 
   static const double kMinRadius = 32.0;
@@ -78,6 +80,10 @@ class MessageDetail extends StatelessWidget {
   }
 
   Future<String> readMD(BuildContext context) async {
+    if(!FETCH_CONTENT_AGAIN)
+    {
+      return content??NO_CONTENT;
+    }
     const serverEndpoint = 'pop-ex.atpop.info:3100';
     final selectAPI = '/entry/read/$id';
     try {
@@ -111,7 +117,7 @@ class MessageDetail extends StatelessWidget {
           padding: EdgeInsets.all(5.0),
           child: Markdown(
             selectable: true,
-            data: snapshot.data??"Seems no content 😀",
+            data: snapshot.data??NO_CONTENT,
           ),
         );
       },
