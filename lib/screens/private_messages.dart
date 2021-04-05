@@ -82,13 +82,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
       future: readJSONFromCache(context),
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (!snapshot.hasData) {
-          return Text(
-            'Loading...',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-            ),
-          );
+          return CircularProgressIndicator();
         }
         return MessageList(key: listRef, 
           initialMessages: snapshot.data,

@@ -219,13 +219,7 @@ class HomePageState extends State<HomePage> {
       future: fetchJsonFromNet(context),
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (!snapshot.hasData) {
-          return Text(
-            'Loading...',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-            ),
-          );
+          return CircularProgressIndicator();
         }
         print('buildMessageList data ready ${snapshot.data?.length??0}');
         return MessageList(key: listRef, 
