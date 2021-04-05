@@ -23,7 +23,7 @@ class HomePageState extends State<HomePage> {
 
   Future<List<Message>> fetchJsonFromNet(BuildContext context) async {
     const serverEndpoint = 'pop-ex.atpop.info:3100';
-    const selectAPI = '/entry';
+    const selectAPI = '/entry/read';
     print("fetchJsonFromNet");
     try {      
       var uri = Uri.https(serverEndpoint, selectAPI);
