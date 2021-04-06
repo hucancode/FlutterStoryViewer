@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_template/models/message.dart';
-import 'package:pop_template/widgets/radial_expansion.dart';
+import 'package:pop_template/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 String getRandomString(int len) {
@@ -221,6 +221,20 @@ class MessageListState extends State<MessageList> {
           },
         ),
         actions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => deleteMessage(message.id),
+          ),
+          IconSlideAction(
+            caption: 'Favorite',
+            color: Colors.amber,
+            icon: Icons.favorite,
+            onTap: () => addToFavorite(message.id),
+          ),
+        ],
+        secondaryActions: <Widget>[
           IconSlideAction(
             caption: 'Delete',
             color: Colors.red,

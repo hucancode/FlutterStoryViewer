@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/screens/pages/profile.dart';
+import 'package:pop_template/views/pages/profile.dart';
 
 class ProfileNavigator extends StatelessWidget {
   static const String root = '/';

@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/models/qr_scan_payload.dart';
-import 'package:pop_template/widgets/message_list.dart';
+import 'package:pop_template/views/widgets/message_list.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
