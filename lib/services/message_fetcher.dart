@@ -66,7 +66,7 @@ class MessageFetcher {
         print('request timed out {$uri.toString()}');
         return null;
       });
-      print('response(${response.statusCode}) = ${response.body}');
+      //print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {
         var responseJson = jsonDecode(response.body);
@@ -80,4 +80,3 @@ class MessageFetcher {
     return List<Message>.empty();
   }
 }
-  
