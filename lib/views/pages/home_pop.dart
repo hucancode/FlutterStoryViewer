@@ -3,10 +3,10 @@ import 'dart:ui';
 import 'package:enough_mail/enough_mail.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:pop_template/models/message.dart';
-import 'package:pop_template/models/qr_scan_payload.dart';
-import 'package:pop_template/views/widgets/at_pop_adapter.dart';
-import 'package:pop_template/views/widgets/mime_message_list.dart';
+import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/models/qr_scan_payload.dart';
+import 'package:pop_experiment/views/widgets/at_pop_adapter.dart';
+import 'package:pop_experiment/views/widgets/mime_message_list.dart';
 
 class PopHomePage extends StatefulWidget {
   PopHomePage({Key? key}) : super(key: key);

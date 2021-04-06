@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/views/pages/home_legacy.dart';
-import 'package:pop_template/views/pages/home_pop.dart';
-import 'package:pop_template/views/navigators/home_navigator.dart';
-import 'package:pop_template/views/navigators/pm_navigator.dart';
-import 'package:pop_template/views/navigators/profile_navigator.dart';
-import 'package:pop_template/views/pages/private_messages.dart';
+import 'package:flutter_geofence/geofence.dart';
+import 'package:pop_experiment/views/pages/home_legacy.dart';
+import 'package:pop_experiment/views/navigators/home_navigator.dart';
+import 'package:pop_experiment/views/navigators/pm_navigator.dart';
+import 'package:pop_experiment/views/navigators/profile_navigator.dart';
+import 'package:pop_experiment/views/pages/private_messages.dart';
 
 class MasterPage extends StatefulWidget {
   @override

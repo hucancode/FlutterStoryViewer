@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:pop_template/views/widgets/radial_expansion.dart';
+import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 
 class MessageDetail extends StatelessWidget {
   static const FETCH_CONTENT_AGAIN = false;

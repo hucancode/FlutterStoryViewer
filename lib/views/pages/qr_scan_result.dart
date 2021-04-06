@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/models/qr_scan_payload.dart';
+import 'package:pop_experiment/models/qr_scan_payload.dart';
 
 class QRScanResult extends StatefulWidget {
   QRScanResultState createState() => QRScanResultState();

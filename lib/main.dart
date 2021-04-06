@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_geofence/geofence.dart';
 // import 'package:flutter_beacon/flutter_beacon.dart';
 
-import 'package:pop_template/views/master.dart';
+import 'package:pop_experiment/views/master.dart';
 
 void main() {
   runApp(MyApp());

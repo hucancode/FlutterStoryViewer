@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pop_template/views/pages/qr_scan.dart';
-import 'package:pop_template/views/pages/qr_scan_result.dart';
+import 'package:pop_experiment/views/pages/qr_scan.dart';
+import 'package:pop_experiment/views/pages/qr_scan_result.dart';
 
 class QRScanNavigator extends StatelessWidget {
   static const String root = '/';

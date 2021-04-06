@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:enough_mail/enough_mail.dart';
-import 'package:pop_template/models/message.dart';
-import 'package:pop_template/views/pages/home_legacy.dart';
-import 'package:pop_template/views/pages/home_pop.dart';
-import 'package:pop_template/views/pages/message_detail.dart';
-import 'package:pop_template/views/pages/mime_message_detail.dart';
-import 'package:pop_template/views/pages/qr_scan.dart';
-import 'package:pop_template/views/pages/qr_scan_result.dart';
+import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/views/pages/home_legacy.dart';
+import 'package:pop_experiment/views/pages/home_pop.dart';
+import 'package:pop_experiment/views/pages/message_detail.dart';
+import 'package:pop_experiment/views/pages/mime_message_detail.dart';
+import 'package:pop_experiment/views/pages/qr_scan.dart';
+import 'package:pop_experiment/views/pages/qr_scan_result.dart';
 
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';

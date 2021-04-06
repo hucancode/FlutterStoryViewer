@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pop_template/models/message.dart';
-import 'package:pop_template/views/widgets/radial_expansion.dart';
+import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:enough_mail/enough_mail.dart';
 
