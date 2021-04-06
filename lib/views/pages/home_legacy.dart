@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:ui';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
 import 'package:pop_template/models/qr_scan_payload.dart';
+import 'package:pop_template/services/message_fetcher.dart';
 import 'package:pop_template/views/widgets/message_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,41 +18,6 @@ class HomePageState extends State<HomePage> {
   
   static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
-  }
-
-  Future<List<Message>> fetchJsonFromNet(BuildContext context) async {
-    const serverEndpoint = 'pop-ex.atpop.info:3100';
-    const selectAPI = '/entry/read';
-    print("fetchJsonFromNet");
-    try {      
-      var uri = Uri.https(serverEndpoint, selectAPI);
-      var response = await http.get(uri).timeout(Duration(seconds: 10), onTimeout: (){
-        print('request timed out {$uri.toString()}');
-        return null;
-      });
-      if (response.statusCode == 200)
-      {
-        //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
-        print('response.body = ${response.body}');
-        var responseJson = json.decode(response.body);
-        Iterable models = responseJson['data'];
-        return List<Message>.from(models.map((model) => Message.fromJson(model)));
-      }
-      print('response.statusCode = ${response.statusCode}: ${response.body}');
-    } on Exception catch (e) {
-      print('error while fetching json ${e.toString()}');
-    }
-    return List<Message>.empty();
-  }
-
-  Future<List<Message>> readJSONFromCache(BuildContext context) async {
-    print("read public messages JSON from cache");
-    String response = await DefaultAssetBundle.of(context)
-        .loadString("assets/public_messages.json");
-    //var dummy = await Future.delayed(Duration(seconds: 5),() => 'dummy');
-    Iterable it = json.decode(response);
-    print('done loading public messages');
-    return List<Message>.from(it.map((model) => Message.fromJson(model)));
   }
 
   void selectCategory(int cat)
@@ -216,7 +180,7 @@ class HomePageState extends State<HomePage> {
 
   FutureBuilder<List<Message>> buildMessageList(BuildContext context) {
     return FutureBuilder(
-      future: fetchJsonFromNet(context),
+      future: MessageFetcher().readOrFetch(),
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();

@@ -26,6 +26,7 @@ dependencies:
   intl: ^0.16.1
   http: #^0.13.1
   xml: ^4.2.0
+  path_provider: ^2.0.1
   flutter_beacon: ^0.3.0
   flutter_geofence: ^0.4.0
   # enough_mail: ^0.3.0
