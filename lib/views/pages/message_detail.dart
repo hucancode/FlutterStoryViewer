@@ -76,8 +76,8 @@ class MessageDetail extends StatelessWidget {
             errorWidget: (context, url, error) => Icon(Icons.error),
             fit: BoxFit.cover,
           );
-    return Image.network(banner??"", fit: BoxFit.cover);
-    return Image.asset(banner??"", fit: BoxFit.cover);
+    //return Image.network(banner??"", fit: BoxFit.cover);
+    //return Image.asset(banner??"", fit: BoxFit.cover);
   }
 
   Future<String> readMD(BuildContext context) async {
