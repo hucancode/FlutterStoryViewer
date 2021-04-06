@@ -29,27 +29,27 @@ class MessageDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(title??"Untitled"),
+      appBar: AppBar(
+        title: Text(title??"Untitled"),
+      ),
+      body: Container(
+        color: Theme.of(context).canvasColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SizedBox(
+              width: double.infinity,//kMaxRadius * 2.0,
+              height: 120,//kMaxRadius * 2.0,
+              child: buildHeroWidget(context),
+            ),
+            Expanded(
+              child: buildMDViewer(context),
+            ),
+          ],
         ),
-        body: Container(
-          color: Theme.of(context).canvasColor,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox(
-                width: double.infinity,//kMaxRadius * 2.0,
-                height: 120,//kMaxRadius * 2.0,
-                child: buildHeroWidget(context),
-              ),
-              Expanded(
-                child: buildMDViewer(context),
-              ),
-            ],
-          ),
-        ),
-      );
+      ),
+    );
   }
 
   Hero buildHeroWidget(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pop_template/models/message.dart';
-import 'package:pop_template/screens/message_detail.dart';
-import 'package:pop_template/screens/private_messages.dart';
+import 'package:pop_template/screens/pages/message_detail.dart';
+import 'package:pop_template/screens/pages/private_messages.dart';
 
 class PrivateMessagesNavigator extends StatelessWidget {
   static const String root = '/';
