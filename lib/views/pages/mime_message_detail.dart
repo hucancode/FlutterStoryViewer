@@ -42,7 +42,6 @@ class MimeMessageDetailState extends State<MimeMessageDetail> with TickerProvide
 
   Widget buildMessageViewer()
   {
-    // TODO: move this to future builder
     //String content = widget.message.transformToHtml(blockExternalImages: false, emptyMessageText: 'Nothing here, move on!');
     String content = widget.message.body?.toString()??"Nothing here, move on!";
     final String contentBase64 = base64Encode(const Utf8Encoder().convert(content));

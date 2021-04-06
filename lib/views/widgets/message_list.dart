@@ -296,7 +296,7 @@ class MessageListState extends State<MessageList> {
       errorWidget: (context, url, error) => Icon(Icons.error),
       fit: BoxFit.cover,
     );
-    return Image.network(iconPath, fit: BoxFit.cover);
-    return Image.asset(iconPath, fit: BoxFit.cover);
+    //return Image.network(iconPath, fit: BoxFit.cover);
+    //return Image.asset(iconPath, fit: BoxFit.cover);
   }
 }

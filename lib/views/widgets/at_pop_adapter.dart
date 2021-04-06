@@ -1,10 +1,9 @@
-// @dart=2.9
 import 'package:enough_mail/enough_mail.dart';
 
 class AtPopAdapter {
   final server = 'mail.atpop.info';
 
-  static Future<ImapClient> login({String userName, String password}) async {
+  static Future<ImapClient> login({required String userName, required String password}) async {
     final client = ImapClient(isLogEnabled: false);
     try {
       await client.connectToServer('mail.atpop.info', 993, isSecure: true);
@@ -16,7 +15,7 @@ class AtPopAdapter {
   }
 
   static Future<List<MimeMessage>> fetch(
-      {ImapClient client, int maxResult}) async {
+      {required ImapClient client, int maxResult = 5}) async {
     final mailboxes = await client.listMailboxes();
     print('mailboxes: $mailboxes');
     await client.selectInbox();
@@ -26,7 +25,7 @@ class AtPopAdapter {
     return fetchResult.messages;
   }
 
-  static Future<void> logout({ImapClient client}) async {
+  static Future<void> logout({required ImapClient client}) async {
     await client.logout();
   }
 }
