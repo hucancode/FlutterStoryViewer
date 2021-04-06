@@ -290,7 +290,6 @@ class MessageListState extends State<MessageList> {
   }
 
   Widget buildMessageIcon(String iconPath) {
-    //return Image.asset(iconPath, fit: BoxFit.cover);
     return CachedNetworkImage(
       imageUrl: iconPath,
       placeholder: (context, url) => CircularProgressIndicator(),
@@ -298,5 +297,6 @@ class MessageListState extends State<MessageList> {
       fit: BoxFit.cover,
     );
     return Image.network(iconPath, fit: BoxFit.cover);
+    return Image.asset(iconPath, fit: BoxFit.cover);
   }
 }

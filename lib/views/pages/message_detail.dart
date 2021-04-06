@@ -70,7 +70,6 @@ class MessageDetail extends StatelessWidget {
   }
 
   Widget buildMessageBanner() {
-    //return Image.asset(banner, fit: BoxFit.cover);
     return CachedNetworkImage(
             imageUrl: banner??"",
             placeholder: (context, url) => CircularProgressIndicator(),
@@ -78,6 +77,7 @@ class MessageDetail extends StatelessWidget {
             fit: BoxFit.cover,
           );
     return Image.network(banner??"", fit: BoxFit.cover);
+    return Image.asset(banner??"", fit: BoxFit.cover);
   }
 
   Future<String> readMD(BuildContext context) async {
