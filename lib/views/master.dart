@@ -33,6 +33,8 @@ class MasterPageState extends State<MasterPage> {
 
   @override
   void initState() {
+    Geofence.initialize();
+    Geofence.requestPermissions();
     super.initState();
   }
 
