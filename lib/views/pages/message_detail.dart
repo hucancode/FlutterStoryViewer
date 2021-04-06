@@ -1,10 +1,11 @@
-// import 'package:cached_network_image/cached_network_image.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 
@@ -70,12 +71,12 @@ class MessageDetail extends StatelessWidget {
 
   Widget buildMessageBanner() {
     //return Image.asset(banner, fit: BoxFit.cover);
-    // return CachedNetworkImage(
-    //         imageUrl: banner,
-    //         placeholder: (context, url) => CircularProgressIndicator(),
-    //         errorWidget: (context, url, error) => Icon(Icons.error),
-    //         fit: BoxFit.cover,
-    //       );
+    return CachedNetworkImage(
+            imageUrl: banner??"",
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+            fit: BoxFit.cover,
+          );
     return Image.network(banner??"", fit: BoxFit.cover);
   }
 
@@ -88,10 +89,7 @@ class MessageDetail extends StatelessWidget {
     final selectAPI = '/entry/read/$id';
     try {
       var uri = Uri.https(serverEndpoint, selectAPI);
-      var response = await http.get(uri).timeout(Duration(seconds: 10), onTimeout: (){
-        print('request timed out {$uri.toString()}');
-        return null;
-      });
+      var response = await http.get(uri).timeout(Duration(seconds: 10));
       if (response.statusCode == 200)
       {
         var responseJson = json.decode(response.body);

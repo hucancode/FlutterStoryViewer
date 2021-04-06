@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -291,12 +291,12 @@ class MessageListState extends State<MessageList> {
 
   Widget buildMessageIcon(String iconPath) {
     //return Image.asset(iconPath, fit: BoxFit.cover);
-    // return CachedNetworkImage(
-    //   imageUrl: iconPath,
-    //   placeholder: (context, url) => CircularProgressIndicator(),
-    //   errorWidget: (context, url, error) => Icon(Icons.error),
-    //   fit: BoxFit.cover,
-    // );
+    return CachedNetworkImage(
+      imageUrl: iconPath,
+      placeholder: (context, url) => CircularProgressIndicator(),
+      errorWidget: (context, url, error) => Icon(Icons.error),
+      fit: BoxFit.cover,
+    );
     return Image.network(iconPath, fit: BoxFit.cover);
   }
 }

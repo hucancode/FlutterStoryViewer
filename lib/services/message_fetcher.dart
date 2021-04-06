@@ -62,10 +62,7 @@ class MessageFetcher {
     print("MessageFetcher fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
-      var response = await http.get(uri).timeout(Duration(seconds: 10), onTimeout: (){
-        print('request timed out {$uri.toString()}');
-        return null;
-      });
+      var response = await http.get(uri).timeout(Duration(seconds: 10));
       //print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {

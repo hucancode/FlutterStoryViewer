@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:enough_mail/enough_mail.dart';
 
@@ -132,7 +130,7 @@ class MimeMessageListState extends State<MimeMessageList> {
       for(var i = messages.length - 1; i >= 0; i--){
         if(isSelected[i])
         {
-          deleteMessage(messages[i].uid, popEvent: false);
+          deleteMessage(messages[i].uid??0, popEvent: false);
           deleted++;
         }
       }
@@ -176,7 +174,7 @@ class MimeMessageListState extends State<MimeMessageList> {
     setState(() {
       favorites[index] = true;
     });
-    widget.onFavoriteChanged?.call(message.uid, true);
+    widget.onFavoriteChanged?.call(message.uid??0, true);
   }
 
   Widget buildItem(int index, MimeMessage message, BuildContext context) {
@@ -204,7 +202,7 @@ class MimeMessageListState extends State<MimeMessageList> {
         onTap: () {
           if(selectionCount > 0)
           {
-            toggleSelect(message.uid);
+            toggleSelect(message.uid??0);
           }
           else
           {
@@ -212,7 +210,7 @@ class MimeMessageListState extends State<MimeMessageList> {
           }
         },
         onLongPress: () {
-          toggleSelect(message.uid);
+          toggleSelect(message.uid??0);
         },
       ),
       actions: <Widget>[
@@ -220,13 +218,13 @@ class MimeMessageListState extends State<MimeMessageList> {
           caption: 'Delete',
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () => deleteMessage(message.uid),
+          onTap: () => deleteMessage(message.uid??0),
         ),
         IconSlideAction(
           caption: 'Favorite',
           color: Colors.amber,
           icon: Icons.favorite,
-          onTap: () => addToFavorite(message.uid),
+          onTap: () => addToFavorite(message.uid??0),
         ),
       ],
     );
