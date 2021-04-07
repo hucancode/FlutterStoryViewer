@@ -13,7 +13,7 @@ class Message {
     this.content
   })
   {
-    //print("new Message "+id.toString()+ " "+(title??"null"));
+    //print("new Message $id - $title");
   }
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
