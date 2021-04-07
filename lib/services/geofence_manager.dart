@@ -1,20 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_geofence/geofence.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:pop_experiment/models/message.dart';
 
-class MessageFetcher {
-  static const LOCAL_CACHE = 'messages.json';
+class GeofenceManager {
+  static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
-  static const READ_API = '/entry/read';
+  static const READ_API = '/geofence/read';
 
-  static final MessageFetcher _instance = MessageFetcher._privateConstructor();
-  MessageFetcher._privateConstructor();
+  static final GeofenceManager _instance = GeofenceManager._privateConstructor();
+  GeofenceManager._privateConstructor();
 
-  factory MessageFetcher() {
+  factory GeofenceManager() {
     return _instance;
+  }
+
+  Future<void> initialize() async {
+    Geofence.initialize();
+    Geofence.requestPermissions();
+    await readOrFetch();
+    await addGeofences();
   }
 
   Future<File> get cacheFile async {
@@ -24,7 +31,7 @@ class MessageFetcher {
     return File(fullPath);
   }
 
-  Future<List<Message>> readOrFetch() async {
+  Future<void> readOrFetch() async {
     try
     {
       final file = await cacheFile;
@@ -40,17 +47,15 @@ class MessageFetcher {
     return await fetch();
   }
 
-  Future<List<Message>> readFromCache() async {
+  Future<void> readFromCache() async {
     print("MessageFetcher readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable it = json.decode(response);
-      return List<Message>.from(it.map((model) => Message.fromJson(model)));
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Message>.empty();
   }
 
   Future<void> writeToCache(dynamic jsonData) async {
@@ -58,7 +63,7 @@ class MessageFetcher {
     file.writeAsString(jsonEncode(jsonData));
   }
 
-  Future<List<Message>> fetch() async {
+  Future<void> fetch() async {
     print("MessageFetcher fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
@@ -67,13 +72,15 @@ class MessageFetcher {
       if (response.statusCode == 200)
       {
         var responseJson = jsonDecode(response.body);
-        Iterable models = responseJson['data'];
-        writeToCache(models);
-        return List<Message>.from(models.map((model) => Message.fromJson(model)));
+        
+        writeToCache(responseJson);
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Message>.empty();
+  }
+
+  Future<void> addGeofences() async {
+    
   }
 }

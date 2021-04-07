@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_geofence/geofence.dart';
+import 'package:pop_experiment/services/geofence_manager.dart';
+import 'package:pop_experiment/views/navigators/map_navigator.dart';
 // import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:pop_experiment/views/pages/home_legacy.dart';
 import 'package:pop_experiment/views/navigators/home_navigator.dart';
@@ -22,6 +23,7 @@ class MasterPageState extends State<MasterPage> {
   var homeRef = GlobalKey<NavigatorState>();
   var pmRef = GlobalKey<NavigatorState>();
   var qrRef = GlobalKey<NavigatorState>();
+  var mapRef = GlobalKey<NavigatorState>();
   var profileRef = GlobalKey<NavigatorState>();
 
   int currentTab = 0;
@@ -34,8 +36,7 @@ class MasterPageState extends State<MasterPage> {
 
   @override
   void initState() {
-    Geofence.initialize();
-    Geofence.requestPermissions();
+    GeofenceManager().initialize();
     super.initState();
   }
 
@@ -47,6 +48,7 @@ class MasterPageState extends State<MasterPage> {
         children: <Widget>[
           HomeNavigator(heroController: homeHeroController),
           PrivateMessagesNavigator(heroController: pmHeroController),
+          MapNavigator(),
           ProfileNavigator(),
         ],
       ),
@@ -62,6 +64,10 @@ class MasterPageState extends State<MasterPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.mail),
             label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Map',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
