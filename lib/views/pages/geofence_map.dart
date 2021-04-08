@@ -42,7 +42,8 @@ class GeofenceMapState extends State<GeofenceMap> {
 
   void updateFences(Coordinate location)
   {
-    fenceCircles = GeofenceManager().getNearByGeofences(location).map((fence) {
+    setState(() {
+      fenceCircles = GeofenceManager().getNearByGeofences(location).map((fence) {
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
@@ -52,6 +53,7 @@ class GeofenceMapState extends State<GeofenceMap> {
           fillColor: Color(0x330077ff),
         );
       }).toSet();
+    });
   }
 
   @override
