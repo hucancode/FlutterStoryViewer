@@ -10,7 +10,8 @@ class GeofenceManager {
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/geofence/read';
-  static const NEAR_LOCATION_THRESHOLD = 10000;
+  static const GEOFENCE_SCAN_RADIUS = 10000.0;
+  static const FAKE_GEOFENCE_COUNT = 200000;
 
   static final GeofenceManager _instance = GeofenceManager._privateConstructor();
   GeofenceManager._privateConstructor();
@@ -24,7 +25,7 @@ class GeofenceManager {
   Future<void> initialize() async {
     Geofence.initialize();
     Geofence.requestPermissions();
-    await readOrFetch();
+    await generateFakeGeofence(FAKE_GEOFENCE_COUNT);
   }
 
   Future<File> get cacheFile async {
@@ -49,6 +50,29 @@ class GeofenceManager {
       print('error while reading cache ${e.toString()}');
     }
     return await fetch();
+  }
+
+  Future<void> generateFakeGeofence(int count) async
+  {
+    final start = DateTime.now();
+    const LAT_SEED = 30.0;
+    const LAT_VAR = 15.0;
+    const LONG_SEED = 130.0;
+    const LONG_VAR = 15.0;
+    const THICKNESS_SEED = -0.3;
+    const THICKNESS_VAR = 0.6;
+    const RADIUS_SEED = 50.0;
+    const RADIUS_VAR = 1000.0;
+    geofences = List<Geolocation>.generate(count, (index)
+    {
+      final latOffset = Random().nextDouble()*LAT_VAR;
+      final longOffset = latOffset/LAT_VAR*LONG_VAR + LONG_VAR*(THICKNESS_SEED + Random().nextDouble()*THICKNESS_VAR);
+      final lat = LAT_SEED + latOffset;
+      final long = LONG_SEED + longOffset;
+      final radius = RADIUS_SEED + Random().nextDouble()*RADIUS_VAR;
+      return Geolocation(id: index.toString(), latitude: lat,longitude: long, radius: radius);
+    });
+    print('generateFakeGeofence costs ${DateTime.now().difference(start).inMilliseconds} ms');
   }
 
   Future<void> readFromCache() async {
@@ -108,13 +132,16 @@ class GeofenceManager {
     final distance = pow(sin(dlat / 2), 2) + 
       pow(sin(dlong / 2), 2) * cos(alat) * cos(blat);
     final ret = EARTH_RADIUS_IN_METER * 2 * asin(sqrt(distance));
-    print('distance Coordinate - ${location.latitude} - ${location.longitude} to Geolocation(${fence.id}) - ${fence.latitude} - ${fence.longitude} returns $ret');
+    //print('distance Coordinate - ${location.latitude} - ${location.longitude} to Geolocation(${fence.id}) - ${fence.latitude} - ${fence.longitude} returns $ret');
     return ret;
   }
 
-  List<Geolocation> getNearByGeofences(Coordinate location) {
-    return geofences.where((fence) {
-      return distance(location, fence) < NEAR_LOCATION_THRESHOLD;
+  List<Geolocation> getNearByGeofences({required Coordinate location, double radius = GEOFENCE_SCAN_RADIUS}) {
+    final start = DateTime.now();
+    final ret = geofences.where((fence) {
+      return distance(location, fence) < radius;
     }).toList();
+    print('getNearByGeofences returns ${ret.length} fences, costs ${DateTime.now().difference(start).inMilliseconds} ms');
+    return ret;
   }
 }

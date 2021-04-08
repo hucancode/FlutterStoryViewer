@@ -8,20 +8,20 @@ class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
 }
 
-class GeofenceMapState extends State<GeofenceMap> {
+class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderStateMixin {
+  static const DEFAULT_ZOOM = 14.4746;
+  Coordinate? lastKnownLocation;
   Completer<GoogleMapController> controller = Completer();
   Set<Circle> fenceCircles = Set<Circle>.identity();
+  bool showDebugControls = false;
+
+  final distanceCtrl = TextEditingController();
+  final fenceCountCtrl = TextEditingController();
 
   static final CameraPosition marugameOffice = CameraPosition(
     target: LatLng(34.2237964, 133.8622095),
-    zoom: 14.4746,
+    zoom: DEFAULT_ZOOM,
   );
-
-  static final CameraPosition takamatsuOffice = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(34.3467879, 134.0466558),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
 
   @override
   void initState()
@@ -29,21 +29,31 @@ class GeofenceMapState extends State<GeofenceMap> {
     super.initState();
     Geofence.backgroundLocationUpdated.stream.listen((location) {
       print('backgroundLocationUpdated ${location.latitude} - ${location.longitude}');
-      updateFences(location);
+      lastKnownLocation = location;
+      updateFences(location: location);
     });
     Geofence.getCurrentLocation().then((location) {
       if(location != null)
       {
+        lastKnownLocation = location;
         print('getCurrentLocation ${location.latitude} - ${location.longitude}');
-        updateFences(location);
+        updateFences(location: location);
       }
     });
   }
 
-  void updateFences(Coordinate location)
+  @override
+  void dispose() {
+    distanceCtrl.dispose();
+    fenceCountCtrl.dispose();
+    super.dispose();
+  }
+
+  void updateFences({required Coordinate location, double radius = GeofenceManager.GEOFENCE_SCAN_RADIUS})
   {
+    final start = DateTime.now();
     setState(() {
-      fenceCircles = GeofenceManager().getNearByGeofences(location).map((fence) {
+      fenceCircles = GeofenceManager().getNearByGeofences(location: location, radius: radius).map((fence) {
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
@@ -54,6 +64,11 @@ class GeofenceMapState extends State<GeofenceMap> {
         );
       }).toSet();
     });
+    print('updateFences costs ${DateTime.now().difference(start).inMilliseconds} ms');
+    goTo(CameraPosition(
+      target: LatLng(location.latitude, location.longitude),
+      zoom: DEFAULT_ZOOM,
+    ));
   }
 
   @override
@@ -61,24 +76,98 @@ class GeofenceMapState extends State<GeofenceMap> {
     return new Scaffold(
       appBar: AppBar(
         title: Text("Geofence Map"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit_location),
+            onPressed: (){
+              setState(() {
+                showDebugControls = !showDebugControls;
+              });
+            },
+          )
+        ],
       ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: marugameOffice,
-        onMapCreated: (GoogleMapController result) {
-          controller.complete(result);
-        },
-        circles: fenceCircles,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: goToTakamatsu,
-        label: Text('Go to Takamatsu!'),
-        icon: Icon(Icons.directions_boat),
+      body: AnimatedSwitcher(
+      duration: Duration(milliseconds: 500),
+        child: showDebugControls?
+          buildDebugControls():
+          buildGoogleMap(),
       ),
     );
   }
 
-  Future<void> goToTakamatsu() async {
-    (await controller.future).animateCamera(CameraUpdate.newCameraPosition(takamatsuOffice));
+  Widget buildGoogleMap() {
+    controller = new Completer<GoogleMapController>();
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: marugameOffice,
+      onMapCreated: (GoogleMapController result) {
+        controller.complete(result);
+      },
+      circles: fenceCircles,
+    );
+  }
+
+  Future<void> goTo(CameraPosition position) async {
+    (await controller.future).animateCamera(CameraUpdate.newCameraPosition(position));
+  }
+
+  Widget buildDebugControls() {
+    return AnimatedSwitcher(
+      duration: Duration(milliseconds: 100),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+            child: Center(
+              child: Text("Random Map Generator", style: TextStyle(fontSize: 30),),
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.directions_walk),
+            title: TextField(
+            controller: distanceCtrl,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Filter Distance (default to ${GeofenceManager.GEOFENCE_SCAN_RADIUS})'
+            ),
+          ),),
+          
+          ListTile(
+            leading: Icon(Icons.location_pin),
+            title:  TextField(
+            controller: fenceCountCtrl,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Geofence Count (default to ${GeofenceManager.FAKE_GEOFENCE_COUNT})'
+            ),
+          ),),
+          ElevatedButton(
+            onPressed: generateNewGeofences,
+            child: Text('Generate!!!'),
+            )
+        ],
+      )
+    );
+  }
+
+  void generateNewGeofences()
+  {
+    try{
+      final count = int.parse(fenceCountCtrl.text);
+      final distance = double.parse(distanceCtrl.text);
+      assert(count is int);
+      assert(distance is double);
+      GeofenceManager().generateFakeGeofence(count);
+      if(lastKnownLocation != null)
+      {
+        updateFences(location: lastKnownLocation!, radius: distance);
+      }
+    } on Exception catch (e) {
+      print('error while generateNewGeofences ${e.toString()}');
+    }
+    setState(() {
+      showDebugControls = false;
+    });
   }
 }
