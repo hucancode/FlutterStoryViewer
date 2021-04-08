@@ -120,7 +120,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
             child: Center(
-              child: Text("Random Map Generator", style: TextStyle(fontSize: 30),),
+              child: Text("Geofence Generator", style: TextStyle(fontSize: 30),),
             ),
           ),
           ListTile(

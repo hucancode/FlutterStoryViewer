@@ -36,7 +36,6 @@ class GeofenceManager {
   }
 
   Future<void> readOrFetch() async {
-    return fetch();
     try
     {
       final file = await cacheFile;

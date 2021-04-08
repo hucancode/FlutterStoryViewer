@@ -33,7 +33,7 @@ dependencies:
   flutter_geofence: ^0.4.1
   enough_mail: ^1.0.0
   # enough_mail_html: ^0.4.0
-  webview_flutter: ^2.0.2
+  webview_flutter: ^2.0.4
   flutter_markdown: ^0.6.1
   animations: ^2.0.0
   cupertino_icons: ^1.0.2
