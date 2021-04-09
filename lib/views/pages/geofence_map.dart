@@ -54,12 +54,11 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     final start = DateTime.now();
     setState(() {
       fenceCircles = GeofenceManager().getNearByGeofences(location: location, radius: radius).map((fence) {
-        final width = radius>500?2:1;
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
           radius: fence.radius,
-          strokeWidth: width,
+          strokeWidth: 1,
           strokeColor: Colors.blueGrey,
           fillColor: Color(0x330077ff),
         );
@@ -127,26 +126,28 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
           ListTile(
             leading: Icon(Icons.directions_walk),
             title: TextField(
-            controller: distanceCtrl,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Filter Distance (default to ${GeofenceManager.GEOFENCE_SCAN_RADIUS})'
+              controller: distanceCtrl,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Filter Distance (default to ${GeofenceManager.GEOFENCE_SCAN_RADIUS})'
+              ),
             ),
-          ),),
-          
+          ),
           ListTile(
             leading: Icon(Icons.location_pin),
             title:  TextField(
-            controller: fenceCountCtrl,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Geofence Count (default to ${GeofenceManager.FAKE_GEOFENCE_COUNT})'
+              controller: fenceCountCtrl,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Geofence Count (default to ${GeofenceManager.FAKE_GEOFENCE_COUNT})'
+              ),
             ),
-          ),),
+          ),
           ElevatedButton(
             onPressed: generateNewGeofences,
             child: Text('Generate!!!'),
-            )
+            ),
+          Text('Now watching ${fenceCircles.length} geofences'),
         ],
       )
     );
