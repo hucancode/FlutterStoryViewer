@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -221,7 +223,20 @@ class ProfileState extends State<Profile> {
     final birthDayStr = format.format(birthDay);
 
     Widget editWidget = TextButton(
-      onPressed: () => null, 
+      onPressed: (){
+        showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1950),
+          lastDate: DateTime.now(),
+          initialDatePickerMode: DatePickerMode.year,
+        ).then((value) 
+        {
+          setState(() {
+            birthDay = value??birthDay;
+          });         
+        });
+      }, 
       child: Text(birthDayStr),
     );
     
@@ -233,11 +248,29 @@ class ProfileState extends State<Profile> {
   }
 
   Padding buildAvatar() {
+    const maleAvatars = [
+      "avatar_male_0",
+      "avatar_male_1",
+      "avatar_male_2",
+      "avatar_male_3",
+      "avatar_male_4",
+    ];
+    const femaleAvatars = [
+      "avatar_female_0",
+      "avatar_female_1",
+      "avatar_female_2",
+      "avatar_female_3",
+      "avatar_female_4",
+    ];
+    final avatars = [maleAvatars, femaleAvatars];
+    final int age = DateTime.now().difference(birthDay).inDays ~/ 365;
+    final int ageTier = min(max((age - 5) ~/ 10, 0), min(maleAvatars.length, femaleAvatars.length));
+    final avatar = avatars[gender][ageTier];
     return Padding(
       child: SizedBox(
         height: 150,
         child: ClipOval(
-          child: Image.asset('assets/avatar_male.png'),
+          child: Image.asset('assets/$avatar.png'),
         ),
       ),
       padding: EdgeInsets.symmetric(vertical: 50),

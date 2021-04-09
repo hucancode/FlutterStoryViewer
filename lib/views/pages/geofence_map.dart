@@ -54,11 +54,12 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     final start = DateTime.now();
     setState(() {
       fenceCircles = GeofenceManager().getNearByGeofences(location: location, radius: radius).map((fence) {
+        final width = radius>500?2:1;
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
           radius: fence.radius,
-          strokeWidth: 2,
+          strokeWidth: width,
           strokeColor: Colors.blueGrey,
           fillColor: Color(0x330077ff),
         );
