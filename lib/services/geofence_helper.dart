@@ -118,14 +118,14 @@ class GeofenceHelper {
       );
   }
 
-  double distance(Coordinate location, Geolocation fence)
+  double distance(Coordinate a, Coordinate b)
   {
     const RADIAN = pi/180;
     const EARTH_RADIUS_IN_METER = 6371000;
-    final blat = location.latitude*RADIAN;
-    final blong = location.longitude*RADIAN;
-    final alat = fence.latitude*RADIAN;
-    final along = fence.longitude*RADIAN;
+    final blat = a.latitude*RADIAN;
+    final blong = a.longitude*RADIAN;
+    final alat = b.latitude*RADIAN;
+    final along = b.longitude*RADIAN;
     final dlat = blat - alat;
     final dlong = blong - along;
     final distance = pow(sin(dlat / 2), 2) + 
@@ -138,7 +138,9 @@ class GeofenceHelper {
   List<Geolocation> getNearByGeofences({required Coordinate location, double radius = GEOFENCE_SCAN_RADIUS}) {
     final start = DateTime.now();
     final ret = geofences.where((fence) {
-      return distance(location, fence) < radius;
+      final a = location;
+      final b = Coordinate(fence.latitude, fence.longitude);
+      return distance(a, b) < radius + fence.radius;
     }).toList();
     print('getNearByGeofences returns ${ret.length} fences, costs ${DateTime.now().difference(start).inMilliseconds} ms');
     return ret;
