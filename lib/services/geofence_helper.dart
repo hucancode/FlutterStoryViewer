@@ -5,7 +5,7 @@ import 'package:flutter_geofence/geofence.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-class GeofenceManager {
+class GeofenceHelper {
   static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
@@ -13,10 +13,10 @@ class GeofenceManager {
   static const GEOFENCE_SCAN_RADIUS = 10000.0;
   static const FAKE_GEOFENCE_COUNT = 200000;
 
-  static final GeofenceManager _instance = GeofenceManager._privateConstructor();
-  GeofenceManager._privateConstructor();
+  static final GeofenceHelper _instance = GeofenceHelper._privateConstructor();
+  GeofenceHelper._privateConstructor();
 
-  factory GeofenceManager() {
+  factory GeofenceHelper() {
     return _instance;
   }
 

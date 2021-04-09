@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pop_experiment/services/geofence_manager.dart';
+import 'package:pop_experiment/services/geofence_helper.dart';
 
 class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
@@ -49,11 +49,16 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     super.dispose();
   }
 
-  void updateFences({required Coordinate location, double radius = GeofenceManager.GEOFENCE_SCAN_RADIUS})
+  void enterFence(String id)
+  {
+
+  }
+
+  void updateFences({required Coordinate location, double radius = GeofenceHelper.GEOFENCE_SCAN_RADIUS})
   {
     final start = DateTime.now();
     setState(() {
-      fenceCircles = GeofenceManager().getNearByGeofences(location: location, radius: radius).map((fence) {
+      fenceCircles = GeofenceHelper().getNearByGeofences(location: location, radius: radius).map((fence) {
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
@@ -129,7 +134,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
               controller: distanceCtrl,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Filter Distance (default to ${GeofenceManager.GEOFENCE_SCAN_RADIUS})'
+                hintText: 'Filter Distance (default to ${GeofenceHelper.GEOFENCE_SCAN_RADIUS})'
               ),
             ),
           ),
@@ -139,7 +144,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
               controller: fenceCountCtrl,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Geofence Count (default to ${GeofenceManager.FAKE_GEOFENCE_COUNT})'
+                hintText: 'Geofence Count (default to ${GeofenceHelper.FAKE_GEOFENCE_COUNT})'
               ),
             ),
           ),
@@ -160,7 +165,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       final distance = double.parse(distanceCtrl.text);
       assert(count is int);
       assert(distance is double);
-      GeofenceManager().generateFakeGeofence(count);
+      GeofenceHelper().generateFakeGeofence(count);
       if(lastKnownLocation != null)
       {
         updateFences(location: lastKnownLocation!, radius: distance);
