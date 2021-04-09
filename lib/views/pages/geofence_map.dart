@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofence/geofence.dart';
+import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pop_experiment/services/geofence_helper.dart';
+import 'package:pop_experiment/services/notification_helper.dart';
 
 class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
@@ -10,35 +12,52 @@ class GeofenceMap extends StatefulWidget {
 
 class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderStateMixin {
   static const DEFAULT_ZOOM = 14.4746;
-  Coordinate? lastKnownLocation;
+  static const DEFAULT_LAT = 34.2237964;
+  static const DEFAULT_LONG = 133.8622095;
+  static const LOCATION_UPDATE_INTERVAL = 5000;
+  Coordinate lastKnownLocation = Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
+  Coordinate fencePivot = Coordinate(DEFAULT_LAT, DEFAULT_LONG);
   Completer<GoogleMapController> controller = Completer();
   Set<Circle> fenceCircles = Set<Circle>.identity();
   bool showDebugControls = false;
 
   final distanceCtrl = TextEditingController();
   final fenceCountCtrl = TextEditingController();
-
+  
   static final CameraPosition marugameOffice = CameraPosition(
     target: LatLng(34.2237964, 133.8622095),
     zoom: DEFAULT_ZOOM,
   );
 
+  
+
   @override
   void initState()
   {
     super.initState();
-    Geofence.backgroundLocationUpdated.stream.listen((location) {
-      print('backgroundLocationUpdated ${location.latitude} - ${location.longitude}');
-      lastKnownLocation = location;
-      updateFences(location: location);
-    });
-    Geofence.getCurrentLocation().then((location) {
-      if(location != null)
+    Location().getLocation().then((value) {
+      if(value.latitude != null && value.longitude != null)
       {
-        lastKnownLocation = location;
-        print('getCurrentLocation ${location.latitude} - ${location.longitude}');
-        updateFences(location: location);
+        lastKnownLocation = Coordinate(value.latitude!, value.longitude!);
+        print('getLocation ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+        //NotificationHelper().scheduleNotification("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+        updateFences(location: lastKnownLocation);
       }
+    });
+    Location().changeSettings(interval: LOCATION_UPDATE_INTERVAL);
+    Location().onLocationChanged.listen((value) {
+      lastKnownLocation = Coordinate(value.latitude!, value.longitude!);
+      print('onLocationChanged ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+      //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+      final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
+      if(shouldUpdate)
+      {
+        updateFences(location: lastKnownLocation);
+      }
+    });
+    Geofence.startListening(GeolocationEvent.entry, (location)
+    {
+      NotificationHelper().scheduleNotification("Entry of a georegion", "Welcome to: ${location.id}");
     });
   }
 
@@ -57,8 +76,17 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void updateFences({required Coordinate location, double radius = GeofenceHelper.GEOFENCE_SCAN_RADIUS})
   {
     final start = DateTime.now();
+    Geofence.removeAllGeolocations();
+    final fences = GeofenceHelper().getNearByGeofences(location: location, radius: radius);
+    fences.forEach((fence) {
+      Geofence.addGeolocation(fence, GeolocationEvent.entry).then((onValue) {
+        //print("Your geofence has been added! ${fence.id}");
+      }).catchError((error) {
+          print("Geofence adding failed with $error");
+      });
+    });
     setState(() {
-      fenceCircles = GeofenceHelper().getNearByGeofences(location: location, radius: radius).map((fence) {
+      fenceCircles = fences.map((fence) {
         return Circle(
           circleId: CircleId(fence.id),
           center: LatLng(fence.latitude, fence.longitude),
@@ -74,6 +102,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       target: LatLng(location.latitude, location.longitude),
       zoom: DEFAULT_ZOOM,
     ));
+    fencePivot = location;
   }
 
   @override
@@ -166,10 +195,10 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       assert(count is int);
       assert(distance is double);
       GeofenceHelper().generateFakeGeofence(count);
-      if(lastKnownLocation != null)
+      Location().getLocation().then((value)
       {
-        updateFences(location: lastKnownLocation!, radius: distance);
-      }
+        updateFences(location: Coordinate(value.latitude??DEFAULT_LAT, value.longitude??DEFAULT_LONG), radius: distance);
+      });
     } on Exception catch (e) {
       print('error while generateNewGeofences ${e.toString()}');
     }

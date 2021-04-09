@@ -21,8 +21,14 @@ class GeofenceHelper {
   }
 
   List<Geolocation> geofences = List<Geolocation>.empty();
+  bool initialized = false;// TODO: use completer
 
   Future<void> initialize() async {
+    if(initialized)
+    {
+      return;
+    }
+    initialized = true;
     Geofence.initialize();
     Geofence.requestPermissions();
     await generateFakeGeofence(FAKE_GEOFENCE_COUNT);
