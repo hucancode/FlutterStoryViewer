@@ -36,7 +36,7 @@ class NotificationHelper {
     initialize();
     print("scheduling notification with $title and $subtitle");
     var rng = new Random();
-    Future.delayed(Duration(seconds: 5)).then((result) async {
+    Future.delayed(Duration(seconds: 1)).then((result) async {
       var androidPlatformChannelSpecifics = AndroidNotificationDetails(
           'pop_experiment', 'Pop Experiment', 'default channel for pop application',
           importance: Importance.high,

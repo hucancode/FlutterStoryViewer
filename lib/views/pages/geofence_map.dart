@@ -10,11 +10,12 @@ class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
 }
 
-class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderStateMixin {
+class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const DEFAULT_ZOOM = 14.4746;
   static const DEFAULT_LAT = 34.2237964;
   static const DEFAULT_LONG = 133.8622095;
-  static const LOCATION_UPDATE_INTERVAL = 3000;
+  static const LOCATION_UPDATE_INTERVAL = 2000; // Only affects android
+  static const LOCATION_UPDATE_BG_INTERVAL = 10000; // Only affects android
   static const USE_LOCATION_LIBRARY = true;
   Coordinate lastKnownLocation = Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
   Coordinate fencePivot = Coordinate(DEFAULT_LAT, DEFAULT_LONG);
@@ -34,6 +35,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void initState()
   {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
     Geofence.startListening(GeolocationEvent.entry, (location)
     {
       NotificationHelper().scheduleNotification("Entry of a georegion", "Welcome to: ${location.id}");
@@ -41,7 +43,9 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     if(USE_LOCATION_LIBRARY)
     {
       Location().enableBackgroundMode(enable: true);
-      Location().changeSettings(interval: LOCATION_UPDATE_INTERVAL);
+      Location().changeSettings(
+        accuracy: LocationAccuracy.high,
+        interval: LOCATION_UPDATE_INTERVAL);
       Location().getLocation().then((value) {
         if(value.latitude != null && value.longitude != null)
         {
@@ -69,14 +73,14 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
 
   void handleLocationInitialized(Coordinate location) {
     lastKnownLocation = location;
-    print('getLocation ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    print('handleLocationInitialized ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().scheduleNotification("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     updateFences(location: lastKnownLocation);
   }
 
   void handleLocationUpdate(Coordinate location) {
     lastKnownLocation = location;
-    print('onLocationChanged ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
     if(shouldUpdate)
@@ -86,9 +90,29 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print('didChangeAppLifecycleState $state');
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Location().changeSettings(
+          accuracy: LocationAccuracy.high,
+          interval: LOCATION_UPDATE_INTERVAL);
+        break;
+      case AppLifecycleState.paused:
+        Location().changeSettings(
+          accuracy: LocationAccuracy.balanced,
+          interval: LOCATION_UPDATE_BG_INTERVAL);
+        break;
+      default:
+    }
+  }
+
+  @override
   void dispose() {
     distanceCtrl.dispose();
     fenceCountCtrl.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 

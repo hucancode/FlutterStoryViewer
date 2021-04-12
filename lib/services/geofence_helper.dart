@@ -11,7 +11,7 @@ class GeofenceHelper {
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/geofence/read';
   static const GEOFENCE_SCAN_RADIUS = 3000.0;
-  static const FAKE_GEOFENCE_COUNT = 500000;
+  static const FAKE_GEOFENCE_COUNT = 700000;
 
   static final GeofenceHelper _instance = GeofenceHelper._privateConstructor();
   GeofenceHelper._privateConstructor();
