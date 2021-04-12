@@ -10,8 +10,8 @@ class GeofenceHelper {
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/geofence/read';
-  static const GEOFENCE_SCAN_RADIUS = 10000.0;
-  static const FAKE_GEOFENCE_COUNT = 200000;
+  static const GEOFENCE_SCAN_RADIUS = 3000.0;
+  static const FAKE_GEOFENCE_COUNT = 500000;
 
   static final GeofenceHelper _instance = GeofenceHelper._privateConstructor();
   GeofenceHelper._privateConstructor();
@@ -67,7 +67,7 @@ class GeofenceHelper {
     const THICKNESS_SEED = -0.3;
     const THICKNESS_VAR = 0.6;
     const RADIUS_SEED = 50.0;
-    const RADIUS_VAR = 2000.0;
+    const RADIUS_VAR = 1000.0;
     geofences = List<Geolocation>.generate(count, (index)
     {
       final latOffset = Random().nextDouble()*LAT_VAR;

@@ -14,7 +14,8 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   static const DEFAULT_ZOOM = 14.4746;
   static const DEFAULT_LAT = 34.2237964;
   static const DEFAULT_LONG = 133.8622095;
-  static const LOCATION_UPDATE_INTERVAL = 5000;
+  static const LOCATION_UPDATE_INTERVAL = 3000;
+  static const USE_LOCATION_LIBRARY = true;
   Coordinate lastKnownLocation = Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
   Coordinate fencePivot = Coordinate(DEFAULT_LAT, DEFAULT_LONG);
   Completer<GoogleMapController> controller = Completer();
@@ -29,36 +30,59 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     zoom: DEFAULT_ZOOM,
   );
 
-  
-
   @override
   void initState()
   {
     super.initState();
-    Location().getLocation().then((value) {
-      if(value.latitude != null && value.longitude != null)
-      {
-        lastKnownLocation = Coordinate(value.latitude!, value.longitude!);
-        print('getLocation ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-        //NotificationHelper().scheduleNotification("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-        updateFences(location: lastKnownLocation);
-      }
-    });
-    Location().changeSettings(interval: LOCATION_UPDATE_INTERVAL);
-    Location().onLocationChanged.listen((value) {
-      lastKnownLocation = Coordinate(value.latitude!, value.longitude!);
-      print('onLocationChanged ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-      //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-      final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
-      if(shouldUpdate)
-      {
-        updateFences(location: lastKnownLocation);
-      }
-    });
     Geofence.startListening(GeolocationEvent.entry, (location)
     {
       NotificationHelper().scheduleNotification("Entry of a georegion", "Welcome to: ${location.id}");
     });
+    if(USE_LOCATION_LIBRARY)
+    {
+      Location().enableBackgroundMode(enable: true);
+      Location().changeSettings(interval: LOCATION_UPDATE_INTERVAL);
+      Location().getLocation().then((value) {
+        if(value.latitude != null && value.longitude != null)
+        {
+          handleLocationInitialized(Coordinate(value.latitude!, value.longitude!));
+        }
+      });
+      Location().onLocationChanged.listen((value) {
+        handleLocationUpdate(Coordinate(value.latitude!, value.longitude!));
+      });
+    }
+    else
+    {
+      Geofence.getCurrentLocation().then((location) {
+        if(location == null)
+        {
+          return;
+        }
+        handleLocationInitialized(location);
+      });
+      Geofence.backgroundLocationUpdated.stream.listen((location) {
+        handleLocationUpdate(location);
+      });
+    }
+  }
+
+  void handleLocationInitialized(Coordinate location) {
+    lastKnownLocation = location;
+    print('getLocation ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    //NotificationHelper().scheduleNotification("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    updateFences(location: lastKnownLocation);
+  }
+
+  void handleLocationUpdate(Coordinate location) {
+    lastKnownLocation = location;
+    print('onLocationChanged ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
+    if(shouldUpdate)
+    {
+      updateFences(location: lastKnownLocation);
+    }
   }
 
   @override
@@ -76,6 +100,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void updateFences({required Coordinate location, double radius = GeofenceHelper.GEOFENCE_SCAN_RADIUS})
   {
     final start = DateTime.now();
+    print('updateFences');
     Geofence.removeAllGeolocations();
     final fences = GeofenceHelper().getNearByGeofences(location: location, radius: radius);
     fences.forEach((fence) {
@@ -139,6 +164,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
         controller.complete(result);
       },
       circles: fenceCircles,
+      myLocationEnabled: true,
     );
   }
 
