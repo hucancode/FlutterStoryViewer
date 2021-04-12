@@ -34,6 +34,8 @@
 	<string>This application use location data to give personalized contents even when user are not on their phone</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This application use location data to give location-based contents</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>App needs location permissions to scan nearby beacons.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
@@ -42,6 +44,8 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+ 	<string>Reason why app needs bluetooth</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

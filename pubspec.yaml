@@ -29,7 +29,7 @@ dependencies:
   path_provider: ^2.0.1
   location: ^4.1.1
   google_maps_flutter: ^2.0.3
-  flutter_beacon: ^0.3.0
+  beacons_plugin: ^1.0.20
   flutter_geofence: ^0.4.1
   enough_mail: ^1.0.0
   # enough_mail_html: ^0.4.0

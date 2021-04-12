@@ -67,7 +67,7 @@ class GeofenceHelper {
     const THICKNESS_SEED = -0.3;
     const THICKNESS_VAR = 0.6;
     const RADIUS_SEED = 50.0;
-    const RADIUS_VAR = 1000.0;
+    const RADIUS_VAR = 500.0;
     geofences = List<Geolocation>.generate(count, (index)
     {
       final latOffset = Random().nextDouble()*LAT_VAR;

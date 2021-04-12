@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pop_experiment/services/beacon_helper.dart';
 import 'package:pop_experiment/services/geofence_helper.dart';
 import 'package:pop_experiment/services/notification_helper.dart';
 
@@ -15,7 +16,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   static const DEFAULT_LAT = 34.2237964;
   static const DEFAULT_LONG = 133.8622095;
   static const LOCATION_UPDATE_INTERVAL = 2000; // Only affects android
-  static const LOCATION_UPDATE_BG_INTERVAL = 10000; // Only affects android
+  static const LOCATION_UPDATE_BG_INTERVAL = 6000; // Only affects android
   static const USE_LOCATION_LIBRARY = true;
   Coordinate lastKnownLocation = Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
   Coordinate fencePivot = Coordinate(DEFAULT_LAT, DEFAULT_LONG);
@@ -30,6 +31,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     target: LatLng(34.2237964, 133.8622095),
     zoom: DEFAULT_ZOOM,
   );
+
 
   @override
   void initState()
@@ -69,6 +71,12 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
         handleLocationUpdate(location);
       });
     }
+    BeaconHelper().initialize();
+    BeaconHelper().startListening((data)
+      {
+        print('BeaconHelper got something! $data');
+      }
+    );
   }
 
   void handleLocationInitialized(Coordinate location) {
@@ -182,7 +190,6 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   Widget buildGoogleMap() {
     controller = new Completer<GoogleMapController>();
     return GoogleMap(
-      mapType: MapType.normal,
       initialCameraPosition: marugameOffice,
       onMapCreated: (GoogleMapController result) {
         controller.complete(result);
