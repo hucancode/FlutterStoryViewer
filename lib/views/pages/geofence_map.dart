@@ -71,7 +71,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
         handleLocationUpdate(location);
       });
     }
-    BeaconHelper().initialize();
+    BeaconHelper().readOrFetch();
     BeaconHelper().startListening((data)
       {
         print('BeaconHelper got something! $data');

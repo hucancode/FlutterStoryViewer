@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter_geofence/geofence.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_geofence/geofence.dart';
 import 'package:path_provider/path_provider.dart';
 
 class GeofenceHelper {
@@ -81,7 +81,7 @@ class GeofenceHelper {
   }
 
   Future<void> readFromCache() async {
-    print("MessageFetcher readFromCache()");
+    print("GeofenceHelper readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
@@ -98,7 +98,7 @@ class GeofenceHelper {
   }
 
   Future<void> fetch() async {
-    print("MessageFetcher fetch()");
+    print("GeofenceHelper fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
       var response = await http.get(uri).timeout(Duration(seconds: 10));

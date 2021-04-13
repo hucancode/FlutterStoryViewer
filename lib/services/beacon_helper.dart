@@ -1,12 +1,19 @@
 // @dart=2.9
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pop_experiment/models/beacon.dart';
 
 class BeaconHelper {
 
   static const LOCAL_CACHE = 'beacons.json';
+  static const CACHE_MAX_AGE_HOUR = 12;
+  static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
+  static const READ_API = '/beacon/read';
+  static const DEFAULT_BEACON_NAME = "MyBeacon";
   static final BeaconHelper _instance = BeaconHelper._privateConstructor();
   BeaconHelper._privateConstructor();
 
@@ -16,20 +23,35 @@ class BeaconHelper {
 
   bool initialized = false;// TODO: use completer
   final StreamController<String> beaconEventsController = StreamController<String>.broadcast();
+  List<Beacon> beacons = List<Beacon>.empty();
+
   Future<void> initialize() async {
     if(initialized)
     {
       return;
     }
     initialized = true;
-    BeaconsPlugin.listenToBeacons(beaconEventsController);
-    // if you need to monitor also major and minor use the original version and not this fork
-    await BeaconsPlugin.addRegion("myRegion", "01022022-f88f-0000-00ae-9605fd9bb620");
+    // Put this before calling any beacon operation. This method should be named "initializePlugin"
+    // This plugin needs more works. Improve it or use different plugin if possible
+    BeaconsPlugin.listenToBeacons(beaconEventsController); 
     await BeaconsPlugin.runInBackground(true);
   }
 
-  void startListening(Function(String) onBeaconReceived) async 
+  Future<void> registerAllBeacons() async {
+    await BeaconsPlugin.clearRegions();
+    beacons.forEach((beacon) {
+      registerBeacon(beacon.uuid, title: beacon.title);
+    });
+  }
+
+  Future<void> registerBeacon(String uuid, {String title = DEFAULT_BEACON_NAME}) async {
+    await initialize();
+    await BeaconsPlugin.addRegion(title, uuid);
+  }
+
+  Future<void> startListening(Function(String) onBeaconReceived) async 
   {
+    await initialize();
     print('BeaconsPlugin.listenToBeacons ...');
     beaconEventsController.stream.listen((data) {
       onBeaconReceived(data);
@@ -44,13 +66,12 @@ class BeaconHelper {
       print('BeaconsPlugin.startMonitoring...');
       await BeaconsPlugin.startMonitoring;
     }
-    
   }
-  void stopListenning() async
+  Future<void> stopListenning() async
   {
     await BeaconsPlugin.stopMonitoring;
   }
-
+  
   Future<File> get cacheFile async {
     final directory = await getApplicationDocumentsDirectory();
     final fullPath = '${directory.path}/$LOCAL_CACHE';
@@ -58,4 +79,63 @@ class BeaconHelper {
     return File(fullPath);
   }
 
+  Future<void> readOrFetch() async {
+    return await fetch();
+    try
+    {
+      final file = await cacheFile;
+      final date = await file.lastModified();
+      final now = DateTime.now();
+      if(now.difference(date).inHours < CACHE_MAX_AGE_HOUR)
+      {
+        return await readFromCache();
+      }
+    } on Exception catch (e) {
+      print('error while reading cache ${e.toString()}');
+    }
+    return await fetch();
+  }
+Future<void> readFromCache() async {
+    print("BeaconHelper readFromCache()");
+    try {
+      final cache = await cacheFile;
+      String response = await cache.readAsString();
+      Iterable it = json.decode(response);
+      beacons = List<Beacon>.from(it.map((model) => jsonToBeacon(model)));
+    } on Exception catch (e) {
+      print('error while fetching json ${e.toString()}');
+    }
+    registerAllBeacons();
+  }
+
+  Future<void> writeToCache(dynamic jsonData) async {
+    final file = await cacheFile;
+    file.writeAsString(jsonEncode(jsonData));
+  }
+
+  Future<void> fetch() async {
+    print("BeaconHelper fetch()");
+    try {
+      var uri = Uri.https(SERVER_ENDPOINT, READ_API);
+      var response = await http.get(uri).timeout(Duration(seconds: 10));
+      print('response(${response.statusCode}) = ${response.body}');
+      if (response.statusCode == 200)
+      {
+        Iterable it = jsonDecode(response.body);
+        beacons = List<Beacon>.from(it.map((model) => jsonToBeacon(model)));
+        writeToCache(it);
+      }
+    } on Exception catch (e) {
+      print('error while fetching json ${e.toString()}');
+    }
+    registerAllBeacons();
+  }
+
+  Beacon jsonToBeacon(Map<String, dynamic> json)
+  {
+    return Beacon(
+      json["uuid"].toString(), 
+      json["title"].toString()
+      );
+  }
 }
