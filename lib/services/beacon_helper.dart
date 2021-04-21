@@ -58,17 +58,17 @@ class BeaconHelper {
     if (Platform.isAndroid) {
       BeaconsPlugin.channel.setMethodCallHandler((call) async {
         if (call.method == 'scannerReady') {
-          await BeaconsPlugin.startMonitoring;
+          await BeaconsPlugin.startMonitoring();
         }
       });
     } else if (Platform.isIOS) {
       print('BeaconsPlugin.startMonitoring...');
-      await BeaconsPlugin.startMonitoring;
+      await BeaconsPlugin.startMonitoring();
     }
   }
   Future<void> stopListenning() async
   {
-    await BeaconsPlugin.stopMonitoring;
+    await BeaconsPlugin.stopMonitoring();
   }
   
   Future<File> get cacheFile async {
