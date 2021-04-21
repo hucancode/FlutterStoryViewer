@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -95,7 +94,8 @@ class BeaconHelper {
     }
     return await fetch();
   }
-Future<void> readFromCache() async {
+  
+  Future<void> readFromCache() async {
     print("BeaconHelper readFromCache()");
     try {
       final cache = await cacheFile;
