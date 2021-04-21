@@ -1,4 +1,3 @@
-// import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -85,10 +84,10 @@ class MimeMessageDetailState extends State<MimeMessageDetail> with TickerProvide
   }
 
   FutureOr<NavigationDecision> onWebNavigation(NavigationRequest request) {
-          if (request.url.startsWith('https://www.youtube.com/')) {
-            print('blocking navigation to $request}');
-            return NavigationDecision.prevent;
-          }
+          // if (request.url.startsWith('https://www.youtube.com/')) {
+          //   print('blocking navigation to $request}');
+          //   return NavigationDecision.prevent;
+          // }
           //print('allowing navigation to $request');
           return NavigationDecision.navigate;
         }
