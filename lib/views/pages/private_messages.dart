@@ -35,12 +35,12 @@ class PrivateMessagesState extends State<PrivateMessages> {
   }
 
   void deleteSelected() {
-    listRef.currentState?.deleteSelected();
+    //listRef.currentState?.deleteSelected();
   }
   
   void deselectAll()
   {
-    listRef.currentState?.exitMultiSelect();
+    //listRef.currentState?.exitMultiSelect();
   }
 
   @override
@@ -84,15 +84,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
         }
-        return MessageList(key: listRef, 
-          initialMessages: snapshot.data,
-          onSelectionCountChanged: (count) {
-            setState(() {
-              print("onSelectionCountChanged "+count.toString());
-              showSelectionControl = count != 0;
-            });
-          },
-        );
+        return MessageList(key: listRef);
       },
     );
   }

@@ -4,13 +4,17 @@ class Message {
   String? title;
   DateTime? date;
   String? content;
+  bool isFavorite;
+  bool isSelected;
   
   Message({
     required this.id,
     this.icon,
     this.title,
     this.date,
-    this.content
+    this.content,
+    this.isFavorite = false,
+    this.isSelected = false
   })
   {
     //print("new Message $id - $title");

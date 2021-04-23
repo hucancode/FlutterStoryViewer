@@ -88,7 +88,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
 
   void handleLocationUpdate(Coordinate location) {
     lastKnownLocation = location;
-    print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    //print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
     if(shouldUpdate)

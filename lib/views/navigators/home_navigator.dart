@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:enough_mail/enough_mail.dart';
 import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/models/message_list_model.dart';
 import 'package:pop_experiment/views/pages/home_legacy.dart';
 import 'package:pop_experiment/views/pages/message_detail.dart';
 import 'package:pop_experiment/views/pages/mime_message_detail.dart';
 import 'package:pop_experiment/views/pages/qr_scan.dart';
 import 'package:pop_experiment/views/pages/qr_scan_result.dart';
+import 'package:provider/provider.dart';
 
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
@@ -80,7 +82,7 @@ class HomeNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Navigator(
+    final navigator = Navigator(
         observers: [heroController],
         initialRoute: root,
         onGenerateRoute: (RouteSettings routeSettings)
@@ -104,5 +106,12 @@ class HomeNavigator extends StatelessWidget {
           return routeToRoot(routeSettings);
         }
     );
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => MessageListModel()),
+      ],
+      child: navigator,
+    );
+    return provider;
   }
 }
