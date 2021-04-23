@@ -102,9 +102,7 @@ class HomePageState extends State<HomePage> {
               visible: model.totalSelected > 0,
               child: IconButton(
                 icon: Icon(Icons.undo),
-                onPressed: (){
-                  model.selectNone();
-                },
+                onPressed: () => model.selectNone(),
               )
             );
           },
@@ -115,9 +113,7 @@ class HomePageState extends State<HomePage> {
               visible: model.totalSelected > 0,
               child: IconButton(
                 icon: Icon(Icons.delete),
-                onPressed: (){
-                  model.deleteSelected();
-                },
+                onPressed: () => model.deleteSelected(),
               )
             );
           },
