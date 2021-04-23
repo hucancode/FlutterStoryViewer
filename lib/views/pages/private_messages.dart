@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/views/widgets/message_list.dart';
+import 'package:pop_experiment/views/widgets/message_list_view.dart';
 
 class PrivateMessages extends StatefulWidget {
   PrivateMessagesState createState() => PrivateMessagesState();
 }
 
 class PrivateMessagesState extends State<PrivateMessages> {
-  final GlobalKey<MessageListState> listRef = GlobalKey();
+  final GlobalKey<MessageListViewState> listRef = GlobalKey();
   bool showSelectionControl = false;
   
   static RectTween customTween(Rect? begin, Rect? end) {
@@ -84,7 +84,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
         }
-        return MessageList(key: listRef);
+        return MessageListView(key: listRef);
       },
     );
   }

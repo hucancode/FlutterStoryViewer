@@ -2,30 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/models/message_list_model.dart';
+import 'package:pop_experiment/models/message_list.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
-class MessageList extends StatefulWidget {
+class MessageListView extends StatefulWidget {
   
-  MessageList({Key? key}) : super(key: key);
-  MessageListState createState()
+  MessageListView({Key? key}) : super(key: key);
+  MessageListViewState createState()
   {
-    return MessageListState();
+    return MessageListViewState();
   }
 }
 
-class MessageListState extends State<MessageList> {
+class MessageListViewState extends State<MessageListView> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
-
-  var availableId = 4;
 
   @override
   void initState()
   {
     super.initState();
-    final provider = Provider.of<MessageListModel>(context, listen: false);
+    final provider = Provider.of<MessageList>(context, listen: false);
     provider.eventController.stream.listen((event) {
       print('MessageListState got event ${event.type}');
       switch (event.type) {
@@ -56,7 +54,7 @@ class MessageListState extends State<MessageList> {
   }
 
   Widget buildItem(Message message, BuildContext context) {
-    final provider = Provider.of<MessageListModel>(context, listen: false);
+    final provider = Provider.of<MessageList>(context, listen: false);
     print('buildItem for message ${message.id}');
     return Slidable(
         actionPane: SlidableDrawerActionPane(),
@@ -95,7 +93,7 @@ class MessageListState extends State<MessageList> {
 
   Widget buildItemContent(Message message, BuildContext context) {
     print('buildItemContent for message ${message.id}');
-    final provider = Provider.of<MessageListModel>(context, listen: false);
+    final provider = Provider.of<MessageList>(context, listen: false);
     return ListTile(
         key: ValueKey<Message>(message),
         selected: message.isSelected,
@@ -127,7 +125,7 @@ class MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = Provider.of<MessageListModel>(context).messages;
+    final messages = Provider.of<MessageList>(context).messages;
     print('build message_list ${messages.length}');
     return Expanded(
         child: AnimatedList(

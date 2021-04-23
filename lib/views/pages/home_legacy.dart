@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
-import 'package:pop_experiment/models/message_list_model.dart';
-import 'package:pop_experiment/views/widgets/message_list.dart';
+import 'package:pop_experiment/models/message_list.dart';
+import 'package:pop_experiment/views/widgets/message_list_view.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,7 +22,7 @@ class HomePageState extends State<HomePage> {
   void initState()
   {
     super.initState();
-    final provider = Provider.of<MessageListModel>(context, listen: false);
+    final provider = Provider.of<MessageList>(context, listen: false);
     provider.eventController.stream.listen((event) {
       print('HomePageState got event ${event.type}');
       switch (event.type) {
@@ -37,7 +37,7 @@ class HomePageState extends State<HomePage> {
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                Provider.of<MessageListModel>(context, listen: false).addMessage();
+                Provider.of<MessageList>(context, listen: false).addMessage();
               },
             ),
             content: Text('Deleted!'),
@@ -81,7 +81,7 @@ class HomePageState extends State<HomePage> {
                   content: Text('New beacon detected, fetching mail...'),
                   duration: Duration(milliseconds: 1600));
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            final provider = Provider.of<MessageListModel>(context, listen: false);
+            final provider = Provider.of<MessageList>(context, listen: false);
             provider.addMessage();
             provider.addMessage();
           }
@@ -96,7 +96,7 @@ class HomePageState extends State<HomePage> {
     return AppBar(
       title: Text("Home"),
       actions: <Widget>[
-        Consumer<MessageListModel>(
+        Consumer<MessageList>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -107,7 +107,7 @@ class HomePageState extends State<HomePage> {
             );
           },
         ),
-        Consumer<MessageListModel>(
+        Consumer<MessageList>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -220,12 +220,12 @@ class HomePageState extends State<HomePage> {
 
   Widget buildMessageList(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<MessageListModel>(context, listen: false).loadMessages(),
+      future: Provider.of<MessageList>(context, listen: false).loadMessages(),
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return CircularProgressIndicator();
         }
-        return MessageList();
+        return MessageListView();
       },
     );
   }
