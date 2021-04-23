@@ -71,7 +71,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildFloatingActionButton(BuildContext context) {
+  FloatingActionButton buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () {
         Navigator.pushNamed(context, "/qr").then((scanResult) {
@@ -134,7 +134,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildDrawer(BuildContext context) {
+  Drawer buildDrawer(BuildContext context) {
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
