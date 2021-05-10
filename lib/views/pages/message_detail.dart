@@ -5,13 +5,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 
 class MessageDetail extends StatelessWidget {
   static const FETCH_CONTENT_AGAIN = false;
   static const NO_CONTENT = "Seems no content 😀";
-  final Completer<WebViewController> controller = Completer<WebViewController>();
 
   static const double kMinRadius = 32.0;
   static const double kMaxRadius = 128.0;

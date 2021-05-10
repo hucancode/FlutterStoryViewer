@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:enough_mail/enough_mail.dart';
 import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/models/message_list.dart';
-import 'package:pop_experiment/views/pages/home_legacy.dart';
+import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/pages/message_detail.dart';
-import 'package:pop_experiment/views/pages/mime_message_detail.dart';
 import 'package:pop_experiment/views/pages/qr_scan.dart';
 import 'package:pop_experiment/views/pages/qr_scan_result.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +10,6 @@ import 'package:provider/provider.dart';
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
-  static const String mimeDetail = '/mime_detail';
   static const String qr = '/qr';
   static const String qrResult = '/qr_result';
   final HeroController heroController;
@@ -49,22 +46,6 @@ class HomeNavigator extends StatelessWidget {
     );
   }
 
-  PageRoute<void> routeToMimeDetail(RouteSettings settings)
-  {
-    Widget widget;
-    if(settings.arguments is! MimeMessage)
-    {
-      MimeMessage model = MimeMessage();
-      widget = MimeMessageDetail(model);
-    }
-    else
-    {
-      MimeMessage model = settings.arguments as MimeMessage;
-      widget = MimeMessageDetail(model);
-    }    
-    return MaterialPageRoute<void>(builder: (context) => widget);
-  }
-
   PageRoute<void> routeToQR(RouteSettings settings) {
     Widget widget = QRScan();
     return MaterialPageRoute<void>(builder: (context) => widget);
@@ -90,10 +71,6 @@ class HomeNavigator extends StatelessWidget {
           if(routeSettings.name == detail)
           {
             return routeToDetail(routeSettings);
-          }
-          if(routeSettings.name == mimeDetail)
-          {
-            return routeToMimeDetail(routeSettings);
           }
           if(routeSettings.name == qr)
           {
