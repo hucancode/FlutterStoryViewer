@@ -35,7 +35,6 @@ dependencies:
   webview_flutter: ^2.0.4
   flutter_markdown: ^0.6.1
   animations: ^2.0.0
-  cupertino_icons: ^1.0.2
   flutter_slidable: ^0.6.0
   cached_network_image: ^3.0.0-nullsafety
   shared_preferences: ^2.0.5
