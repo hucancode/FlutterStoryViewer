@@ -34,12 +34,6 @@ class HomePageState extends State<HomePage> {
           break;
         case MessageListEventType.delete:
           final snackBar = SnackBar(
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                Provider.of<MessageList>(context, listen: false).addMessage();
-              },
-            ),
             content: Text('Deleted!'),
             duration: Duration(milliseconds: 2500));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -81,9 +75,7 @@ class HomePageState extends State<HomePage> {
                   content: Text('New beacon detected, fetching mail...'),
                   duration: Duration(milliseconds: 1600));
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            final provider = Provider.of<MessageList>(context, listen: false);
-            provider.addMessage();
-            provider.addMessage();
+            //final provider = Provider.of<MessageList>(context, listen: false);
           }
         });
       },
@@ -95,7 +87,7 @@ class HomePageState extends State<HomePage> {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       title: Text("Home"),
-      actions: <Widget>[
+      actions: [
         Consumer<MessageList>(
           builder: (context, model, child) {
             return Visibility(
@@ -127,7 +119,7 @@ class HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
+        children: [
           buildMessageList(context),
         ],
       ),
@@ -142,13 +134,13 @@ class HomePageState extends State<HomePage> {
       child: ListView(
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
-        children: <Widget>[
+        children: [
           DrawerHeader(
             child: Container(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
+                children: [
                   Expanded(
                     child: Image.asset(
                       'assets/pop_icon.png', 

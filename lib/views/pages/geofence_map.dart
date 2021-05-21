@@ -40,6 +40,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     WidgetsBinding.instance!.addObserver(this);
     Geofence.startListening(GeolocationEvent.entry, (location)
     {
+      print("Entry of a georegion ${location.id}");
       NotificationHelper().scheduleNotification("Entry of a georegion", "Welcome to: ${location.id}");
     });
     if(USE_LOCATION_LIBRARY)
@@ -71,12 +72,12 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
         handleLocationUpdate(location);
       });
     }
-    BeaconHelper().readOrFetch();
-    BeaconHelper().startListening((data)
-      {
-        print('BeaconHelper got something! $data');
-      }
-    );
+    // BeaconHelper().readOrFetch();
+    // BeaconHelper().startListening((data)
+    //   {
+    //     print('BeaconHelper got something! $data');
+    //   }
+    // );
   }
 
   void handleLocationInitialized(Coordinate location) {
@@ -137,7 +138,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     final fences = GeofenceHelper().getNearByGeofences(location: location, radius: radius);
     fences.forEach((fence) {
       Geofence.addGeolocation(fence, GeolocationEvent.entry).then((onValue) {
-        //print("Your geofence has been added! ${fence.id}");
+        print("Your geofence has been added! ${fence.id}");
       }).catchError((error) {
           print("Geofence adding failed with $error");
       });
@@ -167,7 +168,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     return new Scaffold(
       appBar: AppBar(
         title: Text("Geofence Map"),
-        actions: <Widget>[
+        actions: [
           IconButton(
             icon: Icon(Icons.edit_location),
             onPressed: (){

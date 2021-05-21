@@ -17,7 +17,7 @@ class QRScanResultState extends State<QRScanResult> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
+          children: [
             Icon(Icons.qr_code, size: 200),
             TextButton(
               onPressed: () {

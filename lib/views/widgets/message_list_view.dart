@@ -60,7 +60,7 @@ class MessageListViewState extends State<MessageListView> {
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
         child: buildItemContent(message, context),
-        actions: <Widget>[
+        actions: [
           IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
@@ -74,7 +74,7 @@ class MessageListViewState extends State<MessageListView> {
             onTap: () => provider.addToFavorite(message.id),
           ),
         ],
-        secondaryActions: <Widget>[
+        secondaryActions: [
           IconSlideAction(
             caption: 'Delete',
             color: Colors.red,

@@ -124,7 +124,7 @@ class ProfileState extends State<Profile> {
     return Scaffold(
       appBar: AppBar(
         title: Text("User Profile"),
-        actions: <Widget>[
+        actions: [
           Visibility(
             visible: false, //fix appbar title alignment
             child: Icon(Icons.android),
@@ -152,7 +152,7 @@ class ProfileState extends State<Profile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
+        children: [
           buildAvatar(),
           buildGender(),
           buildMariageStatus(context),

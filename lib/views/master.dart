@@ -46,7 +46,7 @@ class MasterPageState extends State<MasterPage> {
     return Scaffold(
       body: IndexedStack(
         index: currentTab,
-        children: <Widget>[
+        children: [
           HomeNavigator(heroController: homeHeroController),
           PrivateMessagesNavigator(heroController: pmHeroController),
           MapNavigator(),

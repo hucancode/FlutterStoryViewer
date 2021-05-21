@@ -17,7 +17,7 @@ class QRScanState extends State<QRScan> {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
+            children: [
               Icon(Icons.wifi, size: 200),
               Text("UUID: "+
                 (payload?.uuid??"_________________") + 

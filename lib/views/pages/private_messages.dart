@@ -48,7 +48,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Private Messages"),
-        actions: <Widget>[
+        actions: [
           Visibility(
             visible: showSelectionControl,
             child: IconButton(
@@ -69,7 +69,7 @@ class PrivateMessagesState extends State<PrivateMessages> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
+          children: [
             buildMessageList(context),
           ],
         ),

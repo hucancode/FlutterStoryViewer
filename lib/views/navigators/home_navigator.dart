@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/models/message_list.dart';
+import 'package:pop_experiment/services/discovery_history.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/pages/message_detail.dart';
 import 'package:pop_experiment/views/pages/qr_scan.dart';
@@ -86,6 +87,7 @@ class HomeNavigator extends StatelessWidget {
     final provider = MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MessageList()),
+        ChangeNotifierProvider(create: (context) => DiscoveryHistory()),
       ],
       child: navigator,
     );
