@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 
 class EntryDetail extends StatelessWidget {

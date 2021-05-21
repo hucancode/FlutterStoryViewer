@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/views/widgets/message_list_view.dart';
+import 'package:pop_experiment/models/entry.dart';
+import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 
 class PrivateMessages extends StatefulWidget {
   PrivateMessagesState createState() => PrivateMessagesState();

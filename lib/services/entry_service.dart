@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:pop_experiment/models/message.dart';
+import 'package:pop_experiment/models/entry.dart';
 
 class EntryService {
   static const LOCAL_CACHE = 'messages.json';

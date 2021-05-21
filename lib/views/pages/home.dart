@@ -5,10 +5,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
-import 'package:pop_experiment/models/message_list.dart';
-import 'package:pop_experiment/services/message_fetcher.dart';
+import 'package:pop_experiment/models/entry_list.dart';
+import 'package:pop_experiment/services/entry_service.dart';
 import 'package:pop_experiment/services/notification_helper.dart';
-import 'package:pop_experiment/views/widgets/message_list_view.dart';
+import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

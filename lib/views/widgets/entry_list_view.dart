@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
-import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/models/message_list.dart';
+import 'package:pop_experiment/models/entry.dart';
+import 'package:pop_experiment/models/entry_list.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +42,7 @@ class EntryListViewState extends State<EntryListView> {
                   sizeFactor:
                       CurvedAnimation(parent: animation, curve: Interval(0.0, 1.0)),
                   axisAlignment: 0.0,
-                  child: buildItem(provider.messages[event.index], context),
+                  child: buildItem(provider.entries[event.index], context),
                 ),
               );
             },
@@ -127,7 +127,7 @@ class EntryListViewState extends State<EntryListView> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = Provider.of<EntryList>(context).messages;
+    final messages = Provider.of<EntryList>(context).entries;
     print('build message_list ${messages.length}');
     return Expanded(
         child: AnimatedList(

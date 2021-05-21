@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pop_experiment/models/message.dart';
-import 'package:pop_experiment/views/pages/message_detail.dart';
+import 'package:pop_experiment/models/entry.dart';
+import 'package:pop_experiment/views/pages/entry_detail.dart';
 import 'package:pop_experiment/views/pages/private_messages.dart';
 
 class PrivateMessagesNavigator extends StatelessWidget {
