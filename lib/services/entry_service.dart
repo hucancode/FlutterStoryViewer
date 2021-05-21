@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/entry.dart';
 
 class EntryService {
-  static const LOCAL_CACHE = 'messages.json';
+  static const LOCAL_CACHE = 'entries.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/entry/read';
