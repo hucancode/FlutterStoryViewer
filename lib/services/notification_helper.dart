@@ -1,7 +1,4 @@
 import 'dart:math';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationHelper {
@@ -13,7 +10,7 @@ class NotificationHelper {
     return _instance;
   }
   
-  final notificationPlugin = FlutterLocalNotificationsPlugin();
+  final plugin = FlutterLocalNotificationsPlugin();
   bool initialized = false;// TODO: use completer
 
   void initialize() {
@@ -22,7 +19,7 @@ class NotificationHelper {
       return;
     }
     initialized = true;
-    notificationPlugin.initialize(
+    plugin.initialize(
       InitializationSettings(
         android: AndroidInitializationSettings('app_icon'), 
         iOS: IOSInitializationSettings(onDidReceiveLocalNotification: null)
@@ -31,7 +28,7 @@ class NotificationHelper {
   }
 
 
-  void scheduleNotification(String title, String subtitle) {
+  void send(String title, String subtitle) {
     initialize();
     print("scheduling notification with $title and $subtitle");
     var rng = new Random();
@@ -45,7 +42,7 @@ class NotificationHelper {
       var platformChannelSpecifics = NotificationDetails(
           android: androidPlatformChannelSpecifics,
           iOS: iOSPlatformChannelSpecifics);
-      await notificationPlugin.show(
+      await plugin.show(
           rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
           payload: 'item x');
     });

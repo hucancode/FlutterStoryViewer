@@ -41,7 +41,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     Geofence.startListening(GeolocationEvent.entry, (location)
     {
       print("Entry of a georegion ${location.id}");
-      NotificationHelper().scheduleNotification("Entry of a georegion", "Welcome to: ${location.id}");
+      NotificationHelper().send("Entry of a georegion", "Welcome to: ${location.id}");
     });
     if(USE_LOCATION_LIBRARY)
     {
@@ -83,14 +83,14 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void handleLocationInitialized(Coordinate location) {
     lastKnownLocation = location;
     print('handleLocationInitialized ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-    //NotificationHelper().scheduleNotification("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    //NotificationHelper().send("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     updateFences(location: lastKnownLocation);
   }
 
   void handleLocationUpdate(Coordinate location) {
     lastKnownLocation = location;
     //print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-    //NotificationHelper().scheduleNotification("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
+    //NotificationHelper().send("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
     if(shouldUpdate)
     {

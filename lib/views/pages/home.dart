@@ -61,7 +61,6 @@ class HomePageState extends State<HomePage> {
     String filterJson = message.data['filter']??'';
 
     final filter = Filter.fromJson(jsonDecode(filterJson));
-
     
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final gender = (prefs.getBool('gender')?? true)?1:0;
@@ -78,7 +77,7 @@ class HomePageState extends State<HomePage> {
       return;
     }
       
-    NotificationHelper().scheduleNotification(title, description);
+    NotificationHelper().send(title, description);
   }
 
   void foregroundMessageHandlerSync(RemoteMessage message) {
@@ -88,7 +87,7 @@ class HomePageState extends State<HomePage> {
   Future<void> foregroundMessageHandler(RemoteMessage message) async {
 
     final entryID = int.parse(message.data['entryID']);
-    print('there is a message!! $entryID, fetching content');
+    print('there is a message!! $entryID, checking filter');
     String filterJson = message.data['filter']??'';
 
     final filter = Filter.fromJson(jsonDecode(filterJson));
@@ -96,14 +95,16 @@ class HomePageState extends State<HomePage> {
     
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final gender = (prefs.getBool('gender')?? true)?1:0;
-    final marriageStatus = prefs.getInt('marriage') ?? 0;
+    final marital = prefs.getInt('marriage') ?? 0;
+
+    print("my gender = $gender, my marital = $marital");
 
     if(!filter.genders.contains(gender))
     {
       print("this message doens't match my gender");
       return;
     }
-    if(!filter.maritals.contains(marriageStatus))
+    if(!filter.maritals.contains(marital))
     {
       print("this message doens't match my marriage status");
       return;
