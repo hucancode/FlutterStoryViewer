@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/models/entry_list.dart';
-import 'package:pop_experiment/services/discovery_history.dart';
+import 'package:pop_experiment/services/discovery_history_service.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/pages/entry_detail.dart';
 import 'package:pop_experiment/views/pages/qr_scan.dart';
@@ -82,7 +82,7 @@ class HomeNavigator extends StatelessWidget {
     final provider = MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => EntryList()),
-        ChangeNotifierProvider(create: (context) => DiscoveryHistory()),
+        ChangeNotifierProvider(create: (context) => DiscoveryHistoryService()),
       ],
       child: navigator,
     );
