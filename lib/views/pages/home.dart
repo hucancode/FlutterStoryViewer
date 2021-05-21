@@ -29,17 +29,17 @@ class HomePageState extends State<HomePage> {
   void initState()
   {
     super.initState();
-    final provider = Provider.of<MessageList>(context, listen: false);
+    final provider = Provider.of<EntryList>(context, listen: false);
     provider.eventController.stream.listen((event) {
       print('HomePageState got event ${event.type}');
       switch (event.type) {
-        case MessageListEventType.favorite:
+        case EntryListEventType.favorite:
           final snackBar = SnackBar(
-            content: Text('Message #${event.index} has been added to favorite!'),
+            content: Text('Entry #${event.index} has been added to favorite!'),
             duration: Duration(milliseconds: 2000));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           break;
-        case MessageListEventType.delete:
+        case EntryListEventType.delete:
           final snackBar = SnackBar(
             content: Text('Deleted!'),
             duration: Duration(milliseconds: 2500));
@@ -109,10 +109,10 @@ class HomePageState extends State<HomePage> {
       print("this message doens't match my marriage status");
       return;
     }
-    final entry = await MessageFetcher().fetchSingle(entryID);
+    final entry = await EntryService().fetchSingle(entryID);
 
-    final provider = Provider.of<MessageList>(context, listen: false);
-    provider.addMessage(entry);
+    final provider = Provider.of<EntryList>(context, listen: false);
+    provider.add(entry);
     print('fetched $entryID (${entry.title})');
   }
   
@@ -141,7 +141,7 @@ class HomePageState extends State<HomePage> {
     FirebaseMessaging.onMessage.listen(foregroundMessageHandlerSync);
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage fcmMessage) {
-      final message = MessageFetcher().fetchSingle(int.parse(fcmMessage.data['entryID']));
+      final message = EntryService().fetchSingle(int.parse(fcmMessage.data['entryID']));
       Navigator.pushNamed(context, '/detail', arguments: message);
     });
 
@@ -191,7 +191,7 @@ class HomePageState extends State<HomePage> {
                   content: Text('New beacon detected, fetching mail...'),
                   duration: Duration(milliseconds: 1600));
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            //final provider = Provider.of<MessageList>(context, listen: false);
+            //final provider = Provider.of<EntryList>(context, listen: false);
           }
         });
       },
@@ -204,7 +204,7 @@ class HomePageState extends State<HomePage> {
     return AppBar(
       title: Text("Home"),
       actions: [
-        Consumer<MessageList>(
+        Consumer<EntryList>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -215,7 +215,7 @@ class HomePageState extends State<HomePage> {
             );
           },
         ),
-        Consumer<MessageList>(
+        Consumer<EntryList>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -236,7 +236,7 @@ class HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          buildMessageList(context),
+          buildEntryList(context),
         ],
       ),
     );
@@ -326,14 +326,14 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildMessageList(BuildContext context) {
+  Widget buildEntryList(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<MessageList>(context, listen: false).loadMessages(),
+      future: Provider.of<EntryList>(context, listen: false).load(),
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return CircularProgressIndicator();
         }
-        return MessageListView();
+        return EntryListView();
       },
     );
   }

@@ -13,10 +13,7 @@ class DiscoveryEntry {
     required this.event,
     required this.id,
     required this.date
-  })
-  {
-    //print("new Message $id - $title");
-  }
+  });
 
   factory DiscoveryEntry.fromJson(Map<String, dynamic> json) => DiscoveryEntry(
         event: json["event"],

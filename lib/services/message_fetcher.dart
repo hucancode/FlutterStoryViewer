@@ -4,16 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/message.dart';
 
-class MessageFetcher {
+class EntryService {
   static const LOCAL_CACHE = 'messages.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/entry/read';
 
-  static final MessageFetcher _instance = MessageFetcher._privateConstructor();
-  MessageFetcher._privateConstructor();
+  static final EntryService _instance = EntryService._privateConstructor();
+  EntryService._privateConstructor();
 
-  factory MessageFetcher() {
+  factory EntryService() {
     return _instance;
   }
 
@@ -24,7 +24,7 @@ class MessageFetcher {
     return File(fullPath);
   }
 
-  Future<List<Message>> readOrFetch() async {
+  Future<List<Entry>> readOrFetch() async {
     try
     {
       final file = await cacheFile;
@@ -40,17 +40,17 @@ class MessageFetcher {
     return await fetch();
   }
 
-  Future<List<Message>> readFromCache() async {
-    print("MessageFetcher readFromCache()");
+  Future<List<Entry>> readFromCache() async {
+    print("EntryService readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable it = json.decode(response);
-      return List<Message>.from(it.map((model) => Message.fromJson(model)));
+      return List<Entry>.from(it.map((model) => Entry.fromJson(model)));
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Message>.empty();
+    return List<Entry>.empty();
   }
 
   Future<void> writeToCache(dynamic jsonData) async {
@@ -58,8 +58,8 @@ class MessageFetcher {
     file.writeAsString(jsonEncode(jsonData));
   }
 
-  Future<List<Message>> fetch() async {
-    print("MessageFetcher fetch()");
+  Future<List<Entry>> fetch() async {
+    print("EntryService fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
       var response = await http.get(uri).timeout(Duration(seconds: 10));
@@ -69,16 +69,16 @@ class MessageFetcher {
         var responseJson = jsonDecode(response.body);
         Iterable models = responseJson['data'];
         writeToCache(models);
-        return List<Message>.from(models.map((model) => Message.fromJson(model)));
+        return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Message>.empty();
+    return List<Entry>.empty();
   }
 
-  Future<Message> fetchSingle(int id) async {
-    print("MessageFetcher fetch()");
+  Future<Entry> fetchSingle(int id) async {
+    print("EntryService fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API+'/$id');
       var response = await http.get(uri).timeout(Duration(seconds: 10));
@@ -86,11 +86,11 @@ class MessageFetcher {
       if (response.statusCode == 200)
       {
         var responseJson = jsonDecode(response.body);
-        return Message.fromJson(responseJson);
+        return Entry.fromJson(responseJson);
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return Message.empty();
+    return Entry.empty();
   }
 }

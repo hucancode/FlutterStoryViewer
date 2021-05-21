@@ -4,25 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/services/message_fetcher.dart';
 
-enum MessageListEventType
+enum EntryListEventType
 {
   insert, delete, favorite, select
 }
 
-class MessageListEvent
+class EntryListEvent
 {
-  final MessageListEventType type;
+  final EntryListEventType type;
   final int index;
 
-  MessageListEvent(this.type, this.index);
+  EntryListEvent(this.type, this.index);
 }
 
-class MessageList extends ChangeNotifier {
+class EntryList extends ChangeNotifier {
   var availableId = 99;
   static const DUMMY_TITLE = 'Integer quis mi a sit amet id turpis. ';
   static const DUMMY_CONTENT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.';
-  List<Message> messages = [];
-  var eventController = StreamController<MessageListEvent>.broadcast();
+  List<Entry> messages = [];
+  var eventController = StreamController<EntryListEvent>.broadcast();
 
   String getRandomString(int len) {
     return String.fromCharCodes(
@@ -30,17 +30,17 @@ class MessageList extends ChangeNotifier {
     );
   }
 
-  Future<void> loadMessages() async
+  Future<void> load() async
   {
-    messages = await MessageFetcher().readOrFetch();
+    messages = await EntryService().readOrFetch();
   }
 
-  Message readById(int id) => messages.singleWhere((element) => element.id == id);
+  Entry readById(int id) => messages.singleWhere((element) => element.id == id);
 
-  void addMessage(Message message) {
+  void add(Entry message) {
     messages.insert(0,message,);
     notifyListeners();
-    eventController.add(MessageListEvent(MessageListEventType.insert, 0));
+    eventController.add(EntryListEvent(EntryListEventType.insert, 0));
   }
 
   void selectNone()
@@ -66,7 +66,7 @@ class MessageList extends ChangeNotifier {
     messages.asMap().forEach((index, element) {
       if(element.isSelected)
       {
-        eventController.add(MessageListEvent(MessageListEventType.delete, index));
+        eventController.add(EntryListEvent(EntryListEventType.delete, index));
       }
     });
     messages.removeWhere((element) => element.isSelected);
@@ -74,11 +74,11 @@ class MessageList extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteMessage(int id) {
-    print('deleteMessage $id');
+  void delete(int id) {
+    print('delete $id');
     final index = messages.indexWhere((element) => element.id == id);
     messages.removeWhere((element) => element.id == id);
-    eventController.add(MessageListEvent(MessageListEventType.delete, index));
+    eventController.add(EntryListEvent(EntryListEventType.delete, index));
     notifyListeners();
   }
 

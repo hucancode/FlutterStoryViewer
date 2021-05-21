@@ -1,41 +1,66 @@
-class Message {
+class Entry
+{
   int id;
-  String? icon;
+  String? thumbnail;
+  DateTime? createdDate;
+  DateTime? modifiedDate;
   String? title;
-  DateTime? date;
   String? content;
-  bool isFavorite;
+  int? filterID;
+  int authorID;
   bool isSelected;
-  
-  Message({
+  bool isFavorite;
+
+  Entry({
     required this.id,
-    this.icon,
+    this.thumbnail,
     this.title,
-    this.date,
+    this.createdDate,
+    this.modifiedDate,
     this.content,
+    this.filterID,
+    required this.authorID,
+    this.isSelected = false,
     this.isFavorite = false,
-    this.isSelected = false
-  })
+  });
+  factory Entry.empty()
   {
-    //print("new Message $id - $title");
+    return Entry(id: -1, authorID: -1);
+  }
+  factory Entry.fromJson(Map<String, dynamic> json) => Entry(
+      id: json["id"],
+      thumbnail: json["thumbnail"],
+      title: json["title"],
+      createdDate: DateTime.parse(json["createdAt"]),
+      modifiedDate: DateTime.parse(json["modifiedAt"]),
+      content: json["content"],
+      filterID: json["filterID"],
+      authorID: 1,
+  );
+
+  Map<String, dynamic> toJson()
+  {
+    Map<String, dynamic> ret = {};
+    ret["id"] = id;
+    ret["title"] = title;
+    ret["thumbnail"] = thumbnail;
+    ret["createdDate"] = createdDate;
+    ret["modifiedDate"] = modifiedDate;
+    ret["content"] = content;
+    ret["filterID"] = filterID;
+    ret["authorID"] = authorID;
+    ret["isFavorite"] = isFavorite;
+    return ret;
   }
 
-  factory Message.fromJson(Map<String, dynamic> json) => Message(
-        id: json["id"],
-        icon: json["thumbnail"],
-        title: json["title"],
-        date: DateTime.parse(json["createdAt"]),
-        content: json["content"],
-    );
-  factory Message.empty() => Message(
-        id: -1,
-    );
-
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "thumbnail": icon,
-        "title": title,
-        "createdAt": date,
-        "content": content,
-    };
+  Map<String, dynamic> toShortJson()
+  {
+    Map<String, dynamic> ret = {};
+    ret["id"] = id;
+    ret["title"] = title;
+    ret["thumbnail"] = thumbnail;
+    ret["content"] = content;
+    ret["filterID"] = filterID;
+    return ret;
+  }
 }

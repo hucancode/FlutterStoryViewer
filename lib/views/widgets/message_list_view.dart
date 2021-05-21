@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/models/message_list.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
-class MessageListView extends StatefulWidget {
+class EntryListView extends StatefulWidget {
   
-  MessageListView({Key? key}) : super(key: key);
-  MessageListViewState createState()
+  EntryListView({Key? key}) : super(key: key);
+  EntryListViewState createState()
   {
-    return MessageListViewState();
+    return EntryListViewState();
   }
 }
 
-class MessageListViewState extends State<MessageListView> {
+class EntryListViewState extends State<EntryListView> {
   final GlobalKey<AnimatedListState> listRef = GlobalKey();
 
   @override
   void initState()
   {
     super.initState();
-    final provider = Provider.of<MessageList>(context, listen: false);
+    final provider = Provider.of<EntryList>(context, listen: false);
     provider.eventController.stream.listen((event) {
-      print('MessageListState got event ${event.type}');
+      print('EntryListViewState got event ${event.type}');
       switch (event.type) {
-        case MessageListEventType.insert:
+        case EntryListEventType.insert:
           listRef.currentState?.insertItem(event.index, duration: Duration(milliseconds: 300));
           break;
-        case MessageListEventType.delete:
+        case EntryListEventType.delete:
           listRef.currentState?.removeItem(
             event.index,
             (context, animation) {
@@ -53,8 +54,8 @@ class MessageListViewState extends State<MessageListView> {
     });
   }
 
-  Widget buildItem(Message message, BuildContext context) {
-    final provider = Provider.of<MessageList>(context, listen: false);
+  Widget buildItem(Entry message, BuildContext context) {
+    final provider = Provider.of<EntryList>(context, listen: false);
     print('buildItem for message ${message.id}');
     return Slidable(
         actionPane: SlidableDrawerActionPane(),
@@ -65,7 +66,7 @@ class MessageListViewState extends State<MessageListView> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => provider.deleteMessage(message.id),
+            onTap: () => provider.delete(message.id),
           ),
           IconSlideAction(
             caption: 'Favorite',
@@ -79,7 +80,7 @@ class MessageListViewState extends State<MessageListView> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => provider.deleteMessage(message.id),
+            onTap: () => provider.delete(message.id),
           ),
           IconSlideAction(
             caption: 'Favorite',
@@ -91,17 +92,18 @@ class MessageListViewState extends State<MessageListView> {
       );
   }
 
-  Widget buildItemContent(Message message, BuildContext context) {
+  Widget buildItemContent(Entry message, BuildContext context) {
     print('buildItemContent for message ${message.id}');
-    final provider = Provider.of<MessageList>(context, listen: false);
+    final formatter = DateFormat('yyyy-MM-dd');
+    final provider = Provider.of<EntryList>(context, listen: false);
     return ListTile(
-        key: ValueKey<Message>(message),
+        key: ValueKey<Entry>(message),
         selected: message.isSelected,
         title: Text(message.title??"Untitled"),
-        subtitle: Text(message.date.toString()),
+        subtitle: Text(message.modifiedDate != null?formatter.format(message.modifiedDate!):""),
         selectedTileColor: Colors.amber,
         leading: CircleAvatar(
-          child: buildHeroWidget(context, message.id, message.icon??"no_icon"),
+          child: buildHeroWidget(context, message.id, message.thumbnail??"no_icon"),
         ),
         trailing: Visibility(
           child: Icon(Icons.favorite),
@@ -125,7 +127,7 @@ class MessageListViewState extends State<MessageListView> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = Provider.of<MessageList>(context).messages;
+    final messages = Provider.of<EntryList>(context).messages;
     print('build message_list ${messages.length}');
     return Expanded(
         child: AnimatedList(
@@ -161,13 +163,13 @@ class MessageListViewState extends State<MessageListView> {
         tag: id,
         child: RadialExpansion(
           maxRadius: kMaxRadius,
-          child: buildMessageIcon(iconPath),
+          child: buildIcon(iconPath),
         ),
       ),
     );
   }
 
-  Widget buildMessageIcon(String iconPath) {
+  Widget buildIcon(String iconPath) {
     return CachedNetworkImage(
       imageUrl: iconPath,
       placeholder: (context, url) => CircularProgressIndicator(),

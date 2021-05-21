@@ -25,14 +25,14 @@ class DiscoveryHistory extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    print("MessageFetcher readFromCache()");
+    print("DiscoveryHistory load()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable it = json.decode(response);
       history = List<DiscoveryEntry>.from(it.map((model) => DiscoveryEntry.fromJson(model)));
     } on Exception catch (e) {
-      print('error while fetching json ${e.toString()}');
+      print('error while loading json ${e.toString()}');
     }
   }
 

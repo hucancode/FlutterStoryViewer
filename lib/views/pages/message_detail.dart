@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pop_experiment/models/message.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 
-class MessageDetail extends StatelessWidget {
+class EntryDetail extends StatelessWidget {
   static const FETCH_CONTENT_AGAIN = false;
   static const NO_CONTENT = "Seems no content 😀";
 
@@ -17,18 +18,15 @@ class MessageDetail extends StatelessWidget {
     return MaterialRectCenterArcTween(begin: begin, end: end);
   }
 
-  final int id;
-  final String? title;
-  final String? banner;
-  final String? content;
+  final Entry model;
 
-  MessageDetail({Key? key, required this.id, this.title, this.banner, this.content})
+  EntryDetail({Key? key, required this.model})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title??"Untitled"),
+        title: Text(model.title??"Untitled"),
       ),
       body: Container(
         color: Theme.of(context).canvasColor,
@@ -53,22 +51,22 @@ class MessageDetail extends StatelessWidget {
   Hero buildHeroWidget(BuildContext context) {
     return Hero(
       createRectTween: customTween,
-      tag: id,
+      tag: model.id,
       child: ClipRect(
         child: Transform.scale(
           scale: 2.1,
           child: RadialExpansion(
             maxRadius: kMaxRadius,
-            child: buildMessageBanner(),
+            child: buildBanner(),
           ),
         ),
       ),
     );
   }
 
-  Widget buildMessageBanner() {
+  Widget buildBanner() {
     return CachedNetworkImage(
-            imageUrl: banner??"",
+            imageUrl: model.thumbnail??"",
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) => Icon(Icons.error),
             fit: BoxFit.cover,
@@ -80,10 +78,10 @@ class MessageDetail extends StatelessWidget {
   Future<String> readMD(BuildContext context) async {
     if(!FETCH_CONTENT_AGAIN)
     {
-      return content??NO_CONTENT;
+      return model.content??NO_CONTENT;
     }
     const serverEndpoint = 'pop-ex.atpop.info:3100';
-    final selectAPI = '/entry/read/$id';
+    final selectAPI = '/entry/read/${model.id}';
     try {
       var uri = Uri.https(serverEndpoint, selectAPI);
       var response = await http.get(uri).timeout(Duration(seconds: 10));

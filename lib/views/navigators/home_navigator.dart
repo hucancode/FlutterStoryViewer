@@ -22,16 +22,11 @@ class HomeNavigator extends StatelessWidget {
   
   PageRoute<void> routeToDetail(RouteSettings settings)
   {
-    Widget widget;
-    if(settings.arguments is! Message)
+    if(settings.arguments is! Entry)
     {
-      widget = MessageDetail(id: -1);
+      return routeToRoot(settings);
     }
-    else
-    {
-      Message model = settings.arguments as Message;
-      widget = MessageDetail(id: model.id, title: model.title, banner: model.icon, content: model.content);
-    }
+    Entry model = settings.arguments as Entry;
     return PageRouteBuilder<void>(
       pageBuilder: (BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation) {
@@ -40,7 +35,7 @@ class HomeNavigator extends StatelessWidget {
             builder: (BuildContext context, Widget? child) {
               return Opacity(
                 opacity: opacityCurve.transform(animation.value),
-                child: widget,
+                child: EntryDetail(model: model),
               );
             });
       },
@@ -86,7 +81,7 @@ class HomeNavigator extends StatelessWidget {
     );
     final provider = MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => MessageList()),
+        ChangeNotifierProvider(create: (context) => EntryList()),
         ChangeNotifierProvider(create: (context) => DiscoveryHistory()),
       ],
       child: navigator,
