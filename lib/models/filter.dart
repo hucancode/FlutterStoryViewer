@@ -1,30 +1,27 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:pop_experiment/models/profile.dart';
 
-enum Gender {
-  male,
-  female
-}
-
-enum Marital {
-  single, 
-  married,
-  divorced
+enum FilterMode
+{
+  ignore,
+  include,
+  exclude
 }
 
 class Filter
 {
   int id;
   String? title;
-  int genderMode;
+  FilterMode genderMode = FilterMode.ignore;
   List<Gender> genders;
-  int maritalMode;
+  FilterMode maritalMode = FilterMode.ignore;
   List<Marital> maritals;
-  int workAddressMode;
+  FilterMode workAddressMode = FilterMode.ignore;
   List<int> workAddresses;
-  int homeAddressMode;
+  FilterMode homeAddressMode = FilterMode.ignore;
   List<int> homeAddresses;
-  int ageMode;
+  FilterMode ageMode = FilterMode.ignore;
   List<RangeValues> ages;
   int authorID;
   bool isSelected;
@@ -51,11 +48,11 @@ class Filter
     return Filter(
         id: json["id"],
         title: json["title"],
-        genderMode: 0,
-        maritalMode: 0,
-        workAddressMode: 0,
-        homeAddressMode: 0,
-        ageMode: 0, 
+        genderMode: FilterMode.ignore,
+        maritalMode: FilterMode.ignore,
+        workAddressMode: FilterMode.ignore,
+        homeAddressMode: FilterMode.ignore,
+        ageMode: FilterMode.ignore, 
         authorID: 1,
         genders: [],
         maritals: [], 
@@ -69,11 +66,11 @@ class Filter
   {
     return Filter(
         id: -1,
-        genderMode: 0,
-        maritalMode: 0,
-        workAddressMode: 0,
-        homeAddressMode: 0,
-        ageMode: 0,
+        genderMode: FilterMode.ignore,
+        maritalMode: FilterMode.ignore,
+        workAddressMode: FilterMode.ignore,
+        homeAddressMode: FilterMode.ignore,
+        ageMode: FilterMode.ignore, 
         genders: [],
         maritals: [], 
         ages: [], 
@@ -82,16 +79,17 @@ class Filter
         authorID: -1,
     );
   }
+
   factory Filter.fromJson(Map<String, dynamic> json)
   {
     print("build Filter from json, raw json = $json");
     int id = json["id"];
     String title = json["title"];
-    int genderMode = json["genderMode"];
-    int maritalMode = json["maritalMode"];
-    int ageMode = json["ageMode"];
-    int workAddressMode = json["workAddressMode"];
-    int homeAddressMode = json["homeAddressMode"];
+    FilterMode genderMode = FilterMode.values[json["genderMode"]??0];
+    FilterMode maritalMode = FilterMode.values[json["maritalMode"]??0];
+    FilterMode ageMode = FilterMode.values[json["ageMode"]??0];
+    FilterMode workAddressMode = FilterMode.values[json["workAddressMode"]??0];
+    FilterMode homeAddressMode = FilterMode.values[json["homeAddressMode"]??0];
     List<int> genders = List<int>.from(json["genders"]);
     List<int> maritals = List<int>.from(json["maritals"]);
     List<int> workAddresses = List<int>.from(json["workAddresses"]);
@@ -132,27 +130,27 @@ class Filter
     ret["id"] = id;
     ret["title"] = title;
     ret["genderMode"] = genderMode;
-    if(genderMode != 0)
+    if(genderMode != FilterMode.ignore)
     {
       ret["genders"] = genders.map((e) => e.index).toList();
     }
     ret["maritalMode"] = maritalMode;
-    if(maritalMode != 0)
+    if(maritalMode != FilterMode.ignore)
     {
       ret["maritals"] = maritals.map((e) => e.index).toList();
     }
     ret["ageMode"] = ageMode;
-    if(ageMode != 0)
+    if(ageMode != FilterMode.ignore)
     {
       ret["ages"] = ages.map((e) => {"min": e.start, "max": e.end}).toList();
     }
     ret["workAddressMode"] = workAddressMode;
-    if(workAddressMode != 0)
+    if(workAddressMode != FilterMode.ignore)
     {
       ret["workAddresses"] = workAddresses;
     }
     ret["homeAddressMode"] = homeAddressMode;
-    if(homeAddressMode != 0)
+    if(homeAddressMode != FilterMode.ignore)
     {
       ret["homeAddresses"] = homeAddresses;
     }

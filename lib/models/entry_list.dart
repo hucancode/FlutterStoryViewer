@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/services/entry_service.dart';
@@ -18,17 +17,8 @@ class EntryListEvent
 }
 
 class EntryList extends ChangeNotifier {
-  var availableId = 99;
-  static const DUMMY_TITLE = 'Integer quis mi a sit amet id turpis. ';
-  static const DUMMY_CONTENT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.';
   List<Entry> entries = [];
   var eventController = StreamController<EntryListEvent>.broadcast();
-
-  String getRandomString(int len) {
-    return String.fromCharCodes(
-      List.generate(len, (index) => Random().nextInt(33) + 89)
-    );
-  }
 
   Future<void> load() async
   {

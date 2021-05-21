@@ -45,8 +45,8 @@ class EntryService {
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      Iterable it = json.decode(response);
-      return List<Entry>.from(it.map((model) => Entry.fromJson(model)));
+      Iterable models = jsonDecode(response);
+      return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }

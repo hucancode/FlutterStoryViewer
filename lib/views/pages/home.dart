@@ -8,9 +8,9 @@ import 'package:pop_experiment/models/qr_scan_payload.dart';
 import 'package:pop_experiment/models/entry_list.dart';
 import 'package:pop_experiment/services/entry_service.dart';
 import 'package:pop_experiment/services/notification_helper.dart';
+import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -55,28 +55,16 @@ class HomePageState extends State<HomePage> {
   Future<void> backgroundMessageHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
     print('Handling a background message ${message.messageId}');
+    String filterJson = message.data['filter']??'';
+    final filter = Filter.fromJson(jsonDecode(filterJson));
+    final profile = await ProfileManager().load();
+    if(!ProfileManager().applyFilter(filter, profile))
+    {
+      return;
+    }
     String title = message.data['title']??'Untitled';
     String description = message.data['description']??'No body';
     print('there is a message!! $title');
-    String filterJson = message.data['filter']??'';
-
-    final filter = Filter.fromJson(jsonDecode(filterJson));
-    
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final gender = (prefs.getBool('gender')?? true)?1:0;
-    final marriageStatus = prefs.getInt('marriage') ?? 0;
-
-    if(!filter.genders.contains(gender))
-    {
-      print("this message doens't match my gender");
-      return;
-    }
-    if(!filter.maritals.contains(marriageStatus))
-    {
-      print("this message doens't match my marriage status");
-      return;
-    }
-      
     NotificationHelper().send(title, description);
   }
 
@@ -85,32 +73,16 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> foregroundMessageHandler(RemoteMessage message) async {
-
+    String filterJson = message.data['filter']??'';
+    final filter = Filter.fromJson(jsonDecode(filterJson));
+    final profile = await ProfileManager().load();
+    if(!ProfileManager().applyFilter(filter, profile))
+    {
+      return;
+    }
     final entryID = int.parse(message.data['entryID']);
     print('there is a message!! $entryID, checking filter');
-    String filterJson = message.data['filter']??'';
-
-    final filter = Filter.fromJson(jsonDecode(filterJson));
-
-    
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final gender = (prefs.getBool('gender')?? true)?1:0;
-    final marital = prefs.getInt('marriage') ?? 0;
-
-    print("my gender = $gender, my marital = $marital");
-
-    if(!filter.genders.contains(gender))
-    {
-      print("this message doens't match my gender");
-      return;
-    }
-    if(!filter.maritals.contains(marital))
-    {
-      print("this message doens't match my marriage status");
-      return;
-    }
     final entry = await EntryService().fetchSingle(entryID);
-
     final provider = Provider.of<EntryList>(context, listen: false);
     provider.add(entry);
     print('fetched $entryID (${entry.title})');
