@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "522305729861",
+    "project_id": "pop-experiment",
+    "storage_bucket": "pop-experiment.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522305729861:android:fb55af0f02e2d5d2d13a2c",
+        "android_client_info": {
+          "package_name": "hucancode.popexperiment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "522305729861-43ho5mfchpqmlq988u1ku14eb740s0q2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAW1WR6XBFBFrAmgLnHEoRmlHliH9vrqF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "522305729861-43ho5mfchpqmlq988u1ku14eb740s0q2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "522305729861-e81kimi1usvd67v564ft1tpddd2iqmgs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "hucancode.popexperiment"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

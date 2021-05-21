@@ -27,6 +27,9 @@ class Message {
         date: DateTime.parse(json["createdAt"]),
         content: json["content"],
     );
+  factory Message.empty() => Message(
+        id: -1,
+    );
 
     Map<String, dynamic> toJson() => {
         "id": id,

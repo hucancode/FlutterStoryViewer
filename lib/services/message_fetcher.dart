@@ -76,4 +76,21 @@ class MessageFetcher {
     }
     return List<Message>.empty();
   }
+
+  Future<Message> fetchSingle(int id) async {
+    print("MessageFetcher fetch()");
+    try {
+      var uri = Uri.https(SERVER_ENDPOINT, READ_API+'/$id');
+      var response = await http.get(uri).timeout(Duration(seconds: 10));
+      //print('response(${response.statusCode}) = ${response.body}');
+      if (response.statusCode == 200)
+      {
+        var responseJson = jsonDecode(response.body);
+        return Message.fromJson(responseJson);
+      }
+    } on Exception catch (e) {
+      print('error while fetching json ${e.toString()}');
+    }
+    return Message.empty();
+  }
 }

@@ -1,9 +1,16 @@
+import 'dart:convert';
 import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
 import 'package:pop_experiment/models/message_list.dart';
+import 'package:pop_experiment/services/message_fetcher.dart';
+import 'package:pop_experiment/services/notification_helper.dart';
 import 'package:pop_experiment/views/widgets/message_list_view.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -41,6 +48,114 @@ class HomePageState extends State<HomePage> {
         default:
       }
     });
+    listenToFCM();
+  }
+
+
+  Future<void> backgroundMessageHandler(RemoteMessage message) async {
+    await Firebase.initializeApp();
+    print('Handling a background message ${message.messageId}');
+    String title = message.data['title']??'Untitled';
+    String description = message.data['description']??'No body';
+    print('there is a message!! $title');
+    String filterJson = message.data['filter']??'';
+
+    final filter = Filter.fromJson(jsonDecode(filterJson));
+
+    
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final gender = (prefs.getBool('gender')?? true)?1:0;
+    final marriageStatus = prefs.getInt('marriage') ?? 0;
+
+    if(!filter.genders.contains(gender))
+    {
+      print("this message doens't match my gender");
+      return;
+    }
+    if(!filter.maritals.contains(marriageStatus))
+    {
+      print("this message doens't match my marriage status");
+      return;
+    }
+      
+    NotificationHelper().scheduleNotification(title, description);
+  }
+
+  void foregroundMessageHandlerSync(RemoteMessage message) {
+    foregroundMessageHandler(message);
+  }
+
+  Future<void> foregroundMessageHandler(RemoteMessage message) async {
+
+    final entryID = int.parse(message.data['entryID']);
+    print('there is a message!! $entryID, fetching content');
+    String filterJson = message.data['filter']??'';
+
+    final filter = Filter.fromJson(jsonDecode(filterJson));
+
+    
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final gender = (prefs.getBool('gender')?? true)?1:0;
+    final marriageStatus = prefs.getInt('marriage') ?? 0;
+
+    if(!filter.genders.contains(gender))
+    {
+      print("this message doens't match my gender");
+      return;
+    }
+    if(!filter.maritals.contains(marriageStatus))
+    {
+      print("this message doens't match my marriage status");
+      return;
+    }
+    final entry = await MessageFetcher().fetchSingle(entryID);
+
+    final provider = Provider.of<MessageList>(context, listen: false);
+    provider.addMessage(entry);
+    print('fetched $entryID (${entry.title})');
+  }
+  
+
+  Future<void> listenToFCM() async
+  {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+    // Set the background messaging handler early on, as a named top-level function
+    FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    FirebaseMessaging.instance.getInitialMessage().then((fcmMessage) {
+      if (fcmMessage == null)
+      {
+        return;
+      }
+      print('you have unread message from fcm ${fcmMessage.messageId}');
+    });
+
+    FirebaseMessaging.onMessage.listen(foregroundMessageHandlerSync);
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage fcmMessage) {
+      final message = MessageFetcher().fetchSingle(int.parse(fcmMessage.data['entryID']));
+      Navigator.pushNamed(context, '/detail', arguments: message);
+    });
+
+    await FirebaseMessaging.instance.requestPermission(
+      announcement: true,
+      carPlay: true,
+      criticalAlert: true,
+    );
+    final token = await FirebaseMessaging.instance.getToken();
+    print("FCM token = $token");
+    FirebaseMessaging.instance.onTokenRefresh.listen((value) {
+      print("FCM token was renewed, $value");
+    });
+
+    await FirebaseMessaging.instance.subscribeToTopic('hucancode');
   }
 
   void selectCategory(int cat)

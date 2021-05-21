@@ -18,6 +18,9 @@ class MessageListEvent
 }
 
 class MessageList extends ChangeNotifier {
+  var availableId = 99;
+  static const DUMMY_TITLE = 'Integer quis mi a sit amet id turpis. ';
+  static const DUMMY_CONTENT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac vulputate est. Etiam a dolor vel sem dictum molestie. Morbi quis venenatis orci, eu euismod lorem. Proin rutrum odio vel luctus interdum. Suspendisse pellentesque orci rutrum semper sagittis. Integer quis mi a massa tempus luctus sit amet id turpis. Quisque facilisis sapien eu erat tincidunt commodo. Morbi sodales felis eu orci venenatis rutrum. Donec eu dictum ante, et varius sapien. Curabitur convallis erat leo, in sagittis nulla auctor sit amet. Maecenas a iaculis lacus.';
   List<Message> messages = [];
   var eventController = StreamController<MessageListEvent>.broadcast();
 
@@ -33,6 +36,12 @@ class MessageList extends ChangeNotifier {
   }
 
   Message readById(int id) => messages.singleWhere((element) => element.id == id);
+
+  void addMessage(Message message) {
+    messages.insert(0,message,);
+    notifyListeners();
+    eventController.add(MessageListEvent(MessageListEventType.insert, 0));
+  }
 
   void selectNone()
   {
