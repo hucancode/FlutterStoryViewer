@@ -12,5 +12,5 @@ class PrefectureList extends ChangeNotifier {
     notifyListeners();
   }
 
-  Prefecture readById(int id) => prefectures.firstWhere((element) => element.id == id, orElse: () => Prefecture(id: -1, title: "prefecture $id isn't exist"));
+  Prefecture readById(int id) => prefectures.firstWhere((element) => element.id == id, orElse: () => prefectures.first);
 }
