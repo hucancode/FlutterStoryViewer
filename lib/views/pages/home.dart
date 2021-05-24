@@ -56,7 +56,8 @@ class HomePageState extends State<HomePage> {
     await Firebase.initializeApp();
     print('Handling a background message ${message.messageId}');
     String filterJson = message.data['filter']??'';
-    final filter = Filter.fromJson(jsonDecode(filterJson));
+    final filterObj = jsonDecode(filterJson);
+    final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     if(!ProfileManager().applyFilter(filter, profile))
     {
@@ -74,14 +75,19 @@ class HomePageState extends State<HomePage> {
 
   Future<void> foregroundMessageHandler(RemoteMessage message) async {
     String filterJson = message.data['filter']??'';
-    final filter = Filter.fromJson(jsonDecode(filterJson));
+    final filterObj = jsonDecode(filterJson);
+    final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     if(!ProfileManager().applyFilter(filter, profile))
     {
       return;
     }
-    final entryID = int.parse(message.data['entryID']);
-    print('there is a message!! $entryID, checking filter');
+    final entryID = int.tryParse(message.data['entryID']);
+    print('there is a message!! $entryID');
+    if(entryID == null)
+    {
+      return;
+    }
     final entry = await EntryService().fetchSingle(entryID);
     final provider = Provider.of<EntryList>(context, listen: false);
     provider.add(entry);
