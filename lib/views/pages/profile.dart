@@ -94,7 +94,7 @@ class ProfileState extends State<ProfilePage> {
     final prefecture = provider.readById(profile.homeAddress);
     Widget editWidget = DropdownButton<int>(
       isExpanded: true,
-      value: profile.homeAddress,
+      value: prefecture.id,
       items: provider.prefectures.map((prefecture) 
       {
         return DropdownMenuItem(
@@ -120,7 +120,7 @@ class ProfileState extends State<ProfilePage> {
     final prefecture = provider.readById(profile.workAddress);
     Widget editWidget = DropdownButton<int>(
       isExpanded: true,
-      value: profile.workAddress,
+      value: prefecture.id,
       items: provider.prefectures.map((prefecture) 
       {
         return DropdownMenuItem(
