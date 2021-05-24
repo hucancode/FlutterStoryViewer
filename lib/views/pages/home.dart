@@ -54,13 +54,16 @@ class HomePageState extends State<HomePage> {
 
   Future<void> backgroundMessageHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
-    print('Handling a background message ${message.messageId}');
+    //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     String filterJson = message.data['filter']??'';
     final filterObj = jsonDecode(filterJson);
     final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
-    if(!ProfileManager().applyFilter(filter, profile))
+    final filterResult = ProfileManager().applyFilter(filter, profile);
+    if(filterResult != 0)
     {
+      //NotificationHelper().send("apply filter failed, no notification", "filter = ${message.data['filter']}");
+      //NotificationHelper().send("apply filter failed, no notification", "filterResult = $filterResult");
       return;
     }
     String title = message.data['title']??'Untitled';
@@ -78,10 +81,11 @@ class HomePageState extends State<HomePage> {
     final filterObj = jsonDecode(filterJson);
     final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
-    if(!ProfileManager().applyFilter(filter, profile))
+    if(ProfileManager().applyFilter(filter, profile) != 0)
     {
       return;
     }
+    //NotificationHelper().send("no notification", "there are no notification, because you are in foreground");
     final entryID = int.tryParse(message.data['entryID']);
     print('there is a message!! $entryID');
     if(entryID == null)

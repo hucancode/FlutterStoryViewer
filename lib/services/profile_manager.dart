@@ -1,5 +1,6 @@
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/profile.dart';
+import 'package:pop_experiment/services/notification_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const int SAVE_VERSION = 1;
@@ -42,18 +43,24 @@ class ProfileManager {
       model.workAddress = prefs.getInt('work_address') ?? 0;
       model.homeAddress = prefs.getInt('home_address') ?? 0;
     }
-    busy = false;
-  }
-
-  Future<Profile> load() async {
-    final model = Profile();
-    loadTo(model);
     print('loaded user prefs '
       'gender = ${model.gender}, '
       'marital = ${model.marital}, '
       'birthDay = ${model.birthDay}, '
       'workAddress = ${model.workAddress}, '
       'homeAddress = ${model.homeAddress}, ');
+    // NotificationHelper().send("loaded user prefs", 
+    //   'gender = ${model.gender}, '
+    //   'marital = ${model.marital}, '
+    //   'birthDay = ${model.birthDay}, '
+    //   'workAddress = ${model.workAddress}, '
+    //   'homeAddress = ${model.homeAddress}, ');
+    busy = false;
+  }
+
+  Future<Profile> load() async {
+    final model = Profile();
+    loadTo(model);
     return model;
   }
 
@@ -76,7 +83,7 @@ class ProfileManager {
     print("Profile was saved!!!!");
   }
 
-  bool applyFilter(Filter filter, Profile model)
+  int applyFilter(Filter filter, Profile model)
   {
     var matched = false;
     var failed = false;
@@ -85,36 +92,42 @@ class ProfileManager {
       (matched && filter.genderMode == FilterMode.exclude);
     if(failed)
     {
-      return false;
+      print('apply filter, return false because gender was not satified');
+      return 1;
     }
     filter.maritals.forEach((e) { matched |= e == model.marital;});
     failed = (!matched && filter.maritalMode == FilterMode.include) || 
       (matched && filter.maritalMode == FilterMode.exclude);
     if(failed)
     {
-      return false;
+      print('apply filter, return false because marital was not satified');
+      return 2;
     }
     filter.ages.forEach((e) { matched |= model.age >= e.start && model.age <= e.end;});
     failed = (!matched && filter.ageMode == FilterMode.include) || 
       (matched && filter.ageMode == FilterMode.exclude);
     if(failed)
     {
-      return false;
+      print('apply filter, return false because age was not satified');
+      return 3;
     }
     filter.workAddresses.forEach((e) { matched |= e == model.workAddress;});
     failed = (!matched && filter.workAddressMode == FilterMode.include) || 
       (matched && filter.workAddressMode == FilterMode.exclude);
     if(failed)
     {
-      return false;
+      print('apply filter, return false because work address was not satified');
+      return 4;
     }
     filter.homeAddresses.forEach((e) { matched |= e == model.homeAddress;});
     failed = (!matched && filter.homeAddressMode == FilterMode.include) || 
       (matched && filter.homeAddressMode == FilterMode.exclude);
     if(failed)
     {
-      return false;
+      print('apply filter, return false because home address was not satified');
+      return 5;
     }
-    return true;
+    print('apply filter, return true');
+    return 0;
   }
 }
