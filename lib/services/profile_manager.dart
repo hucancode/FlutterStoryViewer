@@ -12,7 +12,7 @@ class ProfileManager {
     return _instance;
   }
 
-  bool busy = true;
+  bool busy = false;
 
   void performUpgrade(int oldVersion, int newVersion)
   {
@@ -73,6 +73,7 @@ class ProfileManager {
     await prefs.setInt('work_address', model.workAddress);
     await prefs.setInt('home_address', model.homeAddress);
     busy = false;
+    print("Profile was saved!!!!");
   }
 
   bool applyFilter(Filter filter, Profile model)
