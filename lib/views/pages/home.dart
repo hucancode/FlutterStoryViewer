@@ -77,7 +77,10 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> foregroundMessageHandler(RemoteMessage message) async {
-    String filterJson = message.data['filter']??'';
+    String title = message.data['title']??message.notification?.title??"Untitled";
+    String description = message.data['description']??message.notification?.body??'No body';
+    String filterJson = message.data['filter']??'null';
+    //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     final filterObj = jsonDecode(filterJson);
     final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
@@ -85,7 +88,13 @@ class HomePageState extends State<HomePage> {
     {
       return;
     }
-    //NotificationHelper().send("no notification", "there are no notification, because you are in foreground");
+    showDialog(context: context, builder: (context)
+    {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(description)
+      );
+    });
     final entryID = int.tryParse(message.data['entryID']);
     print('there is a message!! $entryID');
     if(entryID == null)
