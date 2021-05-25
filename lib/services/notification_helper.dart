@@ -18,34 +18,28 @@ class NotificationHelper {
     {
       return;
     }
-    initialized = true;
     plugin.initialize(
       InitializationSettings(
-        android: AndroidInitializationSettings('app_icon'), 
-        iOS: IOSInitializationSettings(onDidReceiveLocalNotification: null)
-      ), 
-      onSelectNotification: null);
+        android: AndroidInitializationSettings('mipmap/ic_launcher'), 
+        iOS: IOSInitializationSettings()
+      ));
+    initialized = true;
   }
 
 
-  void send(String title, String subtitle) {
+  void send(String title, String body, {String? payload}) {
     initialize();
-    print("scheduling notification with $title and $subtitle");
-    var rng = new Random();
-    Future.delayed(Duration(seconds: 1)).then((result) async {
-      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-          'pop_experiment', 'Pop Experiment', 'default channel for pop application',
-          importance: Importance.high,
-          priority: Priority.high,
-          ticker: 'ticker');
-      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-      var platformChannelSpecifics = NotificationDetails(
-          android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics);
-      await plugin.show(
-          rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
-          payload: 'item x');
-    });
+    print("sending notification with $title and $body");
+    final rng = Random();
+    final androidDetail = AndroidNotificationDetails(
+        'pop_experiment', 'Pop Experiment', 'default channel for pop application',
+        importance: Importance.max,
+        priority: Priority.max,);
+    final iOSDetail = IOSNotificationDetails();
+    final defail = NotificationDetails(
+        android: androidDetail,
+        iOS: iOSDetail);
+    plugin.show(rng.nextInt(100000), title, body, defail, payload: payload);
   }
 
 }
