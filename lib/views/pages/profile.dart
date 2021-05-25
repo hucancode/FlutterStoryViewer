@@ -143,7 +143,7 @@ class ProfileState extends State<ProfilePage> {
   ListTile buildBirthday() {
     final profile = Provider.of<Profile>(context);
     final format = DateFormat('dd/M/yyyy');
-    final birthDayStr = format.format(profile.birthDay);
+    final birthDayStr = '${format.format(profile.birthDay)} (${profile.age} years old)';
 
     Widget editWidget = TextButton(
       onPressed: (){
