@@ -123,8 +123,15 @@ class HomePageState extends State<HomePage> {
     FirebaseMessaging.onMessage.listen(foregroundMessageHandlerSync);
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage fcmMessage) {
-      final message = EntryService().fetchSingle(int.parse(fcmMessage.data['entryID']));
-      Navigator.pushNamed(context, '/detail', arguments: message);
+      final id = int.tryParse(fcmMessage.data['entryID']);
+      if(id == null)
+      {
+        return;
+      }
+      EntryService().fetchSingle(id).then((message) 
+      {
+        Navigator.pushNamed(context, '/detail', arguments: message);
+      });
     });
 
     await FirebaseMessaging.instance.requestPermission(
