@@ -48,7 +48,7 @@ class MasterPageState extends State<MasterPage> {
         index: currentTab,
         children: [
           HomeNavigator(heroController: homeHeroController),
-          PrivateMessagesNavigator(heroController: pmHeroController),
+          //PrivateMessagesNavigator(heroController: pmHeroController),
           MapNavigator(),
           ProfileNavigator(),
         ],
@@ -62,10 +62,10 @@ class MasterPageState extends State<MasterPage> {
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.mail),
-            label: 'Messages',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.mail),
+          //   label: 'Messages',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
             label: 'Map',
