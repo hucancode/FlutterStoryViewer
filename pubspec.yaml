@@ -32,13 +32,13 @@ dependencies:
   google_maps_flutter: ^2.0.5
   beacons_plugin: ^2.0.0
   flutter_geofence: ^0.4.1
-  webview_flutter: ^2.0.4
-  flutter_markdown: ^0.6.1
+  webview_flutter: ^2.0.7
+  flutter_markdown: ^0.6.2
   animations: ^2.0.0
   flutter_slidable: ^0.6.0
-  cached_network_image: ^3.0.0-nullsafety
+  cached_network_image: ^3.0.0
   shared_preferences: ^2.0.5
-  flutter_local_notifications: ^5.0.0+1
+  flutter_local_notifications: ^6.0.0
   qrscan: ^0.3.1
   firebase_messaging: ^10.0.0
   firebase_core: ^1.2.0
