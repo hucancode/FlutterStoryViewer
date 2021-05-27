@@ -77,18 +77,21 @@ class ProfileState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Spacer(flex: 1,),
           buildAvatar(),
+          Spacer(flex: 1,),
           buildGender(),
           buildMariageStatus(context),
           buildBirthday(),
           buildLocation(),
           buildHometown(),
+          Spacer(flex: 2,),
         ],
       ),
     );
   }
 
-  ListTile buildHometown() {
+  Widget buildHometown() {
     final provider = Provider.of<PrefectureList>(context);
     final profile = Provider.of<Profile>(context);
     final prefecture = provider.readById(profile.homeAddress);
@@ -114,7 +117,7 @@ class ProfileState extends State<ProfilePage> {
     );
   }
 
-  ListTile buildLocation() {
+  Widget buildLocation() {
     final provider = Provider.of<PrefectureList>(context);
     final profile = Provider.of<Profile>(context);
     final prefecture = provider.readById(profile.workAddress);
@@ -140,7 +143,7 @@ class ProfileState extends State<ProfilePage> {
     );
   }
 
-  ListTile buildBirthday() {
+  Widget buildBirthday() {
     final profile = Provider.of<Profile>(context);
     final format = DateFormat('dd/M/yyyy');
     final birthDayStr = '${format.format(profile.birthDay)} (${profile.age} years old)';
@@ -168,7 +171,7 @@ class ProfileState extends State<ProfilePage> {
     );
   }
 
-  Padding buildAvatar() {
+  Widget buildAvatar() {
     const maleAvatars = [
       "avatar_male_0",
       "avatar_male_1",
@@ -189,18 +192,15 @@ class ProfileState extends State<ProfilePage> {
     final avatars = [maleAvatars, femaleAvatars];
     final int ageTier = min(max((profile.age - 5) ~/ 10, 0), min(maleAvatars.length, femaleAvatars.length));
     final avatar = avatars[profile.gender.index][ageTier];
-    return Padding(
-      child: SizedBox(
-        height: 150,
-        child: ClipOval(
-          child: Image.asset('assets/$avatar.png'),
-        ),
+    return SizedBox(
+      height: 150,
+      child: ClipOval(
+        child: Image.asset('assets/$avatar.png'),
       ),
-      padding: EdgeInsets.symmetric(vertical: 50),
     );
   }
 
-  ListTile buildGender() {
+  Widget buildGender() {
     final profile = Provider.of<Profile>(context);
 
     int itemCount = 2;
@@ -246,7 +246,7 @@ class ProfileState extends State<ProfilePage> {
     );
   }
 
-  ListTile buildMariageStatus(BuildContext context) {
+  Widget buildMariageStatus(BuildContext context) {
     final profile = Provider.of<Profile>(context);
     int itemCount = 3;
     
