@@ -218,28 +218,20 @@ class ProfileState extends State<ProfilePage> {
     selected[profile.gender.index] = true;
     Widget editWidget = ToggleButtons(
       isSelected: selected,
-      children: [
+      children: Gender.values.map((e) => 
         Container(
-          alignment: Alignment.center,
-          width: itemWidth,
-          height: itemHeight,
-          child: Text("Male"),
-        ),
-        Container(
-          alignment: Alignment.center,
-          width: itemWidth,
-          height: itemHeight,
-          child: Text("Female"),
-        ),
-      ],
+            width: itemWidth,
+            height: itemHeight,
+            alignment: Alignment.center,
+            child: Text(e.toString().split('.').last),
+        )).toList(),
       onPressed: (int index) {
         setState(() {
           profile.gender = Gender.values[index];
         });
       },
     );
-    final genderString = profile.gender==Gender.male?'Male':'Female';
-    Widget displayWidget = Text(genderString);
+    Widget displayWidget = Text(profile.gender.toString().split('.').last);
     return ListTile(
       leading: Icon(Icons.emoji_emotions, size: iconSize),
       title: editMode ? editWidget : displayWidget,
@@ -263,32 +255,20 @@ class ProfileState extends State<ProfilePage> {
     selected[profile.marital.index] = true;
     Widget editWidget = ToggleButtons(
       isSelected: selected,
-      children: [
+      children: Marital.values.map((e) => 
         Container(
             width: itemWidth,
             height: itemHeight,
             alignment: Alignment.center,
-            child: Text("Single Dog")),
-        Container(
-            width: itemWidth,
-            height: itemHeight,
-            alignment: Alignment.center,
-            child: Text("Married")),
-        Container(
-            width: itemWidth,
-            height: itemHeight,
-            alignment: Alignment.center,
-            child: Text("Divorced")),
-      ],
+            child: Text(e.toString().split('.').last),
+        )).toList(),
       onPressed: (int index) {
         setState(() {
           profile.marital = Marital.values[index];
         });
       },
     );
-    final marriageStatusString = profile.marital==Marital.single?'Single':
-    profile.marital==Marital.married?'Married':'Divorced';
-    Widget displayWidget = Text(marriageStatusString);
+    Widget displayWidget = Text(profile.marital.toString().split('.').last);
 
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: contentPadding),
