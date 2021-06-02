@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pop_experiment/services/beacon_helper.dart';
-import 'package:pop_experiment/services/geofence_helper.dart';
-import 'package:pop_experiment/services/notification_helper.dart';
+import 'package:pop_experiment/services/beacon_service.dart';
+import 'package:pop_experiment/services/geofence_service.dart';
+import 'package:pop_experiment/services/notification_service.dart';
 
 class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
@@ -41,7 +41,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     Geofence.startListening(GeolocationEvent.entry, (location)
     {
       print("Entry of a georegion ${location.id}");
-      NotificationHelper().send("Entry of a georegion", "Welcome to: ${location.id}");
+      NotificationService().send("Entry of a georegion", "Welcome to: ${location.id}");
     });
     if(USE_LOCATION_LIBRARY)
     {
@@ -91,7 +91,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     lastKnownLocation = location;
     //print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().send("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-    final shouldUpdate = GeofenceHelper().distance(lastKnownLocation, fencePivot) > GeofenceHelper.GEOFENCE_SCAN_RADIUS*0.8;
+    final shouldUpdate = GeofenceService().distance(lastKnownLocation, fencePivot) > GeofenceService.GEOFENCE_SCAN_RADIUS*0.8;
     if(shouldUpdate)
     {
       updateFences(location: lastKnownLocation);
@@ -130,14 +130,15 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
 
   }
 
-  void updateFences({required Coordinate location, double radius = GeofenceHelper.GEOFENCE_SCAN_RADIUS})
+  void updateFences({required Coordinate location, double radius = GeofenceService.GEOFENCE_SCAN_RADIUS})
   {
     final start = DateTime.now();
     print('updateFences');
     Geofence.removeAllGeolocations();
-    final fences = GeofenceHelper().getNearByGeofences(location: location, radius: radius);
+    final fences = GeofenceService().getNearByGeofences(location: location, radius: radius);
     fences.forEach((fence) {
-      Geofence.addGeolocation(fence, GeolocationEvent.entry).then((onValue) {
+      final geolocation = Geolocation(latitude: fence.latitude, longitude: fence.longitude, radius: fence.radius, id: fence.id.toString());
+      Geofence.addGeolocation(geolocation, GeolocationEvent.entry).then((onValue) {
         print("Your geofence has been added! ${fence.id}");
       }).catchError((error) {
           print("Geofence adding failed with $error");
@@ -146,7 +147,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     setState(() {
       fenceCircles = fences.map((fence) {
         return Circle(
-          circleId: CircleId(fence.id),
+          circleId: CircleId(fence.id.toString()),
           center: LatLng(fence.latitude, fence.longitude),
           radius: fence.radius,
           strokeWidth: 1,
@@ -221,7 +222,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
               controller: distanceCtrl,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Filter Distance (default to ${GeofenceHelper.GEOFENCE_SCAN_RADIUS})'
+                hintText: 'Filter Distance (default to ${GeofenceService.GEOFENCE_SCAN_RADIUS})'
               ),
             ),
           ),
@@ -231,7 +232,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
               controller: fenceCountCtrl,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Geofence Count (default to ${GeofenceHelper.FAKE_GEOFENCE_COUNT})'
+                hintText: 'Geofence Count (default to ${GeofenceService.FAKE_GEOFENCE_COUNT})'
               ),
             ),
           ),
@@ -252,7 +253,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       final distance = double.parse(distanceCtrl.text);
       assert(count is int);
       assert(distance is double);
-      GeofenceHelper().generateFakeGeofence(count);
+      GeofenceService().generateFakeGeofence(count);
       Location().getLocation().then((value)
       {
         updateFences(location: Coordinate(value.latitude??DEFAULT_LAT, value.longitude??DEFAULT_LONG), radius: distance);

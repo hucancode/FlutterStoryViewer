@@ -1,17 +1,17 @@
 import 'dart:math';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-class NotificationHelper {
+class NotificationService {
 
-  static final NotificationHelper _instance = NotificationHelper._privateConstructor();
-  NotificationHelper._privateConstructor();
+  static final NotificationService _instance = NotificationService._privateConstructor();
+  NotificationService._privateConstructor();
 
-  factory NotificationHelper() {
+  factory NotificationService() {
     return _instance;
   }
   
   final plugin = FlutterLocalNotificationsPlugin();
-  bool initialized = false;// TODO: use completer
+  bool initialized = false;
 
   void initialize() {
     if(initialized)

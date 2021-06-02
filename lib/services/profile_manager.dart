@@ -1,6 +1,6 @@
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/profile.dart';
-import 'package:pop_experiment/services/notification_helper.dart';
+import 'package:pop_experiment/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const int SAVE_VERSION = 1;

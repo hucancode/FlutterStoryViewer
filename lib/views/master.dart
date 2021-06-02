@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pop_experiment/services/geofence_helper.dart';
-import 'package:pop_experiment/services/notification_helper.dart';
+import 'package:pop_experiment/services/geofence_service.dart';
+import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/views/navigators/map_navigator.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/navigators/home_navigator.dart';
@@ -36,8 +36,8 @@ class MasterPageState extends State<MasterPage> {
 
   @override
   void initState() {
-    GeofenceHelper().initialize();
-    NotificationHelper().initialize();
+    GeofenceService().initialize();
+    NotificationService().initialize();
     super.initState();
   }
 

@@ -7,7 +7,7 @@ import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
 import 'package:pop_experiment/models/entry_list.dart';
 import 'package:pop_experiment/services/entry_service.dart';
-import 'package:pop_experiment/services/notification_helper.dart';
+import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +57,7 @@ class HomePageState extends State<HomePage> {
     //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     String filterJson = message.data['filter']??'';
     final filterObj = jsonDecode(filterJson);
-    final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
+    final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     final filterResult = ProfileManager().applyFilter(filter, profile);
     if(filterResult != 0)
@@ -69,7 +69,7 @@ class HomePageState extends State<HomePage> {
     String title = message.data['title']??'Untitled';
     String description = message.data['description']??'No body';
     print('there is a message!! $title');
-    NotificationHelper().send(title, description);
+    NotificationService().send(title, description);
   }
 
   void foregroundMessageHandlerSync(RemoteMessage message) {
@@ -82,7 +82,7 @@ class HomePageState extends State<HomePage> {
     String filterJson = message.data['filter']??'null';
     //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     final filterObj = jsonDecode(filterJson);
-    final filter = filterObj == null?Filter.empty():Filter.fromJson(filterObj);
+    final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     if(ProfileManager().applyFilter(filter, profile) != 0)
     {

@@ -27,19 +27,19 @@ class Filter
   bool isSelected;
 
   Filter({
-    required this.id,
+    this.id = -1,
     this.title,
-    required this.genderMode,
-    required this.genders,
-    required this.maritalMode,
-    required this.maritals,
-    required this.workAddressMode,
-    required this.workAddresses,
-    required this.homeAddressMode,
-    required this.homeAddresses,
-    required this.ageMode,
-    required this.ages,
-    required this.authorID,
+    this.genderMode = FilterMode.ignore,
+    this.genders = const [],
+    this.maritalMode = FilterMode.ignore,
+    this.maritals = const [],
+    this.workAddressMode = FilterMode.ignore,
+    this.workAddresses = const [],
+    this.homeAddressMode = FilterMode.ignore,
+    this.homeAddresses = const [],
+    this.ageMode = FilterMode.ignore,
+    this.ages = const [],
+    this.authorID = -1,
     this.isSelected = false
   });
 
@@ -48,35 +48,7 @@ class Filter
     return Filter(
         id: json["id"],
         title: json["title"],
-        genderMode: FilterMode.ignore,
-        maritalMode: FilterMode.ignore,
-        workAddressMode: FilterMode.ignore,
-        homeAddressMode: FilterMode.ignore,
-        ageMode: FilterMode.ignore, 
         authorID: 1,
-        genders: [],
-        maritals: [], 
-        ages: [], 
-        homeAddresses: [], 
-        workAddresses: [],
-    );
-  }
-
-  factory Filter.empty()
-  {
-    return Filter(
-        id: -1,
-        genderMode: FilterMode.ignore,
-        maritalMode: FilterMode.ignore,
-        workAddressMode: FilterMode.ignore,
-        homeAddressMode: FilterMode.ignore,
-        ageMode: FilterMode.ignore, 
-        genders: [],
-        maritals: [], 
-        ages: [], 
-        homeAddresses: [], 
-        workAddresses: [],
-        authorID: -1,
     );
   }
 
@@ -129,27 +101,27 @@ class Filter
     Map<String, dynamic> ret = {};
     ret["id"] = id;
     ret["title"] = title;
-    ret["genderMode"] = genderMode;
+    ret["genderMode"] = genderMode.index;
     if(genderMode != FilterMode.ignore)
     {
       ret["genders"] = genders.map((e) => e.index).toList();
     }
-    ret["maritalMode"] = maritalMode;
+    ret["maritalMode"] = maritalMode.index;
     if(maritalMode != FilterMode.ignore)
     {
       ret["maritals"] = maritals.map((e) => e.index).toList();
     }
-    ret["ageMode"] = ageMode;
+    ret["ageMode"] = ageMode.index;
     if(ageMode != FilterMode.ignore)
     {
       ret["ages"] = ages.map((e) => {"min": e.start, "max": e.end}).toList();
     }
-    ret["workAddressMode"] = workAddressMode;
+    ret["workAddressMode"] = workAddressMode.index;
     if(workAddressMode != FilterMode.ignore)
     {
       ret["workAddresses"] = workAddresses;
     }
-    ret["homeAddressMode"] = homeAddressMode;
+    ret["homeAddressMode"] = homeAddressMode.index;
     if(homeAddressMode != FilterMode.ignore)
     {
       ret["homeAddresses"] = homeAddresses;

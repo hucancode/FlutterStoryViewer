@@ -1,34 +1,35 @@
-class Beacon
+class Geofence
 {
   int id;
-  String uuid;
   String? title;
-  String? icon;
-  String? banner;
   DateTime? createdDate;
   DateTime? modifiedDate;
-  int authorID;
+  double latitude;
+  double longitude;
+  double radius;
   bool isSelected;
+  int authorID;
 
-  Beacon({
+  Geofence({
     this.id = -1,
-    this.uuid = "-",
     this.title,
-    this.icon,
-    this.banner,
     this.createdDate,
     this.modifiedDate,
+    this.latitude = 0,
+    this.longitude = 0,
+    this.radius = 0,
     this.authorID = -1,
+    
     this.isSelected = false
   });
-  factory Beacon.fromJson(Map<String, dynamic> json) => Beacon(
+  factory Geofence.fromJson(Map<String, dynamic> json) => Geofence(
       id: json["id"],
-      uuid: json["uuid"],
       title: json["title"],
-      icon: json["icon"],
-      banner: json["banner"],
       createdDate: DateTime.parse(json["createdAt"]),
       modifiedDate: DateTime.parse(json["modifiedAt"]),
+      latitude: json["latitude"],
+      longitude: json["longitude"],
+      radius: json["radius"],
       authorID: json["authorID"],
   );
 
@@ -36,10 +37,10 @@ class Beacon
   {
     Map<String, dynamic> ret = {};
     ret["id"] = id;
-    ret["uuid"] = uuid;
     ret["title"] = title;
-    ret["icon"] = icon;
-    ret["banner"] = banner;
+    ret["latitude"] = latitude;
+    ret["longitude"] = longitude;
+    ret["radius"] = radius;
     ret["authorID"] = authorID;
     return ret;
   }
@@ -47,10 +48,10 @@ class Beacon
   Map<String, dynamic> toShortJson()
   {
     Map<String, dynamic> ret = {};
-    ret["uuid"] = uuid;
     ret["title"] = title;
-    ret["icon"] = icon;
-    ret["banner"] = banner;
+    ret["latitude"] = latitude;
+    ret["longitude"] = longitude;
+    ret["radius"] = radius;
     ret["authorID"] = authorID;
     return ret;
   }

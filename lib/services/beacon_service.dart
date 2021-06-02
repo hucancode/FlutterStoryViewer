@@ -6,17 +6,17 @@ import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/beacon.dart';
 
-class BeaconHelper {
+class BeaconService {
 
   static const LOCAL_CACHE = 'beacons.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/beacon/read';
   static const DEFAULT_BEACON_NAME = "MyBeacon";
-  static final BeaconHelper _instance = BeaconHelper._privateConstructor();
-  BeaconHelper._privateConstructor();
+  static final BeaconService _instance = BeaconService._privateConstructor();
+  BeaconService._privateConstructor();
 
-  factory BeaconHelper() {
+  factory BeaconService() {
     return _instance;
   }
 
@@ -39,11 +39,11 @@ class BeaconHelper {
   Future<void> registerAllBeacons() async {
     await BeaconsPlugin.clearRegions();
     beacons.forEach((beacon) {
-      registerBeacon(beacon.uuid, title: beacon.title);
+      registerBeacon(beacon.uuid, beacon.title??DEFAULT_BEACON_NAME);
     });
   }
 
-  Future<void> registerBeacon(String uuid, {String title = DEFAULT_BEACON_NAME}) async {
+  Future<void> registerBeacon(String uuid, String title) async {
     await initialize();
     await BeaconsPlugin.addRegion(title, uuid);
   }
@@ -101,7 +101,7 @@ class BeaconHelper {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable it = json.decode(response);
-      beacons = List<Beacon>.from(it.map((model) => jsonToBeacon(model)));
+      beacons = List<Beacon>.from(it.map((model) => Beacon.fromJson(model)));
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
@@ -122,20 +122,12 @@ class BeaconHelper {
       if (response.statusCode == 200)
       {
         Iterable it = jsonDecode(response.body);
-        beacons = List<Beacon>.from(it.map((model) => jsonToBeacon(model)));
+        beacons = List<Beacon>.from(it.map((model) => Beacon.fromJson(model)));
         writeToCache(it);
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
     registerAllBeacons();
-  }
-
-  Beacon jsonToBeacon(Map<String, dynamic> json)
-  {
-    return Beacon(
-      json["uuid"].toString(), 
-      json["title"].toString()
-      );
   }
 }
