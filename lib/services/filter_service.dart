@@ -5,13 +5,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/services/server_config.dart';
 
+// TODO: merge services and provider to one, name it as Service
+
 class FilterService {
 
   static const LOCAL_CACHE = 'filters.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/filter/read';
-  static const CREATE_API = '/filter/create';
-  static const UPDATE_API = '/filter/update';
 
   static final FilterService _instance = FilterService._privateConstructor();
   FilterService._privateConstructor();
@@ -20,6 +20,9 @@ class FilterService {
     return _instance;
   }
 
+  var filters = List<Filter>.empty(growable: true);
+  var ready = true;
+
   Future<File> get cacheFile async {
     final directory = await getApplicationDocumentsDirectory();
     final fullPath = '${directory.path}/$LOCAL_CACHE';
@@ -27,7 +30,16 @@ class FilterService {
     return File(fullPath);
   }
 
-  Future<List<Filter>> readOrFetch() async {
+  Future<void> ensureReady() async
+  {
+    while(!ready)
+    {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  Future<void> readOrFetch() async {
+    return await fetch();
     try
     {
       final file = await cacheFile;
@@ -43,55 +55,78 @@ class FilterService {
     return await fetch();
   }
 
-  Future<List<Filter>> readFromCache() async {
-    print("GeofenceHelper readFromCache()");
+  Future<void> readFromCache() async {
+    ready = false;
+    print("FilterService readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      Iterable it = json.decode(response);
-      return List<Filter>.from(it.map((model) => Filter.fromJson(model)));
+      Iterable models = json.decode(response);
+      filters = models.map((model) => Filter.fromJson(model)).toList();
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Filter>.empty();
+    ready = true;
   }
 
   Future<void> writeToCache(dynamic jsonData) async {
     final file = await cacheFile;
-    file.writeAsString(jsonEncode(jsonData));
+    file.writeAsString(json.encode(jsonData));
   }
 
-  Future<List<Filter>> fetch() async {
-    print("FilterFetcher fetch()");
+  Future<void> fetch() async {
+    ready = false;
+    print("FilterService fetch()");
     try {
       final uri = Uri.parse('${ServerConfig.ENDPOINT}$READ_API');
       final response = await http.get(uri).timeout(Duration(seconds: ServerConfig.TIMEOUT_IN_SECOND));
       if (response.statusCode == 200)
       {
-        final responseJson = jsonDecode(response.body);
+        var responseJson = json.decode(response.body);
+        //print('responseJson = $responseJson');
         Iterable models = responseJson['data'];
-        print('FilterFetcher, got ${models.length}');
-        return models.map((model) => Filter.fromShortJson(model)).toList();
+        writeToCache(models);
+        filters = models.map((model) => Filter.fromShortJson(model)).toList();
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Filter>.empty();
+    filters.forEach((e) {
+      fetchSingleJSON(e.id).then((value) => e.reloadFromJson(value));
+    });
+    ready = true;
   }
 
-  Future<Filter> fetchSingle(int id) async {
-    print("FilterFetcher fetch()");
+  Future<Map<String, dynamic>> fetchSingleJSON(int id) async {
+    //print("FilterService fetchSingleJSON()");
     try {
       final uri = Uri.parse('${ServerConfig.ENDPOINT}$READ_API/$id');
       final response = await http.get(uri).timeout(Duration(seconds: ServerConfig.TIMEOUT_IN_SECOND));
       if (response.statusCode == 200)
       {
-        final responseJson = jsonDecode(response.body);
-        return Filter.fromJson(responseJson);
+        final responseJson = json.decode(response.body);
+        responseJson["isFullyLoaded"] = true;
+        return responseJson;
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
+    return Map<String, dynamic>();
+  }
+
+  Future<Filter> fetchSingle(int id) async {
+    //print("FilterService fetchSingle()");
+    try {
+      final responseJson = await fetchSingleJSON(id);
+      return Filter.fromJson(responseJson);
+    } on Exception catch (e) {
+      print('error while fetching json ${e.toString()}');
+    }
     return Filter();
+  }
+
+  Filter readById(int id) {
+    final filter = filters.singleWhere((e) => e.id == id, orElse: () => Filter());
+    return filter;
   }
 }

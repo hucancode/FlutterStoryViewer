@@ -29,7 +29,7 @@ class Geofence
       modifiedDate: DateTime.parse(json["modifiedAt"]),
       latitude: json["latitude"],
       longitude: json["longitude"],
-      radius: json["radius"],
+      radius: json["radius"] + .0,
       authorID: json["authorID"],
   );
 

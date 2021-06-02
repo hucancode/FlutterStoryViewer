@@ -26,6 +26,7 @@ class PrefectureService {
   }
 
   Future<List<Prefecture>> readOrFetch() async {
+    return await fetch();
     try
     {
       final file = await cacheFile;
@@ -46,7 +47,7 @@ class PrefectureService {
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      Iterable models = jsonDecode(response);
+      Iterable models = json.decode(response);
       return models.map((model) => Prefecture.fromJson(model)).toList();
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
@@ -56,18 +57,18 @@ class PrefectureService {
 
   Future<void> writeToCache(dynamic jsonData) async {
     final file = await cacheFile;
-    file.writeAsString(jsonEncode(jsonData));
+    file.writeAsString(json.encode(jsonData));
   }
 
   Future<List<Prefecture>> fetch() async {
-    print("EntryService fetch()");
+    print("PrefectureService fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
       var response = await http.get(uri).timeout(Duration(seconds: 10));
       //print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {
-        Iterable models = jsonDecode(response.body);
+        Iterable models = json.decode(response.body);
         writeToCache(models);
         return models.map((model) => Prefecture.fromJson(model)).toList();
       }

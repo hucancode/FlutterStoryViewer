@@ -4,6 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/models/entry_list.dart';
+import 'package:pop_experiment/models/profile.dart';
+import 'package:pop_experiment/services/filter_service.dart';
+import 'package:pop_experiment/services/geofence_history.dart';
+import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -127,16 +131,43 @@ class EntryListViewState extends State<EntryListView> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = Provider.of<EntryList>(context).entries;
-    print('build message_list ${messages.length}');
+    final entries = Provider.of<EntryList>(context).entries;
+    final profile = Provider.of<Profile>(context);
+    ProfileManager().loadTo(profile);
+    final geofenceHistory = Provider.of<GeofenceHistory>(context);
+    final filteredEntries = entries.where((e) {
+      if(e.filterID is int)
+      {
+        final filter = FilterService().readById(e.filterID!);
+        final error = ProfileManager().applyFilter(filter, profile);
+        if(error != 0)
+        {
+          print('entry filtered out, filter result = $error');
+          return false;
+        }
+      }
+      if(e.geofences.isNotEmpty)
+      {
+        // if(!e.geofences.any((fence) => geofenceHistory.history.contains(fence)))
+        // {
+        //   return false;
+        // }
+      }
+      if(e.beacons.isNotEmpty)
+      {
+        // do beacon test
+      }
+      return true;
+    }).toList();
+    print('build message_list ${entries.length}');
     return Expanded(
         child: AnimatedList(
             key: listRef,
-            initialItemCount: messages.length,
+            initialItemCount: entries.length,
             itemBuilder: (context, index, animation) {
               return FadeTransition(
                 opacity: animation,
-                child: buildItem(messages[index], context),
+                child: buildItem(entries[index], context),
               );
             }));
   }

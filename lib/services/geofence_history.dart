@@ -36,8 +36,8 @@ class GeofenceHistory extends ChangeNotifier {
 
   Future<void> save() async {
     final file = await cacheFile;
-    var jsonData = jsonEncode(history);
-    file.writeAsString(jsonEncode(jsonData));
+    var jsonData = json.encode(history);
+    file.writeAsString(json.encode(jsonData));
   }
 
   void add(int entry)

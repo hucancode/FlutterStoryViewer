@@ -37,11 +37,13 @@ class ProfileManager {
     }
     else
     {
+      model.beginEdit();
       model.gender = Gender.values[prefs.getInt('gender') ?? 0];
       model.marital = Marital.values[prefs.getInt('marital') ?? 0];
       model.birthDay = DateTime.tryParse(prefs.getString('birthday') ?? "")??DateTime.now();
       model.workAddress = prefs.getInt('work_address') ?? 0;
       model.homeAddress = prefs.getInt('home_address') ?? 0;
+      model.endEdit();
     }
     print('loaded user prefs '
       'gender = ${model.gender}, '
@@ -85,6 +87,7 @@ class ProfileManager {
 
   int applyFilter(Filter filter, Profile model)
   {
+    print("applyFilter ${filter.genders[0]}, ${model.gender}");
     var matched = false;
     var failed = false;
     filter.genders.forEach((e) { matched |= e == model.gender;});
@@ -92,7 +95,7 @@ class ProfileManager {
       (matched && filter.genderMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter, return false because gender was not satified');
+      print('apply filter ${filter.title}, return false because gender was not satified');
       return 1;
     }
     filter.maritals.forEach((e) { matched |= e == model.marital;});
@@ -100,7 +103,7 @@ class ProfileManager {
       (matched && filter.maritalMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter, return false because marital was not satified');
+      print('apply filter ${filter.title}, return false because marital was not satified');
       return 2;
     }
     filter.ages.forEach((e) { matched |= model.age >= e.start && model.age <= e.end;});
@@ -108,7 +111,7 @@ class ProfileManager {
       (matched && filter.ageMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter, return false because age was not satified');
+      print('apply filter ${filter.title}, return false because age was not satified');
       return 3;
     }
     filter.workAddresses.forEach((e) { matched |= e == model.workAddress;});
@@ -116,7 +119,7 @@ class ProfileManager {
       (matched && filter.workAddressMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter, return false because work address was not satified');
+      print('apply filter ${filter.title}, return false because work address was not satified');
       return 4;
     }
     filter.homeAddresses.forEach((e) { matched |= e == model.homeAddress;});
@@ -124,10 +127,10 @@ class ProfileManager {
       (matched && filter.homeAddressMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter, return false because home address was not satified');
+      print('apply filter ${filter.title}, return false because home address was not satified');
       return 5;
     }
-    print('apply filter, return true');
+    print('apply filter ${filter.title}, return true');
     return 0;
   }
 }

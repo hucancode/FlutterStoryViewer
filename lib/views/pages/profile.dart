@@ -77,15 +77,15 @@ class ProfileState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Spacer(flex: 1,),
+          Spacer(flex: 1),
           buildAvatar(),
-          Spacer(flex: 1,),
+          Spacer(flex: 1),
           buildGender(),
           buildMariageStatus(context),
           buildBirthday(),
           buildLocation(),
           buildHometown(),
-          Spacer(flex: 2,),
+          Spacer(flex: 1),
         ],
       ),
     );

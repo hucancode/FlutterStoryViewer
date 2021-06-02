@@ -1,7 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/entry.dart';
+import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/filter_service.dart';
+import 'package:pop_experiment/services/geofence_history.dart';
+import 'package:pop_experiment/services/profile_manager.dart';
+
+// TODO: merge services and provider to one, name it as Service
 
 enum EntryListEventType
 {
@@ -18,6 +24,7 @@ class EntryListEvent
 
 class EntryList extends ChangeNotifier {
   List<Entry> entries = [];
+  List<Entry> filteredEntries = [];
   var eventController = StreamController<EntryListEvent>.broadcast();
 
   Future<void> load() async

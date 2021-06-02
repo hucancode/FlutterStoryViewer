@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/views/navigators/map_navigator.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/navigators/home_navigator.dart';
-import 'package:pop_experiment/views/navigators/pm_navigator.dart';
 import 'package:pop_experiment/views/navigators/profile_navigator.dart';
 import 'package:pop_experiment/views/pages/private_messages.dart';
 
@@ -21,7 +21,6 @@ class MasterPageState extends State<MasterPage> {
   //HeroController profileHeroController;
 
   var homeRef = GlobalKey<NavigatorState>();
-  var pmRef = GlobalKey<NavigatorState>();
   var qrRef = GlobalKey<NavigatorState>();
   var mapRef = GlobalKey<NavigatorState>();
   var profileRef = GlobalKey<NavigatorState>();
@@ -36,6 +35,7 @@ class MasterPageState extends State<MasterPage> {
 
   @override
   void initState() {
+    FilterService().readOrFetch();
     GeofenceService().initialize();
     NotificationService().initialize();
     super.initState();
@@ -62,10 +62,6 @@ class MasterPageState extends State<MasterPage> {
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.mail),
-          //   label: 'Messages',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
             label: 'Map',

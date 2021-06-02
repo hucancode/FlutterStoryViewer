@@ -110,7 +110,7 @@ class BeaconService {
 
   Future<void> writeToCache(dynamic jsonData) async {
     final file = await cacheFile;
-    file.writeAsString(jsonEncode(jsonData));
+    file.writeAsString(json.encode(jsonData));
   }
 
   Future<void> fetch() async {
@@ -121,7 +121,7 @@ class BeaconService {
       print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {
-        Iterable it = jsonDecode(response.body);
+        Iterable it = json.decode(response.body);
         beacons = List<Beacon>.from(it.map((model) => Beacon.fromJson(model)));
         writeToCache(it);
       }

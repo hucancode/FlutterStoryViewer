@@ -1,22 +1,20 @@
+import 'dart:core';
+
+
 class Prefecture
 {
   int id;
   String? title;
-  Prefecture({required this.id, this.title})
-  {
-    print("prefecture $id $title");
-  }
+  Prefecture({
+    this.id = -1,
+    this.title,
+  });
 
-  factory Prefecture.fromJson(Map<String, dynamic> json) => Prefecture(
-      id: json["id"],
-      title: json["title"],
-  );
-
-  Map<String, dynamic> toJson()
+  factory Prefecture.fromJson(Map<String, dynamic> json)
   {
-    Map<String, dynamic> ret = {};
-    ret["id"] = id;
-    ret["title"] = title;
-    return ret;
+    return Prefecture(
+        id: json["id"],
+        title: json["title"],
+    );
   }
 }

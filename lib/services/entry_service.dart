@@ -25,6 +25,7 @@ class EntryService {
   }
 
   Future<List<Entry>> readOrFetch() async {
+    return await fetch();
     try
     {
       final file = await cacheFile;
@@ -45,7 +46,7 @@ class EntryService {
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      Iterable models = jsonDecode(response);
+      Iterable models = json.decode(response);
       return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
@@ -55,7 +56,7 @@ class EntryService {
 
   Future<void> writeToCache(dynamic jsonData) async {
     final file = await cacheFile;
-    file.writeAsString(jsonEncode(jsonData));
+    file.writeAsString(json.encode(jsonData));
   }
 
   Future<List<Entry>> fetch() async {
@@ -66,7 +67,7 @@ class EntryService {
       //print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {
-        var responseJson = jsonDecode(response.body);
+        var responseJson = json.decode(response.body);
         Iterable models = responseJson['data'];
         writeToCache(models);
         return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
@@ -85,7 +86,7 @@ class EntryService {
       //print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {
-        var responseJson = jsonDecode(response.body);
+        var responseJson = json.decode(response.body);
         return Entry.fromJson(responseJson);
       }
     } on Exception catch (e) {

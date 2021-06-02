@@ -25,6 +25,7 @@ class Filter
   List<RangeValues> ages;
   int authorID;
   bool isSelected;
+  bool isFullyLoaded;
 
   Filter({
     this.id = -1,
@@ -40,7 +41,8 @@ class Filter
     this.ageMode = FilterMode.ignore,
     this.ages = const [],
     this.authorID = -1,
-    this.isSelected = false
+    this.isSelected = false,
+    this.isFullyLoaded = false,
   });
 
   factory Filter.fromShortJson(Map<String, dynamic> json)
@@ -52,22 +54,56 @@ class Filter
     );
   }
 
+  void reloadFromJson(Map<String, dynamic> json)
+  {
+    print("Filter reloadFromJson, raw json = $json");
+    genderMode = FilterMode.values[json["genderMode"]??0];
+    maritalMode = FilterMode.values[json["maritalMode"]??0];
+    ageMode = FilterMode.values[json["ageMode"]??0];
+    workAddressMode = FilterMode.values[json["workAddressMode"]??0];
+    homeAddressMode = FilterMode.values[json["homeAddressMode"]??0];
+    genders = List<int>.from(json["genders"])
+      .map((e) => e.clamp(0, Gender.values.length - 1))
+      .map((e) => Gender.values[e]).toList();
+    maritals = List<int>.from(json["maritals"])
+      .map((e) => e.clamp(0, Marital.values.length - 1))
+      .map((e) => Marital.values[e]).toList();
+    workAddresses = List<int>.from(json["workAddresses"]);
+    homeAddresses = List<int>.from(json["homeAddresses"]);
+    ages = List<dynamic>.from(json["ages"]).map((range) {
+      int min = range["min"]??0;
+      int max = range["max"]??0;
+      return RangeValues(min.toDouble(), max.toDouble());
+    }).toList();
+    authorID = json["authorID"];
+    isFullyLoaded = json["isFullyLoaded"]??false;
+  }
+
   factory Filter.fromJson(Map<String, dynamic> json)
   {
-    print("build Filter from json, raw json = $json");
+    //print("Filter.fromJson, raw json = $json");
     int id = json["id"];
     String title = json["title"];
-    FilterMode genderMode = FilterMode.values[json["genderMode"]??0];
-    FilterMode maritalMode = FilterMode.values[json["maritalMode"]??0];
-    FilterMode ageMode = FilterMode.values[json["ageMode"]??0];
-    FilterMode workAddressMode = FilterMode.values[json["workAddressMode"]??0];
-    FilterMode homeAddressMode = FilterMode.values[json["homeAddressMode"]??0];
-    List<int> genders = List<int>.from(json["genders"]);
-    List<int> maritals = List<int>.from(json["maritals"]);
-    List<int> workAddresses = List<int>.from(json["workAddresses"]);
-    List<int> homeAddresses = List<int>.from(json["homeAddresses"]);
-    List<dynamic> ages = List<dynamic>.from(json["ages"]);
+    final genderMode = FilterMode.values[json["genderMode"]??0];
+    final maritalMode = FilterMode.values[json["maritalMode"]??0];
+    final ageMode = FilterMode.values[json["ageMode"]??0];
+    final workAddressMode = FilterMode.values[json["workAddressMode"]??0];
+    final homeAddressMode = FilterMode.values[json["homeAddressMode"]??0];
+    final genders = List<int>.from(json["genders"])
+      .map((e) => e.clamp(0, Gender.values.length - 1))
+      .map((e) => Gender.values[e]).toList();
+    final maritals = List<int>.from(json["maritals"])
+      .map((e) => e.clamp(0, Marital.values.length - 1))
+      .map((e) => Marital.values[e]).toList();
+    final workAddresses = List<int>.from(json["workAddresses"]);
+    final homeAddresses = List<int>.from(json["homeAddresses"]);
+    final ages = List<dynamic>.from(json["ages"]).map((range) {
+      int min = range["min"]??0;
+      int max = range["max"]??0;
+      return RangeValues(min.toDouble(), max.toDouble());
+    }).toList();
     int authorID = json["authorID"];
+    bool isFullyLoaded = json["isFullyLoaded"]??false;
     print('build filter with id = $id, title = $title, genderMode = $genderMode, maritalMode = $maritalMode, '
           'ageMode = $ageMode, workAddressMode = $workAddressMode, homeAddressMode = $homeAddressMode,'
           'genders = $genders, maritals = $maritals, workAddresses = $workAddresses, homeAddresses = $homeAddresses, ages = $ages');
@@ -75,24 +111,17 @@ class Filter
         id: id,
         title: title,
         genderMode: genderMode,
-        genders: genders
-          .map((e) => e.clamp(0, Gender.values.length - 1))
-          .map((e) => Gender.values[e]).toList(),
+        genders: genders,
         maritalMode: maritalMode,
-        maritals: maritals
-          .map((e) => e.clamp(0, Marital.values.length - 1))
-          .map((e) => Marital.values[e]).toList(),
+        maritals: maritals,
         workAddressMode: workAddressMode,
         workAddresses: workAddresses,
         homeAddressMode: homeAddressMode,
         homeAddresses: homeAddresses,
         ageMode: ageMode,
-        ages: ages.map((range) {
-          int min = range["min"]??0;
-          int max = range["max"]??0;
-          return RangeValues(min.toDouble(), max.toDouble());
-        }).toList(),
+        ages: ages,
         authorID: authorID,
+        isFullyLoaded: isFullyLoaded,
     );
   }
   
@@ -127,6 +156,7 @@ class Filter
       ret["homeAddresses"] = homeAddresses;
     }
     ret["authorID"] = authorID;
+    ret["isFullyLoaded"] = isFullyLoaded;
     return ret;
   }
 }

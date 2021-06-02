@@ -45,6 +45,7 @@ class GeofenceService {
   }
 
   Future<void> readOrFetch() async {
+    return await fetch();
     try
     {
       final file = await cacheFile;
@@ -101,16 +102,16 @@ class GeofenceService {
   }
 
   Future<void> fetch() async {
-    print("GeofenceFetcher fetch()");
+    print("GeofenceService fetch()");
     try {
       final uri = Uri.parse('${ServerConfig.ENDPOINT}$READ_API');
       final response = await http.get(uri).timeout(Duration(seconds: ServerConfig.TIMEOUT_IN_SECOND));
       if (response.statusCode == 200)
       {
-        final responseJson = jsonDecode(response.body);
+        final responseJson = json.decode(response.body);
         Iterable models = responseJson['data'];
         writeToCache(models);
-        print('GeofenceFetcher, got ${models.length}');
+        print('GeofenceService, got ${models.length}');
         geofences = models.map((model) => Geofence.fromJson(model)).toList();
       }
     } on Exception catch (e) {

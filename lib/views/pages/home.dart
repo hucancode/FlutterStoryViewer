@@ -4,10 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/filter.dart';
+import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
 import 'package:pop_experiment/models/entry_list.dart';
 import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/filter_service.dart';
+import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
+import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +60,7 @@ class HomePageState extends State<HomePage> {
     await Firebase.initializeApp();
     //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     String filterJson = message.data['filter']??'';
-    final filterObj = jsonDecode(filterJson);
+    final filterObj = json.decode(filterJson);
     final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     final filterResult = ProfileManager().applyFilter(filter, profile);
@@ -81,7 +85,7 @@ class HomePageState extends State<HomePage> {
     String description = message.data['description']??message.notification?.body??'No body';
     String filterJson = message.data['filter']??'null';
     //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
-    final filterObj = jsonDecode(filterJson);
+    final filterObj = json.decode(filterJson);
     final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
     final profile = await ProfileManager().load();
     if(ProfileManager().applyFilter(filter, profile) != 0)
@@ -324,9 +328,17 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> load() async
+  {
+    await FilterService().ensureReady();
+    final profile = Provider.of<Profile>(context, listen: false);
+    await ProfileManager().loadTo(profile);
+    await Provider.of<EntryList>(context, listen: false).load();
+  }
+
   Widget buildEntryList(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<EntryList>(context, listen: false).load(),
+      future: load(),
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return CircularProgressIndicator();

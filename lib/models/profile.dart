@@ -18,39 +18,50 @@ class Profile extends ChangeNotifier
   DateTime _birthDay = DateTime.now();
   int _workAddress = 0;
   int _homeAddress = 0;
+  bool shouldNotify = true;
+
+  void beginEdit()
+  {
+    shouldNotify = false;
+  }
+  void endEdit()
+  {
+    notifyListeners();
+    shouldNotify = true;
+  }
 
   set gender(Gender value)
   {
     _gender = value;
-    notifyListeners();
+    if(shouldNotify) notifyListeners();
   }
   Gender get gender => _gender;
 
   set marital(Marital value)
   {
     _marital = value;
-    notifyListeners();
+    if(shouldNotify) notifyListeners();
   }
   Marital get marital => _marital;
 
   set birthDay(DateTime value)
   {
     _birthDay = value;
-    notifyListeners();
+    if(shouldNotify) notifyListeners();
   }
   DateTime get birthDay => _birthDay;
 
   set workAddress(int value)
   {
     _workAddress = value;
-    notifyListeners();
+    if(shouldNotify) notifyListeners();
   }
   int get workAddress => _workAddress;
 
   set homeAddress(int value)
   {
     _homeAddress = value;
-    notifyListeners();
+    if(shouldNotify) notifyListeners();
   }
   int get homeAddress => _homeAddress;
 
