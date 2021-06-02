@@ -7,27 +7,29 @@ class Entry
   String? title;
   String? content;
   int? filterID;
+  List<int> geofences;
+  List<int> beacons;
   int authorID;
   bool isSelected;
   bool isFavorite;
 
   Entry({
-    required this.id,
+    this.id = -1,
     this.thumbnail,
     this.title,
     this.createdDate,
     this.modifiedDate,
     this.content,
     this.filterID,
-    required this.authorID,
+    this.geofences = const [],
+    this.beacons = const [],
+    this.authorID = -1,
     this.isSelected = false,
     this.isFavorite = false,
   });
-  factory Entry.empty()
-  {
-    return Entry(id: -1, authorID: -1);
-  }
-  factory Entry.fromJson(Map<String, dynamic> json) => Entry(
+  
+  factory Entry.fromJson(Map<String, dynamic> json) {
+    return Entry(
       id: json["id"],
       thumbnail: json["thumbnail"],
       title: json["title"],
@@ -35,8 +37,11 @@ class Entry
       modifiedDate: DateTime.parse(json["modifiedAt"]),
       content: json["content"],
       filterID: json["filterID"],
+      geofences: List<int>.from(json["geofences"]??[]),
+      beacons: List<int>.from(json["beacons"]??[]),
       authorID: 1,
-  );
+    );
+  }
 
   Map<String, dynamic> toJson()
   {
@@ -44,12 +49,11 @@ class Entry
     ret["id"] = id;
     ret["title"] = title;
     ret["thumbnail"] = thumbnail;
-    ret["createdDate"] = createdDate;
-    ret["modifiedDate"] = modifiedDate;
     ret["content"] = content;
     ret["filterID"] = filterID;
+    ret["geofences"] = geofences;
+    ret["beacons"] = beacons;
     ret["authorID"] = authorID;
-    ret["isFavorite"] = isFavorite;
     return ret;
   }
 
@@ -61,6 +65,8 @@ class Entry
     ret["thumbnail"] = thumbnail;
     ret["content"] = content;
     ret["filterID"] = filterID;
+    ret["geofences"] = geofences;
+    ret["beacons"] = beacons;
     return ret;
   }
 }

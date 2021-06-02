@@ -91,6 +91,6 @@ class EntryService {
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return Entry.empty();
+    return Entry();
   }
 }
