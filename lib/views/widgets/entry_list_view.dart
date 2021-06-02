@@ -132,8 +132,7 @@ class EntryListViewState extends State<EntryListView> {
   @override
   Widget build(BuildContext context) {
     final entries = Provider.of<EntryList>(context).entries;
-    final profile = Provider.of<Profile>(context);
-    ProfileManager().loadTo(profile);
+    final profile = Provider.of<Profile>(context, listen: false);
     final geofenceHistory = Provider.of<GeofenceHistory>(context);
     final filteredEntries = entries.where((e) {
       if(e.filterID is int)

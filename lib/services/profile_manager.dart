@@ -25,7 +25,7 @@ class ProfileManager {
     if(busy)
     {
       await Future.delayed(Duration(milliseconds: 100));
-      return await loadTo(model);
+      return loadTo(model);
     }
     final prefs = await SharedPreferences.getInstance();
     int version = prefs.getInt('save_version') ?? SAVE_VERSION;
@@ -71,7 +71,7 @@ class ProfileManager {
     if(busy)
     {
       await Future.delayed(Duration(milliseconds: 100));
-      return await save(model);
+      return save(model);
     }
     busy = true;
     final prefs = await SharedPreferences.getInstance();
@@ -87,7 +87,6 @@ class ProfileManager {
 
   int applyFilter(Filter filter, Profile model)
   {
-    print("applyFilter ${filter.genders[0]}, ${model.gender}");
     var matched = false;
     var failed = false;
     filter.genders.forEach((e) { matched |= e == model.gender;});
