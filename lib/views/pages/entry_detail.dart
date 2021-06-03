@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_experiment/models/entry.dart';
+import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/server_config.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
+import 'package:provider/provider.dart';
 
 class EntryDetail extends StatelessWidget {
   static const FETCH_CONTENT_AGAIN = false;
@@ -80,21 +83,8 @@ class EntryDetail extends StatelessWidget {
     {
       return model.content??NO_CONTENT;
     }
-    const serverEndpoint = 'pop-ex.atpop.info:3100';
-    final selectAPI = '/entry/read/${model.id}';
-    try {
-      var uri = Uri.https(serverEndpoint, selectAPI);
-      var response = await http.get(uri).timeout(Duration(seconds: 10));
-      if (response.statusCode == 200)
-      {
-        var responseJson = json.decode(response.body);
-        return responseJson["content"];
-      }
-      print('response.statusCode = ${response.statusCode}: ${response.body}');
-    } on Exception catch (e) {
-      print('error while fetching json ${e.toString()}');
-    }
-    return "";
+    final provider = Provider.of<EntryService>(context);
+    return await provider.fetchContent(model.id);
   }
 
   Widget buildMDViewer(BuildContext context) {

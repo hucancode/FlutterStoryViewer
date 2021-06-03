@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/beacon.dart';
+import 'package:pop_experiment/services/server_config.dart';
 
 class BeaconService extends ChangeNotifier {
 
@@ -111,8 +112,8 @@ class BeaconService extends ChangeNotifier {
   Future<void> fetch() async {
     print("BeaconHelper fetch()");
     try {
-      var uri = Uri.https(SERVER_ENDPOINT, READ_API);
-      var response = await http.get(uri).timeout(Duration(seconds: 10));
+      final uri = Uri.parse('${ServerConfig.ENDPOINT}$READ_API');
+      final response = await http.get(uri).timeout(Duration(seconds: ServerConfig.TIMEOUT_IN_SECOND));
       print('response(${response.statusCode}) = ${response.body}');
       if (response.statusCode == 200)
       {

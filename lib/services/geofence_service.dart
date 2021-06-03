@@ -11,7 +11,6 @@ import 'package:pop_experiment/models/geofence.dart';
 class GeofenceService extends ChangeNotifier {
   static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
-  static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/geofence/read';
   static const GEOFENCE_SCAN_RADIUS = 3000.0;
   static const FAKE_GEOFENCE_COUNT = 700000;
