@@ -1,21 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/entry.dart';
 
-class EntryService {
+class EntryService extends ChangeNotifier {
   static const LOCAL_CACHE = 'entries.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/entry/read';
 
-  static final EntryService _instance = EntryService._privateConstructor();
-  EntryService._privateConstructor();
-
-  factory EntryService() {
-    return _instance;
-  }
+  List<Entry> entries = [];
 
   Future<File> get cacheFile async {
     final directory = await getApplicationDocumentsDirectory();
@@ -24,7 +20,7 @@ class EntryService {
     return File(fullPath);
   }
 
-  Future<List<Entry>> readOrFetch() async {
+  Future<void> readOrFetch() async {
     return await fetch();
     try
     {
@@ -41,17 +37,16 @@ class EntryService {
     return await fetch();
   }
 
-  Future<List<Entry>> readFromCache() async {
+  Future<void> readFromCache() async {
     print("EntryService readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable models = json.decode(response);
-      return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
+      entries = models.map((model) => Entry.fromJson(model)).toList();
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Entry>.empty();
   }
 
   Future<void> writeToCache(dynamic jsonData) async {
@@ -59,7 +54,7 @@ class EntryService {
     file.writeAsString(json.encode(jsonData));
   }
 
-  Future<List<Entry>> fetch() async {
+  Future<void> fetch() async {
     print("EntryService fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
@@ -70,12 +65,11 @@ class EntryService {
         var responseJson = json.decode(response.body);
         Iterable models = responseJson['data'];
         writeToCache(models);
-        return List<Entry>.from(models.map((model) => Entry.fromJson(model)));
+        entries = models.map((model) => Entry.fromJson(model)).toList();
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Entry>.empty();
   }
 
   Future<Entry> fetchSingle(int id) async {

@@ -3,11 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:pop_experiment/models/entry.dart';
-import 'package:pop_experiment/models/entry_list.dart';
+import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/local_entry_service.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
-import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -28,14 +28,14 @@ class EntryListViewState extends State<EntryListView> {
   void initState()
   {
     super.initState();
-    final provider = Provider.of<EntryList>(context, listen: false);
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
     provider.eventController.stream.listen((event) {
       print('EntryListViewState got event ${event.type}');
       switch (event.type) {
-        case EntryListEventType.insert:
+        case EntryEventType.insert:
           listRef.currentState?.insertItem(event.index, duration: Duration(milliseconds: 300));
           break;
-        case EntryListEventType.delete:
+        case EntryEventType.delete:
           listRef.currentState?.removeItem(
             event.index,
             (context, animation) {
@@ -59,7 +59,7 @@ class EntryListViewState extends State<EntryListView> {
   }
 
   Widget buildItem(Entry message, BuildContext context) {
-    final provider = Provider.of<EntryList>(context, listen: false);
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
     print('buildItem for message ${message.id}');
     return Slidable(
         actionPane: SlidableDrawerActionPane(),
@@ -99,7 +99,7 @@ class EntryListViewState extends State<EntryListView> {
   Widget buildItemContent(Entry message, BuildContext context) {
     print('buildItemContent for message ${message.id}');
     final formatter = DateFormat('yyyy-MM-dd');
-    final provider = Provider.of<EntryList>(context, listen: false);
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
     return ListTile(
         key: ValueKey<Entry>(message),
         selected: message.isSelected,
@@ -131,44 +131,35 @@ class EntryListViewState extends State<EntryListView> {
 
   @override
   Widget build(BuildContext context) {
-    final entries = Provider.of<EntryList>(context).entries;
-    final profile = Provider.of<Profile>(context, listen: false);
+    final profile = Provider.of<Profile>(context);
+    final filters = Provider.of<FilterService>(context);
     final geofenceHistory = Provider.of<GeofenceHistory>(context);
-    final filteredEntries = entries.where((e) {
-      if(e.filterID is int)
-      {
-        final filter = FilterService().readById(e.filterID!);
-        final error = ProfileManager().applyFilter(filter, profile);
-        if(error != 0)
-        {
-          print('entry filtered out, filter result = $error');
-          return false;
-        }
-      }
-      if(e.geofences.isNotEmpty)
-      {
-        // if(!e.geofences.any((fence) => geofenceHistory.history.contains(fence)))
-        // {
-        //   return false;
-        // }
-      }
-      if(e.beacons.isNotEmpty)
-      {
-        // do beacon test
-      }
-      return true;
-    }).toList();
+    final data = Provider.of<EntryService>(context).entries;
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
+    provider.loadWithProvider(
+      data, 
+      profileProvider: profile, 
+      filterProvider: filters, 
+      geofenceHistoryProvider: geofenceHistory
+    );
+    final entries = provider.entries;
     print('build message_list ${entries.length}');
     return Expanded(
-        child: AnimatedList(
-            key: listRef,
-            initialItemCount: entries.length,
-            itemBuilder: (context, index, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: buildItem(entries[index], context),
-              );
-            }));
+      child: AnimatedList(
+        key: listRef,
+        initialItemCount: entries.length,
+        itemBuilder: (context, index, animation) {
+          if(index >= entries.length)
+          {
+            return SizedBox(height: 1);
+          }
+          return FadeTransition(
+            opacity: animation,
+            child: buildItem(entries[index], context),
+          );
+        }
+      ),
+    );
   }
 
   static const double kMinRadius = 32.0;

@@ -1,17 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/prefecture.dart';
 
-class PrefectureService {
-
-  static final PrefectureService _instance = PrefectureService._privateConstructor();
-  PrefectureService._privateConstructor();
-
-  factory PrefectureService() {
-    return _instance;
-  }
+class PrefectureService extends ChangeNotifier {
 
   static const LOCAL_CACHE = 'prefectures.json';
   static const CACHE_MAX_AGE_HOUR = 12;
@@ -25,7 +19,9 @@ class PrefectureService {
     return File(fullPath);
   }
 
-  Future<List<Prefecture>> readOrFetch() async {
+  Future<void> load() async => readOrFetch();
+
+  Future<void> readOrFetch() async {
     return await fetch();
     try
     {
@@ -42,17 +38,16 @@ class PrefectureService {
     return await fetch();
   }
 
-  Future<List<Prefecture>> readFromCache() async {
+  Future<void> readFromCache() async {
     print("PrefectureService readFromCache()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable models = json.decode(response);
-      return models.map((model) => Prefecture.fromJson(model)).toList();
+      prefectures = models.map((model) => Prefecture.fromJson(model)).toList();
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Prefecture>.empty();
   }
 
   Future<void> writeToCache(dynamic jsonData) async {
@@ -60,7 +55,7 @@ class PrefectureService {
     file.writeAsString(json.encode(jsonData));
   }
 
-  Future<List<Prefecture>> fetch() async {
+  Future<void> fetch() async {
     print("PrefectureService fetch()");
     try {
       var uri = Uri.https(SERVER_ENDPOINT, READ_API);
@@ -70,11 +65,16 @@ class PrefectureService {
       {
         Iterable models = json.decode(response.body);
         writeToCache(models);
-        return models.map((model) => Prefecture.fromJson(model)).toList();
+        prefectures = models.map((model) => Prefecture.fromJson(model)).toList();
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    return List<Prefecture>.empty();
   }
+
+  List<Prefecture> prefectures = [];
+
+  Prefecture readById(int id) => prefectures.firstWhere((element) => element.id == id, orElse: () {
+    return prefectures.isNotEmpty?prefectures.first:Prefecture();
+  });
 }

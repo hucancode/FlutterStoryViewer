@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/entry.dart';
-import 'package:pop_experiment/models/entry_list.dart';
-import 'package:pop_experiment/models/profile.dart';
-import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/pages/entry_detail.dart';
 import 'package:pop_experiment/views/pages/qr_scan.dart';
 import 'package:pop_experiment/views/pages/qr_scan_result.dart';
-import 'package:provider/provider.dart';
 
 class HomeNavigator extends StatelessWidget {
   static const String root = '/';
@@ -80,14 +76,6 @@ class HomeNavigator extends StatelessWidget {
           return routeToRoot(routeSettings);
         }
     );
-    final provider = MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => EntryList()),
-        ChangeNotifierProvider(create: (context) => GeofenceHistory()),
-        ChangeNotifierProvider(create: (context) => Profile()),
-      ],
-      child: navigator,
-    );
-    return provider;
+    return navigator;
   }
 }

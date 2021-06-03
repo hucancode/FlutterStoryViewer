@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:pop_experiment/models/prefecture_list.dart';
 import 'package:pop_experiment/models/profile.dart';
-import 'package:pop_experiment/services/profile_manager.dart';
+import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 const int SAVE_VERSION = 1;
+
 
 class ProfilePage extends StatefulWidget {
   ProfileState createState() => ProfileState();
@@ -19,16 +19,6 @@ class ProfileState extends State<ProfilePage> {
 
   bool editMode = false;
 
-  @override
-  void initState()
-  {
-    super.initState();
-    final prefectures = Provider.of<PrefectureList>(context, listen: false);
-    prefectures.load();
-    final profile = Provider.of<Profile>(context, listen: false);
-    ProfileManager().loadTo(profile);
-  }
-
   void enterEditMode() {
     setState(() {
       editMode = true;
@@ -40,7 +30,7 @@ class ProfileState extends State<ProfilePage> {
       editMode = false;
     });
     final profile = Provider.of<Profile>(context, listen: false);
-    ProfileManager().save(profile);
+    profile.save();
   }
 
   @override
@@ -92,7 +82,7 @@ class ProfileState extends State<ProfilePage> {
   }
 
   Widget buildHometown() {
-    final provider = Provider.of<PrefectureList>(context);
+    final provider = Provider.of<PrefectureService>(context);
     final profile = Provider.of<Profile>(context);
     final prefecture = provider.readById(profile.homeAddress);
     Widget editWidget = DropdownButton<int>(
@@ -118,7 +108,7 @@ class ProfileState extends State<ProfilePage> {
   }
 
   Widget buildLocation() {
-    final provider = Provider.of<PrefectureList>(context);
+    final provider = Provider.of<PrefectureService>(context);
     final profile = Provider.of<Profile>(context);
     final prefecture = provider.readById(profile.workAddress);
     Widget editWidget = DropdownButton<int>(

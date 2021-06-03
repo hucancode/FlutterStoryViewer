@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/local_entry_service.dart';
+import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/services/filter_service.dart';
+import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
+import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:pop_experiment/views/navigators/map_navigator.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/navigators/home_navigator.dart';
 import 'package:pop_experiment/views/navigators/profile_navigator.dart';
 import 'package:pop_experiment/views/pages/private_messages.dart';
+import 'package:provider/provider.dart';
 
 class MasterPage extends StatefulWidget {
   @override
@@ -24,6 +30,13 @@ class MasterPageState extends State<MasterPage> {
   var qrRef = GlobalKey<NavigatorState>();
   var mapRef = GlobalKey<NavigatorState>();
   var profileRef = GlobalKey<NavigatorState>();
+  
+  final filterProvider = FilterService();
+  final entryProvider = EntryService();
+  final localEntryProvider = LocalEntryService();
+  final geofenceHistoryProvider = GeofenceHistory();
+  final prefectureProvider = PrefectureService();
+  final profileProvider = Profile();
 
   int currentTab = 0;
 
@@ -34,21 +47,12 @@ class MasterPageState extends State<MasterPage> {
   }
 
   @override
-  void initState() {
-    FilterService().readOrFetch();
-    GeofenceService().initialize();
-    NotificationService().initialize();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       body: IndexedStack(
         index: currentTab,
         children: [
           HomeNavigator(heroController: homeHeroController),
-          //PrivateMessagesNavigator(heroController: pmHeroController),
           MapNavigator(),
           ProfileNavigator(),
         ],
@@ -64,7 +68,7 @@ class MasterPageState extends State<MasterPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
-            label: 'Map',
+            label: 'Places',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -73,5 +77,7 @@ class MasterPageState extends State<MasterPage> {
         ],
       ),
     );
+
+    return scaffold;
   }
 }

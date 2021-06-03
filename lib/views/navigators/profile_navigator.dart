@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pop_experiment/models/prefecture_list.dart';
 import 'package:pop_experiment/models/profile.dart';
+import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:pop_experiment/views/pages/profile.dart';
 import 'package:provider/provider.dart';
 
@@ -19,18 +19,10 @@ class ProfileNavigator extends StatelessWidget {
           // return edit page here
         }
         return MaterialPageRoute(
-            builder: (context) => ProfilePage(),
-            );
+          builder: (context) => ProfilePage(),
+          );
       }
     );
-    final provider = MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => PrefectureList()),
-        ChangeNotifierProvider(create: (context) => Profile()),
-      ],
-      child: navigator,
-    );
-    return provider;
-    
+    return navigator;
   }
 }

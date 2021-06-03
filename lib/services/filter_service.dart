@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/filter.dart';
@@ -7,18 +8,11 @@ import 'package:pop_experiment/services/server_config.dart';
 
 // TODO: merge services and provider to one, name it as Service
 
-class FilterService {
+class FilterService  extends ChangeNotifier {
 
   static const LOCAL_CACHE = 'filters.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/filter/read';
-
-  static final FilterService _instance = FilterService._privateConstructor();
-  FilterService._privateConstructor();
-
-  factory FilterService() {
-    return _instance;
-  }
 
   var filters = List<Filter>.empty(growable: true);
   var ready = true;
@@ -30,13 +24,7 @@ class FilterService {
     return File(fullPath);
   }
 
-  Future<void> ensureReady() async
-  {
-    while(!ready)
-    {
-      await Future.delayed(Duration(milliseconds: 100));
-    }
-  }
+  Future<void> load() async => readOrFetch();
 
   Future<void> readOrFetch() async {
     return await fetch();

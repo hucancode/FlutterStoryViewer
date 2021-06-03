@@ -6,13 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
-import 'package:pop_experiment/models/entry_list.dart';
+import 'package:pop_experiment/services/local_entry_service.dart';
 import 'package:pop_experiment/services/entry_service.dart';
-import 'package:pop_experiment/services/filter_service.dart';
-import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
-import 'package:pop_experiment/services/prefecture_service.dart';
-import 'package:pop_experiment/services/profile_manager.dart';
 import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
 
@@ -33,17 +29,17 @@ class HomePageState extends State<HomePage> {
   void initState()
   {
     super.initState();
-    final provider = Provider.of<EntryList>(context, listen: false);
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
     provider.eventController.stream.listen((event) {
       print('HomePageState got event ${event.type}');
       switch (event.type) {
-        case EntryListEventType.favorite:
+        case EntryEventType.favorite:
           final snackBar = SnackBar(
             content: Text('Entry #${event.index} has been added to favorite!'),
             duration: Duration(milliseconds: 2000));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           break;
-        case EntryListEventType.delete:
+        case EntryEventType.delete:
           final snackBar = SnackBar(
             content: Text('Deleted!'),
             duration: Duration(milliseconds: 2500));
@@ -62,8 +58,8 @@ class HomePageState extends State<HomePage> {
     String filterJson = message.data['filter']??'';
     final filterObj = json.decode(filterJson);
     final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
-    final profile = await ProfileManager().load();
-    final filterResult = ProfileManager().applyFilter(filter, profile);
+    final profile = await Profile.hotLoad();
+    final filterResult = profile.applyFilter(filter);
     if(filterResult != 0)
     {
       //NotificationHelper().send("apply filter failed, no notification", "filter = ${message.data['filter']}");
@@ -87,8 +83,8 @@ class HomePageState extends State<HomePage> {
     //NotificationHelper().send("backgroundMessageHandler", "message.messageId = ${message.messageId}");
     final filterObj = json.decode(filterJson);
     final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
-    final profile = await ProfileManager().load();
-    if(ProfileManager().applyFilter(filter, profile) != 0)
+    final profile = Provider.of<Profile>(context, listen: false);
+    if(profile.applyFilter(filter) != 0)
     {
       return;
     }
@@ -106,7 +102,7 @@ class HomePageState extends State<HomePage> {
       return;
     }
     final entry = await EntryService().fetchSingle(entryID);
-    final provider = Provider.of<EntryList>(context, listen: false);
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
     provider.add(entry);
     print('fetched $entryID (${entry.title})');
   }
@@ -206,7 +202,7 @@ class HomePageState extends State<HomePage> {
     return AppBar(
       title: Text("Home"),
       actions: [
-        Consumer<EntryList>(
+        Consumer<LocalEntryService>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -217,7 +213,7 @@ class HomePageState extends State<HomePage> {
             );
           },
         ),
-        Consumer<EntryList>(
+        Consumer<LocalEntryService>(
           builder: (context, model, child) {
             return Visibility(
               visible: model.totalSelected > 0,
@@ -328,23 +324,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> load() async
-  {
-    await FilterService().ensureReady();
-    final profile = Provider.of<Profile>(context, listen: false);
-    await ProfileManager().loadTo(profile);
-    await Provider.of<EntryList>(context, listen: false).load();
-  }
-
   Widget buildEntryList(BuildContext context) {
-    return FutureBuilder(
-      future: load(),
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return CircularProgressIndicator();
-        }
-        return EntryListView();
-      },
-    );
+    return EntryListView();
   }
 }
