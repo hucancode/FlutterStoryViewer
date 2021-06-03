@@ -88,7 +88,7 @@ class Profile extends ChangeNotifier
 
   }
 
-  static Future<Profile> hotLoad() async
+  static Future<Profile> safeLoad() async
   {
     final ret = Profile();
     await ret.load();
