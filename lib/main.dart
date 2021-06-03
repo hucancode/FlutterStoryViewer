@@ -78,6 +78,10 @@ class MyApp extends StatelessWidget {
         if (snapshot.connectionState != ConnectionState.done) {
           return loadingWidget;
         }
+        if(snapshot.hasError)
+        {
+          print('load finished with error - ${snapshot.error}');
+        }
         return provider;
       },
     );
