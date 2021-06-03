@@ -1,24 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/beacon.dart';
 
-class BeaconService {
+class BeaconService extends ChangeNotifier {
 
   static const LOCAL_CACHE = 'beacons.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/beacon/read';
   static const DEFAULT_BEACON_NAME = "MyBeacon";
-  static final BeaconService _instance = BeaconService._privateConstructor();
-  BeaconService._privateConstructor();
-
-  factory BeaconService() {
-    return _instance;
-  }
 
   bool initialized = false;// TODO: use completer
   final StreamController<String> beaconEventsController = StreamController<String>.broadcast();
