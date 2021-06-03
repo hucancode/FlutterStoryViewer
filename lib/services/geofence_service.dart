@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_geofence/geofence.dart' as FlutterGeofence;
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/services/server_config.dart';
 import 'package:pop_experiment/models/geofence.dart';
 
-class GeofenceService {
+class GeofenceService extends ChangeNotifier {
   static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
@@ -15,22 +16,9 @@ class GeofenceService {
   static const GEOFENCE_SCAN_RADIUS = 3000.0;
   static const FAKE_GEOFENCE_COUNT = 700000;
 
-  static final GeofenceService _instance = GeofenceService._privateConstructor();
-  GeofenceService._privateConstructor();
-
-  factory GeofenceService() {
-    return _instance;
-  }
-
   List<Geofence> geofences = List<Geofence>.empty(growable: true);
-  bool initialized = false;
 
-  Future<void> initialize() async {
-    if(initialized)
-    {
-      return;
-    }
-    initialized = true;
+  Future<void> load() async {
     FlutterGeofence.Geofence.initialize();
     FlutterGeofence.Geofence.requestPermissions();
     //await generateFakeGeofence(FAKE_GEOFENCE_COUNT);

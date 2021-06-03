@@ -18,14 +18,15 @@ class MyApp extends StatelessWidget {
 
   final filterProvider = FilterService();
   final entryProvider = EntryService();
+  final geofenceProvider = GeofenceService();
   final localEntryProvider = LocalEntryService();
   final geofenceHistoryProvider = GeofenceHistory();
   final prefectureProvider = PrefectureService();
   final profileProvider = Profile();
   
   Future<void> load() async {
-    await GeofenceService().initialize();
     NotificationService().initialize();
+    await geofenceProvider.load();
     await profileProvider.load();
     await geofenceHistoryProvider.load();
     await filterProvider.readOrFetch();
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: filterProvider),
         ChangeNotifierProvider.value(value: entryProvider),
+        ChangeNotifierProvider.value(value: geofenceProvider),
         ChangeNotifierProvider.value(value: localEntryProvider),
         ChangeNotifierProvider.value(value: geofenceHistoryProvider),
         ChangeNotifierProvider.value(value: prefectureProvider),

@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pop_experiment/services/beacon_service.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
+import 'package:provider/provider.dart';
 
 class GeofenceMap extends StatefulWidget {
   GeofenceMapState createState() => GeofenceMapState();
@@ -88,10 +89,11 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   }
 
   void handleLocationUpdate(Coordinate location) {
+    final provider = Provider.of<GeofenceService>(context, listen: false);
     lastKnownLocation = location;
     //print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().send("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
-    final shouldUpdate = GeofenceService().distance(lastKnownLocation, fencePivot) > GeofenceService.GEOFENCE_SCAN_RADIUS*0.8;
+    final shouldUpdate = provider.distance(lastKnownLocation, fencePivot) > GeofenceService.GEOFENCE_SCAN_RADIUS*0.8;
     if(shouldUpdate)
     {
       updateFences(location: lastKnownLocation);
@@ -132,10 +134,11 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
 
   void updateFences({required Coordinate location, double radius = GeofenceService.GEOFENCE_SCAN_RADIUS})
   {
+    final provider = Provider.of<GeofenceService>(context, listen: false);
     final start = DateTime.now();
     print('updateFences');
     Geofence.removeAllGeolocations();
-    final fences = GeofenceService().getNearByGeofences(location: location, radius: radius);
+    final fences = provider.getNearByGeofences(location: location, radius: radius);
     fences.forEach((fence) {
       final geolocation = Geolocation(latitude: fence.latitude, longitude: fence.longitude, radius: fence.radius, id: fence.id.toString());
       Geofence.addGeolocation(geolocation, GeolocationEvent.entry).then((onValue) {
@@ -249,11 +252,12 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void generateNewGeofences()
   {
     try{
+      final provider = Provider.of<GeofenceService>(context, listen: false);
       final count = int.parse(fenceCountCtrl.text);
       final distance = double.parse(distanceCtrl.text);
       assert(count is int);
       assert(distance is double);
-      GeofenceService().generateFakeGeofence(count);
+      provider.generateFakeGeofence(count);
       Location().getLocation().then((value)
       {
         updateFences(location: Coordinate(value.latitude??DEFAULT_LAT, value.longitude??DEFAULT_LONG), radius: distance);
