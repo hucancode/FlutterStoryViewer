@@ -58,7 +58,7 @@ class HomePageState extends State<HomePage> {
     String filterJson = message.data['filter']??'';
     final filterObj = json.decode(filterJson);
     final filter = filterObj == null?Filter():Filter.fromJson(filterObj);
-    final profile = await Profile.hotLoad();
+    final profile = await Profile.safeLoad();
     final filterResult = profile.applyFilter(filter);
     if(filterResult != 0)
     {
@@ -66,6 +66,7 @@ class HomePageState extends State<HomePage> {
       //NotificationHelper().send("apply filter failed, no notification", "filterResult = $filterResult");
       return;
     }
+    // TODO: apply geofence filter & beacon filter for notification
     String title = message.data['title']??'Untitled';
     String description = message.data['description']??'No body';
     print('there is a message!! $title');

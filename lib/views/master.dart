@@ -4,15 +4,11 @@ import 'package:pop_experiment/services/local_entry_service.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
-import 'package:pop_experiment/services/geofence_service.dart';
-import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:pop_experiment/views/navigators/map_navigator.dart';
 import 'package:pop_experiment/views/pages/home.dart';
 import 'package:pop_experiment/views/navigators/home_navigator.dart';
 import 'package:pop_experiment/views/navigators/profile_navigator.dart';
-import 'package:pop_experiment/views/pages/private_messages.dart';
-import 'package:provider/provider.dart';
 
 class MasterPage extends StatefulWidget {
   @override
@@ -22,7 +18,6 @@ class MasterPage extends StatefulWidget {
 class MasterPageState extends State<MasterPage> {
 
   HeroController homeHeroController = HeroController(createRectTween: HomePageState.customTween);
-  HeroController pmHeroController = HeroController(createRectTween: PrivateMessagesState.customTween);
   //HeroController qrHeroController;
   //HeroController profileHeroController;
 

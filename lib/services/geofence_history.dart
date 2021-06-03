@@ -4,17 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class GeofenceHistory extends ChangeNotifier {
-  Set<int> history = Set<int>.identity();
+  List<int> entries = List<int>.empty(growable: true);
 
   static const LOCAL_CACHE = 'geofence_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
-
-  static final GeofenceHistory _instance = GeofenceHistory._privateConstructor();
-  GeofenceHistory._privateConstructor();
-
-  factory GeofenceHistory() {
-    return _instance;
-  }
 
   Future<File> get cacheFile async {
     final directory = await getApplicationDocumentsDirectory();
@@ -28,7 +21,7 @@ class GeofenceHistory extends ChangeNotifier {
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      history = json.decode(response);
+      entries = json.decode(response);
     } on Exception catch (e) {
       print('error while loading json ${e.toString()}');
     }
@@ -36,19 +29,25 @@ class GeofenceHistory extends ChangeNotifier {
 
   Future<void> save() async {
     final file = await cacheFile;
-    var jsonData = json.encode(history);
+    var jsonData = json.encode(entries);
     file.writeAsString(json.encode(jsonData));
   }
 
   void add(int entry)
   {
-    history.add(entry);
+    if(entries.contains(entry))
+    {
+      return;
+    }
+    entries.add(entry);
     notifyListeners();
+    save();
   }
 
   void remove(int entry)
   {
-    history.remove(entry);
+    entries.remove(entry);
     notifyListeners();
+    save();
   }
 }

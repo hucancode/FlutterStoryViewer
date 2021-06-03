@@ -12,7 +12,7 @@ class GeofenceService extends ChangeNotifier {
   static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/geofence/read';
-  static const GEOFENCE_SCAN_RADIUS = 3000.0;
+  static const GEOFENCE_SCAN_RADIUS = 30000.0;
   static const FAKE_GEOFENCE_COUNT = 700000;
 
   List<Geofence> geofences = List<Geofence>.empty(growable: true);
@@ -132,5 +132,14 @@ class GeofenceService extends ChangeNotifier {
     }).toList();
     print('getNearByGeofences returns ${ret.length} fences, costs ${DateTime.now().difference(start).inMilliseconds} ms');
     return ret;
+  }
+
+  Geofence? getFirstOverlap(FlutterGeofence.Coordinate location)
+  {
+    geofences.firstWhere((fence) {
+      final a = location;
+      final b = FlutterGeofence.Coordinate(fence.latitude, fence.longitude);
+      return distance(a, b) < fence.radius;
+    });
   }
 }

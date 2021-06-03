@@ -19,7 +19,6 @@ class Geofence
     this.longitude = 0,
     this.radius = 0,
     this.authorID = -1,
-    
     this.isSelected = false
   });
   factory Geofence.fromJson(Map<String, dynamic> json) => Geofence(
