@@ -45,7 +45,6 @@ class LocalEntryService extends ChangeNotifier {
       },
       geofenceCheck: (geofences)
       {
-        return true;
         var matched = false;
         geofences.forEach((e) { matched |= geofenceHistoryProvider.history.contains(e);});
         return matched;
