@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
   final profileProvider = Profile();
   
   Future<void> load() async {
+    print('loading started!!!!');
     NotificationService().initialize();
     await geofenceProvider.load();
     await profileProvider.load();
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
       geofenceHistoryProvider: geofenceHistoryProvider
     );
     await prefectureProvider.load();
+    print('loading finished!!!!');
   }
   @override
   Widget build(BuildContext context) {

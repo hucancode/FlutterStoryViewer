@@ -17,11 +17,13 @@ class GeofenceHistory extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    print("DiscoveryHistory load()");
+    print("GeofenceHistory load()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      entries = json.decode(response);
+      print('GeofenceHistory load() response = $response');
+      Iterable models = json.decode(response);
+      entries = List<int>.from(models);
     } on Exception catch (e) {
       print('error while loading json ${e.toString()}');
     }
@@ -30,7 +32,7 @@ class GeofenceHistory extends ChangeNotifier {
   Future<void> save() async {
     final file = await cacheFile;
     var jsonData = json.encode(entries);
-    file.writeAsString(json.encode(jsonData));
+    file.writeAsString(jsonData);
   }
 
   void add(int entry)

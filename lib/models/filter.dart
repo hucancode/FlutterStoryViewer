@@ -56,7 +56,7 @@ class Filter
 
   void reloadFromJson(Map<String, dynamic> json)
   {
-    print("Filter reloadFromJson, raw json = $json");
+    //print("Filter reloadFromJson, raw json = $json");
     genderMode = FilterMode.values[json["genderMode"]??0];
     maritalMode = FilterMode.values[json["maritalMode"]??0];
     ageMode = FilterMode.values[json["ageMode"]??0];
