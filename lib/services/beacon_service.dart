@@ -12,7 +12,6 @@ class BeaconService extends ChangeNotifier {
 
   static const LOCAL_CACHE = 'beacons.json';
   static const CACHE_MAX_AGE_HOUR = 12;
-  static const SERVER_ENDPOINT = 'pop-ex.atpop.info:3100';
   static const READ_API = '/beacon/read';
   static const DEFAULT_BEACON_NAME = "MyBeacon";
 
