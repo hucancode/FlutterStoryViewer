@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/services/entry_service.dart';
-import 'package:pop_experiment/services/server_config.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:provider/provider.dart';
 
 class EntryDetail extends StatelessWidget {
-  static const FETCH_CONTENT_AGAIN = false;
+  static const FETCH_CONTENT_AGAIN = true;
   static const NO_CONTENT = "Seems no content 😀";
 
   static const double kMinRadius = 32.0;

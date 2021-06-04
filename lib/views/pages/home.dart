@@ -1,11 +1,16 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/filter.dart';
+import 'package:pop_experiment/models/geofence.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
+import 'package:pop_experiment/services/filter_service.dart';
+import 'package:pop_experiment/services/geofence_history.dart';
+import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/local_entry_service.dart';
 import 'package:pop_experiment/services/entry_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
@@ -20,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int selectedCategory = 0;
+  int? geofenceID;
   
   static RectTween customTween(Rect? begin, Rect? end) {
     return MaterialRectCenterArcTween(begin: begin, end: end);
@@ -158,6 +164,30 @@ class HomePageState extends State<HomePage> {
     await FirebaseMessaging.instance.subscribeToTopic('hucancode');
   }
 
+  void removeGeofenceFilter()
+  {
+    setState(() {
+      geofenceID = null;
+      final snackBar = SnackBar(
+          content: Text('Now showing all entries'),
+          duration: Duration(milliseconds: 1800));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  void addGeofenceFilter(int id)
+  {
+    setState(() {
+      geofenceID = id;
+      final provider = Provider.of<GeofenceService>(context, listen: false);
+      final fence = provider.geofences.firstWhere((e) => e.id == id, orElse: () => Geofence());
+      final snackBar = SnackBar(
+          content: Text('Now showing entries belong to ${fence.title}'),
+          duration: Duration(milliseconds: 1800));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
   void selectCategory(int cat)
   {
     setState(() {
@@ -242,6 +272,9 @@ class HomePageState extends State<HomePage> {
   }
 
   Drawer buildDrawer(BuildContext context) {
+    final history = Provider.of<GeofenceHistory>(context);
+    final provider = Provider.of<GeofenceService>(context, listen: false);
+    final fences = history.entries.map((id) => provider.geofences.firstWhere((fence) => id == fence.id, orElse: () => Geofence()));
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -277,55 +310,57 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           ListTile(
-            title: Text('Category 1'),
-            selected: selectedCategory == 0,
+            title: Text('All Entries'),
+            selected: geofenceID is! int,
             leading: CircleAvatar(
-              child: Image.asset('assets/amber.jpg', fit: BoxFit.contain),
+              child: Text("ALL"),
             ),
             onTap: () {
-              selectCategory(0);
+              removeGeofenceFilter();
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            title: Text('Category 2'),
-            selected: selectedCategory == 1,
-            leading: CircleAvatar(
-              child: Image.asset('assets/phaser.png', fit: BoxFit.contain),
-            ),
-            onTap: () {
-              selectCategory(1);
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: Text('Category 3'),
-            selected: selectedCategory == 2,
-            leading: CircleAvatar(
-              child: Image.asset('assets/cat.png', fit: BoxFit.contain),
-            ),
-            onTap: () {
-              selectCategory(2);
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: Text('Category 4'),
-            selected: selectedCategory == 3,
-            leading: CircleAvatar(
-              child: Image.asset('assets/healing.png', fit: BoxFit.contain),
-            ),
-            onTap: () {
-              selectCategory(3);
-              Navigator.pop(context);
-            },
-          ),
+          Column(
+            children: fences.map((fence) =>
+              ListTile(
+                title: Text(fence.title??"Untitled"),
+                selected: geofenceID == fence.id,
+                leading: CircleAvatar(
+                  child: CachedNetworkImage(
+                    imageUrl: 'https://picsum.photos/seed/${fence.title}/64/64',
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                onTap: () {
+                  addGeofenceFilter(fence.id);
+                  Navigator.pop(context);
+                },
+              ),
+            ).toList(),
+          )
         ],
       ),
     );
   }
 
   Widget buildEntryList(BuildContext context) {
-    return EntryListView();
+    final profile = Provider.of<Profile>(context);
+    final filters = Provider.of<FilterService>(context);
+    final geofenceHistory = Provider.of<GeofenceHistory>(context);
+    final data = Provider.of<EntryService>(context).entries;
+    final provider = Provider.of<LocalEntryService>(context, listen: false);
+    provider.loadWithProvider(
+      data, 
+      profileProvider: profile, 
+      filterProvider: filters, 
+      geofenceHistoryProvider: geofenceHistory
+    );
+    if(geofenceID is int)
+    {
+      return EntryListView(entries: provider.forGeofence(geofenceID!));
+    }
+    return EntryListView(entries: provider.entries);
   }
 }

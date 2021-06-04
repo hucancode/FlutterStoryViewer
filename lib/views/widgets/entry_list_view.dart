@@ -13,8 +13,10 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class EntryListView extends StatefulWidget {
+
+  List<Entry> entries;
   
-  EntryListView({Key? key}) : super(key: key);
+  EntryListView({Key? key, required this.entries}) : super(key: key);
   EntryListViewState createState()
   {
     return EntryListViewState();
@@ -131,31 +133,19 @@ class EntryListViewState extends State<EntryListView> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<Profile>(context);
-    final filters = Provider.of<FilterService>(context);
-    final geofenceHistory = Provider.of<GeofenceHistory>(context);
-    final data = Provider.of<EntryService>(context).entries;
-    final provider = Provider.of<LocalEntryService>(context, listen: false);
-    provider.loadWithProvider(
-      data, 
-      profileProvider: profile, 
-      filterProvider: filters, 
-      geofenceHistoryProvider: geofenceHistory
-    );
-    final entries = provider.entries;
-    print('build message_list ${entries.length}');
+    print('build message_list ${widget.entries.length}');
     return Expanded(
       child: AnimatedList(
         key: listRef,
-        initialItemCount: entries.length,
+        initialItemCount: widget.entries.length,
         itemBuilder: (context, index, animation) {
-          if(index >= entries.length)
+          if(index >= widget.entries.length)
           {
             return SizedBox(height: 1);
           }
           return FadeTransition(
             opacity: animation,
-            child: buildItem(entries[index], context),
+            child: buildItem(widget.entries[index], context),
           );
         }
       ),
