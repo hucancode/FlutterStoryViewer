@@ -159,7 +159,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     fences.forEach((fence) {
       final geolocation = FlutterGeofence.Geolocation(latitude: fence.latitude, longitude: fence.longitude, radius: fence.radius, id: fence.id.toString());
       FlutterGeofence.Geofence.addGeolocation(geolocation, FlutterGeofence.GeolocationEvent.entry).then((onValue) {
-        print("Your geofence has been added! ${fence.id}");
+        print("Your geofence has been added! ${fence.id}-${fence.title}");
       }).catchError((error) {
           print("Geofence adding failed with $error");
       });
