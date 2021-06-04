@@ -67,9 +67,22 @@ class MyApp extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white
       ),
-      child: Center(
-        child: CircularProgressIndicator()
-      )
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Spacer(flex: 3),
+            Expanded(
+              flex: 2,
+              child: Image.asset(
+              'assets/pop_icon.png', 
+              height: 100,
+              fit: BoxFit.contain),
+            ),
+            Spacer(flex: 1),
+            CircularProgressIndicator(),
+            Spacer(flex: 3),
+          ],
+        ),
     );
 
     final loader = FutureBuilder(
