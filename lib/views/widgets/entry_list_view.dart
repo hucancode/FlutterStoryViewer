@@ -3,18 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:pop_experiment/models/entry.dart';
-import 'package:pop_experiment/services/entry_service.dart';
 import 'package:pop_experiment/services/local_entry_service.dart';
-import 'package:pop_experiment/models/profile.dart';
-import 'package:pop_experiment/services/filter_service.dart';
-import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/views/widgets/radial_expansion.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class EntryListView extends StatefulWidget {
 
-  List<Entry> entries;
+  final List<Entry> entries;
   
   EntryListView({Key? key, required this.entries}) : super(key: key);
   EntryListViewState createState()

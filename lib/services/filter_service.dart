@@ -82,6 +82,7 @@ class FilterService  extends ChangeNotifier {
     filters.forEach((e) {
       fetchSingleJSON(e.id).then((value) => e.reloadFromJson(value));
     });
+    notifyListeners();
     ready = true;
   }
 

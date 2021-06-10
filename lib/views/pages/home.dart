@@ -25,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int selectedCategory = 0;
+  bool refreshing = false;
   int? geofenceID;
   
   static RectTween customTween(Rect? begin, Rect? end) {
@@ -255,6 +256,14 @@ class HomePageState extends State<HomePage> {
             );
           },
         ),
+        Consumer<LocalEntryService>(
+          builder: (context, model, child) {
+            return IconButton(
+              icon: refreshing?CircularProgressIndicator():Icon(Icons.refresh),
+              onPressed: () => refreshEntryList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -343,6 +352,23 @@ class HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+  
+  void refreshEntryList()
+  {
+    if(refreshing)
+    {
+      return;
+    }
+    final filters = Provider.of<FilterService>(context, listen: false);
+    final provider = Provider.of<EntryService>(context, listen: false);
+    refreshing = true;
+    filters.fetch().then((value) {
+      provider.fetch().then((value) {
+        refreshing = false;
+      });
+    });
+    
   }
 
   Widget buildEntryList(BuildContext context) {
