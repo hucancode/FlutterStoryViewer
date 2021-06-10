@@ -2,42 +2,42 @@ import 'dart:async';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/services/entry_service.dart';
-import 'package:pop_experiment/views/widgets/radial_expansion.dart';
+import 'package:pop_experiment/views/widgets/hero_banner.dart';
 import 'package:provider/provider.dart';
 
-class EntryDetail extends StatelessWidget {
+class EntryDetail extends StatefulWidget {
+  final Entry model;
+  EntryDetail({Key? key, required this.model})
+      : super(key: key);
+  @override
+  EntryDetailState createState() => EntryDetailState();
+}
+
+class EntryDetailState extends State<EntryDetail>  {
   static const FETCH_CONTENT_AGAIN = true;
   static const NO_CONTENT = "Seems no content 😀";
 
-  static const double kMinRadius = 32.0;
-  static const double kMaxRadius = 128.0;
-  static RectTween customTween(Rect? begin, Rect? end) {
-    return MaterialRectCenterArcTween(begin: begin, end: end);
-  }
-
-  final Entry model;
-
-  EntryDetail({Key? key, required this.model})
-      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(model.title??"Untitled"),
+        title: Text(widget.model.title??"Untitled"),
       ),
       body: Container(
         color: Theme.of(context).canvasColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: double.infinity,//kMaxRadius * 2.0,
-              height: 120,//kMaxRadius * 2.0,
-              child: buildHeroWidget(context),
+            ClipRect(
+              child: SizedBox(
+                width: double.infinity,//kMaxRadius * 2.0,
+                height: 120,//kMaxRadius * 2.0,
+                child: buildHeroWidget(context),
+              ),
             ),
             Expanded(
               child: buildMDViewer(context),
@@ -48,40 +48,22 @@ class EntryDetail extends StatelessWidget {
     );
   }
 
-  Hero buildHeroWidget(BuildContext context) {
-    return Hero(
-      createRectTween: customTween,
-      tag: model.id,
-      child: ClipRect(
-        child: Transform.scale(
-          scale: 2.1,
-          child: RadialExpansion(
-            maxRadius: kMaxRadius,
-            child: buildBanner(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildBanner() {
-    return CachedNetworkImage(
-            imageUrl: model.thumbnail??"",
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
-            fit: BoxFit.cover,
-          );
-    //return Image.network(banner??"", fit: BoxFit.cover);
-    //return Image.asset(banner??"", fit: BoxFit.cover);
+  Widget buildHeroWidget(BuildContext context) {
+    return BannerHero(id: widget.model.id, imageUrl: widget.model.thumbnail??"");
   }
 
   Future<String> readMD(BuildContext context) async {
     if(!FETCH_CONTENT_AGAIN)
     {
-      return model.content??NO_CONTENT;
+      return widget.model.content??NO_CONTENT;
     }
-    final provider = Provider.of<EntryService>(context);
-    return await provider.fetchContent(model.id);
+    if(widget.model.content != null)
+    {
+      return widget.model.content!;
+    }
+    final provider = Provider.of<EntryService>(context, listen: false);
+    widget.model.content = await provider.fetchContent(widget.model.id);
+    return widget.model.content!;
   }
 
   Widget buildMDViewer(BuildContext context) {

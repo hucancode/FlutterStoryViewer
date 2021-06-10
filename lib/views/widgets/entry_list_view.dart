@@ -153,7 +153,7 @@ class EntryListViewState extends State<EntryListView> {
   }
 
   static const double kMinRadius = 32.0;
-  static const double kMaxRadius = 128.0;
+  static const double kMaxRadius = 120.0;
   static const opacityCurve =
       const Interval(0.0, 0.75, curve: Curves.fastOutSlowIn);
 
@@ -173,7 +173,7 @@ class EntryListViewState extends State<EntryListView> {
         createRectTween: customTween,
         tag: id,
         child: RadialExpansion(
-          maxRadius: kMaxRadius,
+          maxRadius: kMinRadius,
           child: buildIcon(iconPath),
         ),
       ),
