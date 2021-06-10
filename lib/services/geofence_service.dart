@@ -18,8 +18,7 @@ class GeofenceService extends ChangeNotifier {
   List<Geofence> geofences = List<Geofence>.empty(growable: true);
 
   Future<void> load() async {
-    FlutterGeofence.Geofence.initialize();
-    FlutterGeofence.Geofence.requestPermissions();
+    
     //await generateFakeGeofence(FAKE_GEOFENCE_COUNT);
     await readOrFetch();
   }

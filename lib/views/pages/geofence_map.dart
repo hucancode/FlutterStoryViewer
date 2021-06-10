@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_geofence/geofence.dart' as FlutterGeofence;
+import 'package:flutter_geofence/geofence.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pop_experiment/models/geofence.dart';
+import 'package:pop_experiment/models/geofence.dart' as AppGeofence;
 import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/notification_service.dart';
@@ -20,11 +20,11 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   static const LOCATION_UPDATE_INTERVAL = 2000; // Only affects android
   static const LOCATION_UPDATE_BG_INTERVAL = 6000; // Only affects android
   static const USE_LOCATION_LIBRARY = true;
-  var lastKnownLocation = FlutterGeofence.Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
-  var fencePivot = FlutterGeofence.Coordinate(DEFAULT_LAT, DEFAULT_LONG);
+  var lastKnownLocation = Coordinate(DEFAULT_LAT, DEFAULT_LONG);//TODO: save this value to file
+  var fencePivot = Coordinate(DEFAULT_LAT, DEFAULT_LONG);
   Completer<GoogleMapController> controller = Completer();
   var fenceCircles = Set<Circle>.identity();
-  var fences = List<Geofence>.empty();
+  var fences = List<AppGeofence.Geofence>.empty();
   late GeofenceHistory history;
   late GeofenceService service;
 
@@ -39,28 +39,32 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
   void initState()
   {
     super.initState();
+    print("Geofence.initialize()");
+    Geofence.initialize();
+    Geofence.requestPermissions();
     WidgetsBinding.instance!.addObserver(this);
     history = Provider.of<GeofenceHistory>(context, listen: false);
     service = Provider.of<GeofenceService>(context, listen: false);
-    FlutterGeofence.Geofence.startListening(FlutterGeofence.GeolocationEvent.entry, (location)
+    print("Geofence.startListening()");
+    Geofence.startListening(GeolocationEvent.entry, (location)
     {
       print("Entry of a georegion ${location.id}");
       if(shouldSendNotification)
       {
         NotificationService().send("Entry of a georegion", "Welcome to: ${location.id}");
       }
-      fences.firstWhere((e) => e.id.toString() == location.id, orElse: () => Geofence()).isSelected = true;
+      fences.firstWhere((e) => e.id.toString() == location.id, orElse: () => AppGeofence.Geofence()).isSelected = true;
       redrawFences();
       history.add(int.tryParse(location.id)??-1);
     });
-    FlutterGeofence.Geofence.startListening(FlutterGeofence.GeolocationEvent.exit, (location)
+    Geofence.startListening(GeolocationEvent.exit, (location)
     {
       print("Exit of a georegion ${location.id}");
       if(shouldSendNotification)
       {
         NotificationService().send("Entry of a georegion", "Welcome to: ${location.id}");
       }
-      fences.firstWhere((e) => e.id.toString() == location.id, orElse: () => Geofence()).isSelected = false;
+      fences.firstWhere((e) => e.id.toString() == location.id, orElse: () => AppGeofence.Geofence()).isSelected = false;
       redrawFences();
     });
     if(USE_LOCATION_LIBRARY)
@@ -72,23 +76,23 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       Location().getLocation().then((value) {
         if(value.latitude != null && value.longitude != null)
         {
-          handleLocationInitialized(FlutterGeofence.Coordinate(value.latitude!, value.longitude!));
+          handleLocationInitialized(Coordinate(value.latitude!, value.longitude!));
         }
       });
       Location().onLocationChanged.listen((value) {
-        handleLocationUpdate(FlutterGeofence.Coordinate(value.latitude!, value.longitude!));
+        handleLocationUpdate(Coordinate(value.latitude!, value.longitude!));
       });
     }
     else
     {
-      FlutterGeofence.Geofence.getCurrentLocation().then((location) {
+      Geofence.getCurrentLocation().then((location) {
         if(location == null)
         {
           return;
         }
         handleLocationInitialized(location);
       });
-      FlutterGeofence.Geofence.backgroundLocationUpdated.stream.listen((location) {
+      Geofence.backgroundLocationUpdated.stream.listen((location) {
         handleLocationUpdate(location);
       });
     }
@@ -100,14 +104,14 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     // );
   }
 
-  void handleLocationInitialized(FlutterGeofence.Coordinate location) {
+  void handleLocationInitialized(Coordinate location) {
     lastKnownLocation = location;
     print('handleLocationInitialized ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().send("Get location successfully", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     updateFences(location: lastKnownLocation);
   }
 
-  void handleLocationUpdate(FlutterGeofence.Coordinate location) {
+  void handleLocationUpdate(Coordinate location) {
     lastKnownLocation = location;
     //print('handleLocationUpdate ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
     //NotificationHelper().send("Background location updated", 'Location ${lastKnownLocation.latitude} - ${lastKnownLocation.longitude}');
@@ -150,22 +154,16 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
 
   }
 
-  void updateFences({required FlutterGeofence.Coordinate location, double radius = GeofenceService.GEOFENCE_SCAN_RADIUS})
+  void updateFences({required Coordinate location, double radius = GeofenceService.GEOFENCE_SCAN_RADIUS})
   {
-    final start = DateTime.now();
     print('updateFences');
-    FlutterGeofence.Geofence.removeAllGeolocations();
+    Geofence.removeAllGeolocations();
     fences = service.getNearByGeofences(location: location, radius: radius);
     fences.forEach((fence) {
-      final geolocation = FlutterGeofence.Geolocation(latitude: fence.latitude, longitude: fence.longitude, radius: fence.radius, id: fence.id.toString());
-      FlutterGeofence.Geofence.addGeolocation(geolocation, FlutterGeofence.GeolocationEvent.entry).then((onValue) {
-        print("Your geofence has been added! ${fence.id}-${fence.title}");
-      }).catchError((error) {
-          print("Geofence adding failed with $error");
-      });
+      final geolocation = Geolocation(latitude: fence.latitude, longitude: fence.longitude, radius: fence.radius, id: fence.id.toString());
+      Geofence.addGeolocation(geolocation, GeolocationEvent.entry);
     });
     redrawFences();
-    print('updateFences costs ${DateTime.now().difference(start).inMilliseconds} ms');
     goTo(CameraPosition(
       target: LatLng(location.latitude, location.longitude),
       zoom: DEFAULT_ZOOM,
@@ -219,10 +217,10 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       onTap: (location)
       {
         final model = fences.firstWhere((fence) {
-          final a = FlutterGeofence.Coordinate(location.latitude, location.longitude);
-          final b = FlutterGeofence.Coordinate(fence.latitude, fence.longitude);
+          final a = Coordinate(location.latitude, location.longitude);
+          final b = Coordinate(fence.latitude, fence.longitude);
           return service.distance(a, b) < fence.radius;
-        }, orElse: () => Geofence());
+        }, orElse: () => AppGeofence.Geofence());
         if(model.id != -1)
         {
           Navigator.pushNamed(context, '/detail', arguments: model);
