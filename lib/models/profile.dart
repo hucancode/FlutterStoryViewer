@@ -98,7 +98,7 @@ class Profile extends ChangeNotifier
   Future<void> load() async
   {
     final prefs = await SharedPreferences.getInstance();
-    int version = prefs.getInt(SAVE_VERSION_KEY) ?? SAVE_VERSION;
+    final version = prefs.getInt(SAVE_VERSION_KEY) ?? SAVE_VERSION;
     print('loading user prefs version = $version');
     
     if(version < SAVE_VERSION)
