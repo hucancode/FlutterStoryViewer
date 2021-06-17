@@ -55,7 +55,7 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
       }
       fences.firstWhere((e) => e.id.toString() == location.id, orElse: () => AppGeofence.Geofence()).isSelected = true;
       redrawFences();
-      history.add(int.tryParse(location.id)??-1);
+      //history.add(int.tryParse(location.id)??-1);
     });
     Geofence.startListening(GeolocationEvent.exit, (location)
     {

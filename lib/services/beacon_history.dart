@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/beacon_hit.dart';
+import 'package:pop_experiment/models/filter.dart';
 
 class BeaconHistory extends ChangeNotifier {
   List<BeaconHit> entries = List<BeaconHit>.empty(growable: true);
@@ -49,5 +51,42 @@ class BeaconHistory extends ChangeNotifier {
     entries.add(entry);
     notifyListeners();
     save();
+  }
+
+  int applyFilter(Filter filter)
+  {
+    var matched = false;
+    var failed = false;
+    filter.beacons.forEach((filter) {
+      int time = 0;
+      entries.forEach((hit) {
+        if(hit.beaconID != filter.beaconID)
+        {
+          return;
+        }
+        if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax))
+        {
+          return;
+        }
+        int a = hit.hitTime.hour * 60 + hit.hitTime.minute;
+        int amin = filter.hitTimeMin.hour * 60 + filter.hitTimeMin.minute;
+        int b = hit.lastSeen.hour * 60 + hit.lastSeen.minute;
+        int bmax = filter.hitTimeMax.hour * 60 + filter.hitTimeMax.minute;
+        time += min(bmax, b) - max(a, amin);
+        if(time > filter.hitDurationMax)
+        {
+          return;
+        }
+      });
+      matched |= time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+    });
+    failed = (!matched && filter.genderMode == FilterMode.include) || 
+      (matched && filter.genderMode == FilterMode.exclude);
+    if(failed)
+    {
+      print('apply filter ${filter.title}, return false because geofence history was not satified');
+      return 6;
+    }
+    return 0;
   }
 }
