@@ -14,7 +14,6 @@ class LocationHit
   String route = "";
   String street = "";
   String postalCode = "";
-  String fullLocation = "";
 
   LocationHit({required this.latitude, required this.longitude});
   factory LocationHit.fromJson(Map<String, dynamic> json) {
@@ -32,7 +31,6 @@ class LocationHit
     ret.route = json["route"];
     ret.street = json["street"];
     ret.postalCode = json["postalCode"];
-    ret.fullLocation = json["fullLocation"];
     return ret;
   }
 
@@ -51,7 +49,6 @@ class LocationHit
     ret["route"] = route;
     ret["street"] = street;
     ret["postalCode"] = postalCode;
-    ret["fullLocation"] = fullLocation;
     return ret;
   }
 }

@@ -15,7 +15,6 @@ class LocationHitFilter
   String route;
   String street;
   String postalCode;
-  String fullLocation;
   LocationHitFilter({required this.hitDayMin, required this.hitDayMax, 
   required this.hitTimeMin, required this.hitTimeMax, 
   required this.hitDurationMin, required this.hitDurationMax, 
@@ -25,8 +24,7 @@ class LocationHitFilter
   required this.locality, 
   required this.route, 
   required this.street, 
-  required this.postalCode, 
-  required this.fullLocation, });
+  required this.postalCode, });
   factory LocationHitFilter.fromJson(Map<String, dynamic> json) {
     final ret = LocationHitFilter(
       hitDayMin: json["hitDayMin"], 
@@ -42,7 +40,6 @@ class LocationHitFilter
       route: json["route"],
       street: json["street"],
       postalCode: json["postalCode"],
-      fullLocation: json["fullLocation"],
     );
     return ret;
   }
@@ -64,7 +61,6 @@ class LocationHitFilter
     ret["street"] = street;
     ret["street"] = street;
     ret["postalCode"] = postalCode;
-    ret["fullLocation"] = fullLocation;
     return ret;
   }
 }

@@ -2,12 +2,14 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/location_hit.dart';
 
 class LocationHistory extends ChangeNotifier {
   List<LocationHit> entries = List<LocationHit>.empty(growable: true);
+  Placemark? active;
 
   static const LOCAL_CACHE = 'location_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
@@ -33,24 +35,11 @@ class LocationHistory extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    return;
-    //TODO: rewrite serialization logic
     final file = await cacheFile;
     var jsonData = json.encode(entries);
-    file.writeAsString(jsonData);
-  }
-
-  void add(LocationHit entry)
-  {
+    //TODO: rewrite serialization logic
     return;
-    //TODO: rewrite add entry logic
-    if(entries.contains(entry))
-    {
-      return;
-    }
-    entries.add(entry);
-    notifyListeners();
-    save();
+    file.writeAsString(jsonData);
   }
 
   int applyFilter(Filter filter)
@@ -88,10 +77,6 @@ class LocationHistory extends ChangeNotifier {
         {
           return;
         }
-        if(!hit.fullLocation.contains(filter.fullLocation))
-        {
-          return;
-        }
         if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax))
         {
           return;
@@ -106,15 +91,75 @@ class LocationHistory extends ChangeNotifier {
           return;
         }
       });
-      matched |= time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      if(matched)
+      {
+        return;
+      }
     });
     failed = (!matched && filter.genderMode == FilterMode.include) || 
       (matched && filter.genderMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter ${filter.title}, return false because geofence history was not satified');
+      print('apply filter ${filter.title}, return false because location history was not satified');
       return 6;
     }
     return 0;
+  }
+
+  void updateLocationWithPlacemark(Placemark place, double lat, double long)
+  {
+    final hit = LocationHit(latitude: lat, longitude: long);
+    hit.country = place.country??"";
+    hit.areaLevel1 = place.administrativeArea??"";
+    hit.areaLevel2 = place.subAdministrativeArea??"";
+    hit.locality = place.locality??"";
+    hit.route = place.subLocality??"";
+    hit.street = place.thoroughfare??"";
+    hit.street += place.subThoroughfare??"";
+    hit.postalCode = place.postalCode??"";
+    if(active == null)
+    {
+      active = place;
+    }
+    if(entries.isEmpty)
+    {
+      entries.add(hit);
+      return;
+    }
+    if(place != active)
+    {
+      entries.add(hit);
+      return;
+    }
+    final today = DateTime.now();
+    final sameDay = entries.last.hitDay.year == today.year && 
+    entries.last.hitDay.month == today.month && 
+    entries.last.hitDay.day == today.day;
+    if(sameDay)
+    {
+      entries.last.lastSeen = TimeOfDay.now();
+    }
+    else
+    {
+      entries.last.lastSeen = TimeOfDay(hour: 23, minute: 59);
+      final newDayEntry = LocationHit(latitude: lat, longitude: long);
+      newDayEntry.hitTime = TimeOfDay(hour: 0, minute: 0);
+      newDayEntry.lastSeen = TimeOfDay.now();
+      entries.add(newDayEntry);
+    }
+  }
+
+  Future<void> updateLocation(double lat, double long) async
+  {
+    final places = await placemarkFromCoordinates(lat, long, localeIdentifier: "jp");
+    if(places.isEmpty)
+    {
+      return;
+    }
+    final place = places.first;
+    updateLocationWithPlacemark(place, lat, long);
+    notifyListeners();
+    save();
   }
 }

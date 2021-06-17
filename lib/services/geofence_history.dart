@@ -8,6 +8,7 @@ import 'package:pop_experiment/models/geofence_hit.dart';
 
 class GeofenceHistory extends ChangeNotifier {
   List<GeofenceHit> entries = List<GeofenceHit>.empty(growable: true);
+  List<int> actives = List<int>.empty(growable: true);
 
   static const LOCAL_CACHE = 'geofence_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
@@ -33,24 +34,66 @@ class GeofenceHistory extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    return;
-    //TODO: rewrite serialization logic
     final file = await cacheFile;
     var jsonData = json.encode(entries);
+    return;
+    //TODO: rewrite serialization logic
     file.writeAsString(jsonData);
   }
 
-  void add(GeofenceHit entry)
+  Future<void> enterGeofence(int id) async
   {
-    return;
-    //TODO: rewrite add entry logic
-    if(entries.contains(entry))
+    if(!actives.contains(id))
+    {
+      actives.add(id);
+    }
+    entries.add(GeofenceHit(geofenceID: id));
+    notifyListeners();
+    save();
+  }
+
+  Future<void> exitGeofence(int id) async
+  {
+    if(!actives.contains(id))
     {
       return;
     }
-    entries.add(entry);
+    markSeenSingleGeofences(id);
+    actives.remove(id);
     notifyListeners();
     save();
+  }
+
+  void markSeenActiveGeofences()
+  {
+    actives.forEach((id) {
+      markSeenSingleGeofences(id);
+    });
+    save();
+  }
+  void markSeenSingleGeofences(int id)
+  {
+      final lastMatch = entries.lastWhere((e) => e.geofenceID == id, orElse: () => GeofenceHit(geofenceID: -1));
+      if(lastMatch.geofenceID == -1)
+      {
+        return;
+      }
+      final today = DateTime.now();
+      final sameDay = lastMatch.hitDay.year == today.year && 
+      lastMatch.hitDay.month == today.month && 
+      lastMatch.hitDay.day == today.day;
+      if(sameDay)
+      {
+        lastMatch.lastSeen = TimeOfDay.now();
+      }
+      else
+      {
+        lastMatch.lastSeen = TimeOfDay(hour: 23, minute: 59);
+        final newDayEntry = GeofenceHit(geofenceID: id);
+        newDayEntry.hitTime = TimeOfDay(hour: 0, minute: 0);
+        newDayEntry.lastSeen = TimeOfDay.now();
+        entries.add(newDayEntry);
+      }
   }
 
   int applyFilter(Filter filter)
@@ -78,7 +121,11 @@ class GeofenceHistory extends ChangeNotifier {
           return;
         }
       });
-      matched |= time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      if(matched)
+      {
+        return;
+      }
     });
     failed = (!matched && filter.genderMode == FilterMode.include) || 
       (matched && filter.genderMode == FilterMode.exclude);

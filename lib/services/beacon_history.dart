@@ -8,6 +8,7 @@ import 'package:pop_experiment/models/filter.dart';
 
 class BeaconHistory extends ChangeNotifier {
   List<BeaconHit> entries = List<BeaconHit>.empty(growable: true);
+  List<int> actives = List<int>.empty(growable: true);
 
   static const LOCAL_CACHE = 'beacon_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
@@ -33,24 +34,66 @@ class BeaconHistory extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    return;
     //TODO: rewrite serialization logic
     final file = await cacheFile;
     var jsonData = json.encode(entries);
+    return;
     file.writeAsString(jsonData);
   }
 
-  void add(BeaconHit entry)
+  Future<void> enter(int id) async
   {
-    return;
-    //TODO: rewrite add entry logic
-    if(entries.contains(entry))
+    if(!actives.contains(id))
+    {
+      actives.add(id);
+    }
+    entries.add(BeaconHit(beaconID: id));
+    notifyListeners();
+    save();
+  }
+
+  Future<void> exit(int id) async
+  {
+    if(!actives.contains(id))
     {
       return;
     }
-    entries.add(entry);
+    markSeenSingle(id);
+    actives.remove(id);
     notifyListeners();
     save();
+  }
+
+  void markSeenActives()
+  {
+    actives.forEach((id) {
+      markSeenSingle(id);
+    });
+    save();
+  }
+  void markSeenSingle(int id)
+  {
+      final lastMatch = entries.lastWhere((e) => e.beaconID == id, orElse: () => BeaconHit(beaconID: -1));
+      if(lastMatch.beaconID == -1)
+      {
+        return;
+      }
+      final today = DateTime.now();
+      final sameDay = lastMatch.hitDay.year == today.year && 
+      lastMatch.hitDay.month == today.month && 
+      lastMatch.hitDay.day == today.day;
+      if(sameDay)
+      {
+        lastMatch.lastSeen = TimeOfDay.now();
+      }
+      else
+      {
+        lastMatch.lastSeen = TimeOfDay(hour: 23, minute: 59);
+        final newDayEntry = BeaconHit(beaconID: id);
+        newDayEntry.hitTime = TimeOfDay(hour: 0, minute: 0);
+        newDayEntry.lastSeen = TimeOfDay.now();
+        entries.add(newDayEntry);
+      }
   }
 
   int applyFilter(Filter filter)
@@ -78,13 +121,17 @@ class BeaconHistory extends ChangeNotifier {
           return;
         }
       });
-      matched |= time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      if(matched)
+      {
+        return;
+      }
     });
     failed = (!matched && filter.genderMode == FilterMode.include) || 
       (matched && filter.genderMode == FilterMode.exclude);
     if(failed)
     {
-      print('apply filter ${filter.title}, return false because geofence history was not satified');
+      print('apply filter ${filter.title}, return false because beacon history was not satified');
       return 6;
     }
     return 0;
