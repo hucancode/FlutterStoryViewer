@@ -2,12 +2,12 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pop_experiment/models/geofence_hit.dart';
+import 'package:pop_experiment/models/beacon_hit.dart';
 
-class GeofenceHistory extends ChangeNotifier {
-  List<GeofenceHit> entries = List<GeofenceHit>.empty(growable: true);
+class BeaconHistory extends ChangeNotifier {
+  List<BeaconHit> entries = List<BeaconHit>.empty(growable: true);
 
-  static const LOCAL_CACHE = 'geofence_history.json';
+  static const LOCAL_CACHE = 'beacon_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
 
   Future<File> get cacheFile async {
@@ -18,13 +18,13 @@ class GeofenceHistory extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    print("GeofenceHistory load()");
+    print("BeaconHistory load()");
     try {
       final cache = await cacheFile;
       String response = await cache.readAsString();
-      print('GeofenceHistory load() response = $response');
+      print('BeaconHistory load() response = $response');
       Iterable models = json.decode(response);
-      entries = List<GeofenceHit>.from(models.map((e) => GeofenceHit.fromJson(e)));
+      entries = List<BeaconHit>.from(models.map((e) => BeaconHit.fromJson(e)));
     } on Exception catch (e) {
       print('error while loading json ${e.toString()}');
     }
@@ -38,7 +38,7 @@ class GeofenceHistory extends ChangeNotifier {
     file.writeAsString(jsonData);
   }
 
-  void add(GeofenceHit entry)
+  void add(BeaconHit entry)
   {
     return;
     //TODO: rewrite add entry logic
