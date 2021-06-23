@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/geofence.dart';
 import 'package:pop_experiment/views/pages/geofence_detail.dart';
 import 'package:pop_experiment/views/pages/geofence_map.dart';
+import 'package:pop_experiment/views/pages/location_history.dart';
 
 class MapNavigator extends StatelessWidget {
   static const String root = '/';
   static const String detail = '/detail';
+  static const String locationHistory = '/location-history';
 
   PageRoute<void> routeToDetail(RouteSettings settings)
   {
@@ -15,6 +17,11 @@ class MapNavigator extends StatelessWidget {
     }
     Geofence model = settings.arguments as Geofence;
     Widget widget = GeofenceDetail(model: model);
+    return MaterialPageRoute<void>(builder: (context) => widget);
+  }
+
+  PageRoute<void> routeToLocationHistory(RouteSettings settings) {
+    Widget widget = LocationHistoryPage();
     return MaterialPageRoute<void>(builder: (context) => widget);
   }
 
@@ -32,6 +39,10 @@ class MapNavigator extends StatelessWidget {
           if(routeSettings.name == detail)
           {
             return routeToDetail(routeSettings);
+          }
+          if(routeSettings.name == locationHistory)
+          {
+            return routeToLocationHistory(routeSettings);
           }
           return routeToRoot(routeSettings);
         }

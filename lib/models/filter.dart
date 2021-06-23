@@ -93,9 +93,9 @@ class Filter
       int max = range["max"]??0;
       return RangeValues(min.toDouble(), max.toDouble());
     }).toList();
-    geofences = List<dynamic>.from(json["geofences"]).map((e) => GeofenceHitFilter.fromJson(e)).toList();
-    beacons = List<dynamic>.from(json["beacons"]).map((e) => BeaconHitFilter.fromJson(e)).toList();
-    locations = List<dynamic>.from(json["locations"]).map((e) => LocationHitFilter.fromJson(e)).toList();
+    geofences = List<dynamic>.from(json["geofences"]??[]).map((e) => GeofenceHitFilter.fromJson(e)).toList();
+    beacons = List<dynamic>.from(json["beacons"]??[]).map((e) => BeaconHitFilter.fromJson(e)).toList();
+    locations = List<dynamic>.from(json["locations"]??[]).map((e) => LocationHitFilter.fromJson(e)).toList();
     authorID = json["authorID"];
     isFullyLoaded = json["isFullyLoaded"]??false;
   }

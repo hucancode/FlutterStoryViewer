@@ -195,6 +195,12 @@ class GeofenceMapState extends State<GeofenceMap> with SingleTickerProviderState
     return new Scaffold(
       appBar: AppBar(
         title: Text("Geofence Map"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () => Navigator.pushNamed(context, '/location-history'),
+          ),
+        ],
       ),
       body: buildGoogleMap(),
     );

@@ -9,7 +9,7 @@ import 'package:pop_experiment/models/location_hit.dart';
 
 class LocationHistory extends ChangeNotifier {
   List<LocationHit> entries = List<LocationHit>.empty(growable: true);
-  Placemark? active;
+  LocationHit? active;
 
   static const LOCAL_CACHE = 'location_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
@@ -36,9 +36,8 @@ class LocationHistory extends ChangeNotifier {
 
   Future<void> save() async {
     final file = await cacheFile;
-    var jsonData = json.encode(entries);
-    //TODO: rewrite serialization logic
-    return;
+    var jsonData = json.encode(entries.map((e) => e.toJson()).toList());
+    print('LocationHistory save() data = $jsonData');
     file.writeAsString(jsonData);
   }
 
@@ -46,50 +45,48 @@ class LocationHistory extends ChangeNotifier {
   {
     var matched = false;
     var failed = false;
+    const FULL_DAY_IN_MINUTE = 24*60;
     filter.locations.forEach((filter) {
       int time = 0;
-      entries.forEach((hit) {
-        if(!hit.country.contains(filter.country))
-        {
-          return;
+      final twoDaySpan = filter.hitTimeMin.hour > filter.hitTimeMax.hour || 
+          (filter.hitTimeMin.hour == filter.hitTimeMax.hour && filter.hitTimeMin.minute > filter.hitTimeMax.minute);
+      
+      entries.where((hit) {
+        if(!hit.country.contains(filter.country)) {
+          return false;
         }
-        if(!hit.areaLevel1.contains(filter.areaLevel1))
-        {
-          return;
+        if(!hit.area.contains(filter.area)) {
+          return false;
         }
-        if(!hit.areaLevel2.contains(filter.areaLevel2))
-        {
-          return;
+        if(!hit.locality.contains(filter.locality)) {
+          return false;
         }
-        if(!hit.locality.contains(filter.locality))
-        {
-          return;
+        if(!hit.route.contains(filter.route)) {
+          return false;
         }
-        if(!hit.route.contains(filter.route))
-        {
-          return;
+        if(!hit.street.contains(filter.street)) {
+          return false;
         }
-        if(!hit.street.contains(filter.street))
-        {
-          return;
+        if(filter.postalCode.isNotEmpty && hit.postalCode != filter.postalCode) {
+          return false;
         }
-        if(hit.postalCode != filter.postalCode)
-        {
-          return;
+        if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax)) {
+          return false;
         }
-        if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax))
+        final afterMin = hit.hitDay.hour >= filter.hitTimeMin.hour && hit.hitDay.minute <= filter.hitTimeMin.minute;
+        final beforeMax = hit.hitDay.hour <= filter.hitTimeMax.hour && hit.hitDay.minute <= filter.hitTimeMax.minute;
+        final inRange = twoDaySpan?(afterMin || beforeMax):(afterMin && beforeMax);
+        if(!inRange)
         {
-          return;
+          return false;
         }
-        int a = hit.hitTime.hour * 60 + hit.hitTime.minute;
-        int amin = filter.hitTimeMin.hour * 60 + filter.hitTimeMin.minute;
-        int b = hit.lastSeen.hour * 60 + hit.lastSeen.minute;
-        int bmax = filter.hitTimeMax.hour * 60 + filter.hitTimeMax.minute;
-        time += min(bmax, b) - max(a, amin);
-        if(time > filter.hitDurationMax)
-        {
-          return;
-        }
+        return true;
+      }).forEach((e) {
+        final lowerBound = max(e.hitDay.hour*60+e.hitDay.minute, 
+          filter.hitTimeMin.hour*60+filter.hitTimeMin.minute);
+        final upperBound = min(e.leaveDay.hour*60+e.leaveDay.minute, 
+          filter.hitTimeMax.hour*60+filter.hitTimeMax.minute);
+        time += max(0, twoDaySpan?FULL_DAY_IN_MINUTE:0 + upperBound - lowerBound);
       });
       matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
       if(matched)
@@ -111,43 +108,28 @@ class LocationHistory extends ChangeNotifier {
   {
     final hit = LocationHit(latitude: lat, longitude: long);
     hit.country = place.country??"";
-    hit.areaLevel1 = place.administrativeArea??"";
-    hit.areaLevel2 = place.subAdministrativeArea??"";
+    hit.area = '${place.administrativeArea} ${place.subAdministrativeArea}';
     hit.locality = place.locality??"";
-    hit.route = place.subLocality??"";
-    hit.street = place.thoroughfare??"";
-    hit.street += place.subThoroughfare??"";
+    hit.route = place.thoroughfare??"";
+    hit.street = place.subThoroughfare??"";
     hit.postalCode = place.postalCode??"";
     if(active == null)
     {
-      active = place;
+      active = hit;
     }
     if(entries.isEmpty)
     {
       entries.add(hit);
       return;
     }
-    if(place != active)
+    if(hit != active)
     {
+      print('comparing current hit with last active place, place = $hit , active = $active');
+      active = hit;
       entries.add(hit);
       return;
     }
-    final today = DateTime.now();
-    final sameDay = entries.last.hitDay.year == today.year && 
-    entries.last.hitDay.month == today.month && 
-    entries.last.hitDay.day == today.day;
-    if(sameDay)
-    {
-      entries.last.lastSeen = TimeOfDay.now();
-    }
-    else
-    {
-      entries.last.lastSeen = TimeOfDay(hour: 23, minute: 59);
-      final newDayEntry = LocationHit(latitude: lat, longitude: long);
-      newDayEntry.hitTime = TimeOfDay(hour: 0, minute: 0);
-      newDayEntry.lastSeen = TimeOfDay.now();
-      entries.add(newDayEntry);
-    }
+    entries.last.leaveDay = DateTime.now();
   }
 
   Future<void> updateLocation(double lat, double long) async

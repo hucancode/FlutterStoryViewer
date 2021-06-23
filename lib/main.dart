@@ -5,6 +5,7 @@ import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/local_entry_service.dart';
+import 'package:pop_experiment/services/location_history.dart';
 import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/services/prefecture_service.dart';
 import 'package:pop_experiment/views/master.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
   final geofenceHistoryProvider = GeofenceHistory();
   final prefectureProvider = PrefectureService();
   final profileProvider = Profile();
+  final locationHistoryProvider = LocationHistory();
   
   Future<void> load() async {
     print('loading started!!!!');
@@ -60,6 +62,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: geofenceHistoryProvider),
         ChangeNotifierProvider.value(value: prefectureProvider),
         ChangeNotifierProvider.value(value: profileProvider),
+        ChangeNotifierProvider.value(value: locationHistoryProvider),
       ],
       child: app,
     );

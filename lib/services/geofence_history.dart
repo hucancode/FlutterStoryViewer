@@ -26,6 +26,7 @@ class GeofenceHistory extends ChangeNotifier {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       print('GeofenceHistory load() response = $response');
+      return;
       Iterable models = json.decode(response);
       entries = List<GeofenceHit>.from(models.map((e) => GeofenceHit.fromJson(e)));
     } on Exception catch (e) {
@@ -36,6 +37,7 @@ class GeofenceHistory extends ChangeNotifier {
   Future<void> save() async {
     final file = await cacheFile;
     var jsonData = json.encode(entries);
+    print('GeofenceHistory save() data = $jsonData');
     return;
     //TODO: rewrite serialization logic
     file.writeAsString(jsonData);

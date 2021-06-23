@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class LocationHit
 {
   DateTime hitDay = DateTime.now();
-  TimeOfDay hitTime = TimeOfDay.now();
-  TimeOfDay lastSeen = TimeOfDay.now();
+  DateTime leaveDay = DateTime.now();
   double latitude;
   double longitude;
   String country = "";
-  String areaLevel1 = "";
-  String areaLevel2 = "";
+  String area = "";
   String locality = "";
   String route = "";
   String street = "";
@@ -17,16 +15,15 @@ class LocationHit
 
   LocationHit({required this.latitude, required this.longitude});
   factory LocationHit.fromJson(Map<String, dynamic> json) {
+    final dateFormatter = DateFormat.yMd().add_Hm();
     final ret = LocationHit(
       latitude: json["latitude"],
       longitude: json["longitude"],
     );
-    ret.hitDay = json["hitDay"];
-    ret.hitTime = json["hitTime"];
-    ret.lastSeen = json["lastSeen"];
+    ret.hitDay = dateFormatter.parse(json["hitDay"]);
+    ret.leaveDay = dateFormatter.parse(json["leaveDay"]);
     ret.country = json["country"];
-    ret.areaLevel1 = json["areaLevel1"];
-    ret.areaLevel2 = json["areaLevel2"];
+    ret.area = json["area"];
     ret.locality = json["locality"];
     ret.route = json["route"];
     ret.street = json["street"];
@@ -34,17 +31,40 @@ class LocationHit
     return ret;
   }
 
+  @override
+  bool operator == (dynamic o) =>
+      o is LocationHit &&
+      o.country == country &&
+      o.area == area &&
+      o.locality == locality &&
+      o.postalCode == postalCode &&
+      o.route == route &&
+      o.street == street;
+  
+  @override
+  int get hashCode =>
+      country.hashCode ^
+      area.hashCode ^
+      locality.hashCode ^
+      route.hashCode ^
+      street.hashCode ^
+      postalCode.hashCode;
+      
+  @override
+  String toString() {
+    return '$country - $area - $locality - $route - $street ($postalCode)';
+  }
+  
   Map<String, dynamic> toJson()
   {
     Map<String, dynamic> ret = {};
-    ret["hitDay"] = hitDay.toString();
-    ret["hitTime"] = hitTime.toString();
-    ret["lastSeen"] = lastSeen.toString();
+    final dateFormatter = DateFormat.yMd().add_Hm();
+    ret["hitDay"] = dateFormatter.format(hitDay);
+    ret["leaveDay"] = dateFormatter.format(leaveDay);
     ret["latitude"] = latitude;
     ret["longitude"] = longitude;
     ret["country"] = country;
-    ret["areaLevel1"] = areaLevel1;
-    ret["areaLevel2"] = areaLevel2;
+    ret["area"] = area;
     ret["locality"] = locality;
     ret["route"] = route;
     ret["street"] = street;

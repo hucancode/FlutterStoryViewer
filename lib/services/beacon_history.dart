@@ -26,6 +26,7 @@ class BeaconHistory extends ChangeNotifier {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       print('BeaconHistory load() response = $response');
+      return;
       Iterable models = json.decode(response);
       entries = List<BeaconHit>.from(models.map((e) => BeaconHit.fromJson(e)));
     } on Exception catch (e) {
@@ -37,6 +38,7 @@ class BeaconHistory extends ChangeNotifier {
     //TODO: rewrite serialization logic
     final file = await cacheFile;
     var jsonData = json.encode(entries);
+    print('BeaconHistory save() data = $jsonData');
     return;
     file.writeAsString(jsonData);
   }

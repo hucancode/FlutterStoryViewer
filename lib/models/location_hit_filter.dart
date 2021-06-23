@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class LocationHitFilter
 {
@@ -9,8 +10,7 @@ class LocationHitFilter
   int hitDurationMin;
   int hitDurationMax;
   String country;
-  String areaLevel1;
-  String areaLevel2;
+  String area;
   String locality;
   String route;
   String street;
@@ -19,23 +19,23 @@ class LocationHitFilter
   required this.hitTimeMin, required this.hitTimeMax, 
   required this.hitDurationMin, required this.hitDurationMax, 
   required this.country, 
-  required this.areaLevel1, 
-  required this.areaLevel2, 
+  required this.area, 
   required this.locality, 
   required this.route, 
   required this.street, 
   required this.postalCode, });
   factory LocationHitFilter.fromJson(Map<String, dynamic> json) {
+    final dateFormatter = DateFormat.yMd();
+    final timeFormatter = DateFormat.Hm();
     final ret = LocationHitFilter(
-      hitDayMin: json["hitDayMin"], 
-      hitDayMax: json["hitDayMax"], 
-      hitTimeMin: json["hitTimeMin"], 
-      hitTimeMax: json["hitTimeMax"], 
+      hitDayMin: dateFormatter.parse(json["hitDayMin"]), 
+      hitDayMax: dateFormatter.parse(json["hitDayMax"]), 
+      hitTimeMin: TimeOfDay.fromDateTime(timeFormatter.parse(json["hitTimeMin"])), 
+      hitTimeMax: TimeOfDay.fromDateTime(timeFormatter.parse(json["hitTimeMax"])), 
       hitDurationMin: json["hitDurationMin"], 
       hitDurationMax: json["hitDurationMax"], 
       country: json["country"],
-      areaLevel1: json["areaLevel1"],
-      areaLevel2: json["areaLevel2"],
+      area: json["area"],
       locality: json["locality"],
       route: json["route"],
       street: json["street"],
@@ -47,15 +47,15 @@ class LocationHitFilter
   Map<String, dynamic> toJson()
   {
     Map<String, dynamic> ret = {};
-    ret["hitDayMin"] = hitDayMin.toString();
-    ret["hitDayMax"] = hitDayMax.toString();
-    ret["hitTimeMin"] = hitTimeMin.toString();
-    ret["hitTimeMax"] = hitTimeMax.toString();
+    final dateFormatter = DateFormat.yMd();
+    ret["hitDayMin"] = dateFormatter.format(hitDayMin);
+    ret["hitDayMax"] = dateFormatter.format(hitDayMax);
+    ret["hitTimeMin"] = '${hitTimeMin.hour}:${hitTimeMin.minute}';
+    ret["hitTimeMax"] = '${hitTimeMax.hour}:${hitTimeMax.minute}';
     ret["hitDurationMin"] = hitDurationMin.toString();
     ret["hitDurationMax"] = hitDurationMax.toString();
     ret["country"] = country;
-    ret["areaLevel1"] = areaLevel1;
-    ret["areaLevel2"] = areaLevel2;
+    ret["area"] = area;
     ret["locality"] = locality;
     ret["route"] = route;
     ret["street"] = street;
