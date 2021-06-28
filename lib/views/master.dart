@@ -72,7 +72,6 @@ class MasterPageState extends State<MasterPage> {
         ],
       ),
     );
-
     return scaffold;
   }
 }

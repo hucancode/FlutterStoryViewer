@@ -11,6 +11,7 @@ class LocationHistory extends ChangeNotifier {
   List<LocationHit> entries = List<LocationHit>.empty(growable: true);
   LocationHit? active;
 
+  // TODO: This file could accumulate up to 500k records, so consider using sqlite
   static const LOCAL_CACHE = 'location_history.json';
   static const RECENT_THRESHOLD_IN_DAY = 90;
 
@@ -50,7 +51,6 @@ class LocationHistory extends ChangeNotifier {
       int time = 0;
       final twoDaySpan = filter.hitTimeMin.hour > filter.hitTimeMax.hour || 
           (filter.hitTimeMin.hour == filter.hitTimeMax.hour && filter.hitTimeMin.minute > filter.hitTimeMax.minute);
-      
       entries.where((hit) {
         if(!hit.country.contains(filter.country)) {
           return false;
