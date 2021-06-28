@@ -126,9 +126,9 @@ class Filter
       int max = range["max"]??0;
       return RangeValues(min.toDouble(), max.toDouble());
     }).toList();
-    final geofences = List<dynamic>.from(json["geofences"]).map((e) => GeofenceHitFilter.fromJson(e)).toList();
-    final beacons = List<dynamic>.from(json["beacons"]).map((e) => BeaconHitFilter.fromJson(e)).toList();
-    final locations = List<dynamic>.from(json["locations"]).map((e) => LocationHitFilter.fromJson(e)).toList();
+    final geofences = List<dynamic>.from(json["geofences"]??[]).map((e) => GeofenceHitFilter.fromJson(e)).toList();
+    final beacons = List<dynamic>.from(json["beacons"]??[]).map((e) => BeaconHitFilter.fromJson(e)).toList();
+    final locations = List<dynamic>.from(json["locations"]??[]).map((e) => LocationHitFilter.fromJson(e)).toList();
     int authorID = json["authorID"];
     bool isFullyLoaded = json["isFullyLoaded"]??false;
     print('build filter with id = $id, title = $title, genderMode = $genderMode, maritalMode = $maritalMode, '
