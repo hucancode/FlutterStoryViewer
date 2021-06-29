@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
       geofenceHistoryProvider: geofenceHistoryProvider
     );
     await prefectureProvider.load();
+    await locationHistoryProvider.load();
     print('loading finished!!!!');
   }
   @override

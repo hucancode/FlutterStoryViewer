@@ -49,7 +49,12 @@ class LocationHit
       route.hashCode ^
       street.hashCode ^
       postalCode.hashCode;
-      
+
+  int get stayTimeInMinute
+  {
+    return leaveDay.difference(hitDay).inMinutes;
+  }
+  
   @override
   String toString() {
     return '$country - $area - $locality - $route - $street ($postalCode)';

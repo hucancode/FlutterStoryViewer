@@ -10,10 +10,14 @@ import 'package:pop_experiment/models/location_hit.dart';
 class LocationHistory extends ChangeNotifier {
   List<LocationHit> entries = List<LocationHit>.empty(growable: true);
   LocationHit? active;
+  DateTime lastSaveTimeStamp = DateTime.now();
 
   // TODO: This file could accumulate up to 500k records, so consider using sqlite
   static const LOCAL_CACHE = 'location_history.json';
+  static const SAVE_CACHE_COOLDOWN_IN_MINUTE = 1;
   static const RECENT_THRESHOLD_IN_DAY = 90;
+  static const FUZZY_LOCATION_THRESHOLD_IN_MINUTE = 0;
+  static const LOCATION_MERGE_TOLERANCE_IN_MINUTE = 5;
 
   Future<File> get cacheFile async {
     final directory = await getApplicationDocumentsDirectory();
@@ -36,6 +40,12 @@ class LocationHistory extends ChangeNotifier {
   }
 
   Future<void> save() async {
+    final now = DateTime.now();
+    if(lastSaveTimeStamp.difference(now).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
+    {
+      return;
+    }
+    lastSaveTimeStamp = now;
     final file = await cacheFile;
     var jsonData = json.encode(entries.map((e) => e.toJson()).toList());
     print('LocationHistory save() data = $jsonData');
@@ -104,6 +114,58 @@ class LocationHistory extends ChangeNotifier {
     return 0;
   }
 
+  void swallowFuzzyLocation()
+  {
+    var today = max(0, entries.lastIndexWhere((e) => e.hitDay.difference(DateTime.now()).inDays > 0));
+    //print('swallowFuzzyLocation() today mark: $today');
+    int i = entries.length - 1;
+    for(;i>today;i--)
+    {
+      if(entries[i].stayTimeInMinute <= FUZZY_LOCATION_THRESHOLD_IN_MINUTE)
+      {
+        //print('swallowFuzzyLocation() entry i($i) is insignificant');
+        continue;
+      }
+      int j = i - 1;
+      for(;j>=today;j--)
+      {
+        final interrupted = entries[j].leaveDay.difference(entries[i].hitDay).inMinutes > LOCATION_MERGE_TOLERANCE_IN_MINUTE; 
+        if(interrupted)
+        {
+          break;
+        }
+        final sameEntry = entries[i] == entries[j];
+        if(sameEntry)
+        {
+          entries[j].leaveDay = entries[i].leaveDay;
+          for(int k = i;k>j;k--)
+          {
+            entries.removeAt(k);
+          }
+          i = j;
+          continue;
+        }
+        if(entries[j].stayTimeInMinute > FUZZY_LOCATION_THRESHOLD_IN_MINUTE)
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  void cleanFuzzyLocation()
+  {
+    var today = max(0, entries.lastIndexWhere((e) => e.hitDay.difference(DateTime.now()).inDays > 0));
+    int i = entries.length - 2;
+    for(;i>today;i--)
+    {
+      if(entries[i].stayTimeInMinute < 1)
+      {
+        entries.removeAt(i);
+      }
+    }
+  }
+
   void updateLocationWithPlacemark(Placemark place, double lat, double long)
   {
     final hit = LocationHit(latitude: lat, longitude: long);
@@ -141,6 +203,7 @@ class LocationHistory extends ChangeNotifier {
     }
     final place = places.first;
     updateLocationWithPlacemark(place, lat, long);
+    swallowFuzzyLocation();
     notifyListeners();
     save();
   }
