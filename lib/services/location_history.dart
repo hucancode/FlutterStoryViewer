@@ -16,7 +16,7 @@ class LocationHistory extends ChangeNotifier {
   static const LOCAL_CACHE = 'location_history.json';
   static const SAVE_CACHE_COOLDOWN_IN_MINUTE = 1;
   static const RECENT_THRESHOLD_IN_DAY = 90;
-  static const FUZZY_LOCATION_THRESHOLD_IN_MINUTE = 0;
+  static const FUZZY_LOCATION_THRESHOLD_IN_MINUTE = 1;
   static const LOCATION_MERGE_TOLERANCE_IN_MINUTE = 5;
 
   Future<File> get cacheFile async {
@@ -39,12 +39,13 @@ class LocationHistory extends ChangeNotifier {
     }
   }
 
-  Future<void> save() async {
+  Future<void> save({bool force = false}) async {
     final now = DateTime.now();
-    if(lastSaveTimeStamp.difference(now).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
+    if(!force && lastSaveTimeStamp.difference(now).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
     {
       return;
     }
+    cleanFuzzyLocation();
     lastSaveTimeStamp = now;
     final file = await cacheFile;
     var jsonData = json.encode(entries.map((e) => e.toJson()).toList());
@@ -116,10 +117,11 @@ class LocationHistory extends ChangeNotifier {
 
   void swallowFuzzyLocation()
   {
-    var today = max(0, entries.lastIndexWhere((e) => e.hitDay.difference(DateTime.now()).inDays > 0));
+    final beforeTodayIndex = max(0, entries.lastIndexWhere((e) => e.hitDay.day != DateTime.now().day || 
+      e.hitDay.month != DateTime.now().month || e.hitDay.year != DateTime.now().year));
     //print('swallowFuzzyLocation() today mark: $today');
     int i = entries.length - 1;
-    for(;i>today;i--)
+    for(;i>beforeTodayIndex+1;i--)
     {
       if(entries[i].stayTimeInMinute <= FUZZY_LOCATION_THRESHOLD_IN_MINUTE)
       {
@@ -127,9 +129,11 @@ class LocationHistory extends ChangeNotifier {
         continue;
       }
       int j = i - 1;
-      for(;j>=today;j--)
+      for(;j>beforeTodayIndex;j--)
       {
-        final interrupted = entries[j].leaveDay.difference(entries[i].hitDay).inMinutes > LOCATION_MERGE_TOLERANCE_IN_MINUTE; 
+        final after = entries[i].hitDay;
+        final before = entries[j].leaveDay;
+        final interrupted = after.difference(before).inMinutes > LOCATION_MERGE_TOLERANCE_IN_MINUTE; 
         if(interrupted)
         {
           break;
