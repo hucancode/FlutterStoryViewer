@@ -1,45 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:pop_experiment/models/hit_query_mode.dart';
 
 class LocationHitFilter
 {
-  DateTime hitDayMin;
-  DateTime hitDayMax;
+  int numDayToQuery;
   TimeOfDay hitTimeMin;
   TimeOfDay hitTimeMax;
-  int hitDurationMin;
-  int hitDurationMax;
+  HitQueryMode queryMode;
+  int queryMin;
+  int queryMax;
   String country;
   String area;
   String locality;
   String route;
   String street;
   String postalCode;
-  LocationHitFilter({required this.hitDayMin, required this.hitDayMax, 
-  required this.hitTimeMin, required this.hitTimeMax, 
-  required this.hitDurationMin, required this.hitDurationMax, 
-  required this.country, 
-  required this.area, 
-  required this.locality, 
-  required this.route, 
-  required this.street, 
-  required this.postalCode, });
+  LocationHitFilter({
+    this.numDayToQuery = 1, 
+    required this.hitTimeMin, 
+    required this.hitTimeMax, 
+    this.queryMode = HitQueryMode.averageDuration,
+    this.queryMin = 0, 
+    this.queryMax = 0, 
+    this.country = "", 
+    this.area = "", 
+    this.locality = "", 
+    this.route = "", 
+    this.street = "", 
+    this.postalCode = "", });
+
+  factory LocationHitFilter.empty()
+  {
+    return LocationHitFilter(
+      hitTimeMin: TimeOfDay(hour: 0, minute: 0), 
+      hitTimeMax: TimeOfDay(hour: 23, minute: 59), 
+    );
+  }
+
+  bool get isTwoDaySpan
+  {
+    if(hitTimeMin.hour > hitTimeMax.hour)
+    {
+      return true;
+    }
+    if(hitTimeMin.hour == hitTimeMax.hour && hitTimeMin.minute > hitTimeMax.minute)
+    {
+      return true;
+    }
+    return false;
+  }
+
   factory LocationHitFilter.fromJson(Map<String, dynamic> json) {
-    final dateFormatter = DateFormat.yMd();
-    final timeFormatter = DateFormat.Hm();
+    //print('LocationHitFilter.fromJson, raw json = $json');
+    final numDayToQuery = json["numDayToQuery"];
+    final int hitTimeMin = json["hitTimeMin"];
+    final int hitTimeMax = json["hitTimeMax"];
+    final int queryMode = json["queryMode"];
+    final int queryMin = json["queryMin"];
+    final int queryMax = json["queryMax"];
+    final country = json["country"];
+    final area = json["area"];
+    final locality = json["locality"];
+    final route = json["route"];
+    final street = json["street"];
+    final postalCode = json["postalCode"];
     final ret = LocationHitFilter(
-      hitDayMin: dateFormatter.parse(json["hitDayMin"]), 
-      hitDayMax: dateFormatter.parse(json["hitDayMax"]), 
-      hitTimeMin: TimeOfDay.fromDateTime(timeFormatter.parse(json["hitTimeMin"])), 
-      hitTimeMax: TimeOfDay.fromDateTime(timeFormatter.parse(json["hitTimeMax"])), 
-      hitDurationMin: json["hitDurationMin"], 
-      hitDurationMax: json["hitDurationMax"], 
-      country: json["country"],
-      area: json["area"],
-      locality: json["locality"],
-      route: json["route"],
-      street: json["street"],
-      postalCode: json["postalCode"],
+      numDayToQuery: numDayToQuery, 
+      hitTimeMin: TimeOfDay(hour: (hitTimeMin/60).floor(), minute: hitTimeMin%60), 
+      hitTimeMax: TimeOfDay(hour: (hitTimeMax/60).floor(), minute: hitTimeMax%60), 
+      queryMode: HitQueryMode.values[queryMode],
+      queryMin: queryMin, 
+      queryMax: queryMax, 
+      country: country,
+      area: area,
+      locality: locality,
+      route: route,
+      street: street,
+      postalCode: postalCode,
     );
     return ret;
   }
@@ -47,13 +84,12 @@ class LocationHitFilter
   Map<String, dynamic> toJson()
   {
     Map<String, dynamic> ret = {};
-    final dateFormatter = DateFormat.yMd();
-    ret["hitDayMin"] = dateFormatter.format(hitDayMin);
-    ret["hitDayMax"] = dateFormatter.format(hitDayMax);
-    ret["hitTimeMin"] = '${hitTimeMin.hour}:${hitTimeMin.minute}';
-    ret["hitTimeMax"] = '${hitTimeMax.hour}:${hitTimeMax.minute}';
-    ret["hitDurationMin"] = hitDurationMin.toString();
-    ret["hitDurationMax"] = hitDurationMax.toString();
+    ret["numDayToQuery"] = numDayToQuery;
+    ret["hitTimeMin"] = '${hitTimeMin.hour*60+hitTimeMin.minute}';
+    ret["hitTimeMax"] = '${hitTimeMax.hour*60+hitTimeMax.minute}';
+    ret["queryMode"] = queryMode.index;
+    ret["queryMin"] = queryMin;
+    ret["queryMax"] = queryMax;
     ret["country"] = country;
     ret["area"] = area;
     ret["locality"] = locality;

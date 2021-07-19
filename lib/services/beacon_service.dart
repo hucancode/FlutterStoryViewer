@@ -9,7 +9,7 @@ import 'package:pop_experiment/models/beacon.dart';
 import 'package:pop_experiment/services/server_config.dart';
 
 class BeaconService extends ChangeNotifier {
-
+  
   static const LOCAL_CACHE = 'beacons.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/beacon/read';

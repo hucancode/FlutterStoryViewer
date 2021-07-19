@@ -9,6 +9,7 @@ import 'package:pop_experiment/services/server_config.dart';
 import 'package:pop_experiment/models/geofence.dart';
 
 class GeofenceService extends ChangeNotifier {
+  
   static const LOCAL_CACHE = 'geofences.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/geofence/read';

@@ -7,6 +7,7 @@ import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/services/server_config.dart';
 
 class EntryService extends ChangeNotifier {
+  
   static const LOCAL_CACHE = 'entries.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/entry/read';

@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:pop_experiment/models/location_hit_filter.dart';
 
 class LocationHit
 {
@@ -75,5 +76,47 @@ class LocationHit
     ret["street"] = street;
     ret["postalCode"] = postalCode;
     return ret;
+  }
+
+  bool matchLocationData(LocationHitFilter filter)
+  {
+    if(!country.contains(filter.country)) {
+      return false;
+    }
+    if(!area.contains(filter.area)) {
+      return false;
+    }
+    if(!locality.contains(filter.locality)) {
+      return false;
+    }
+    if(!route.contains(filter.route)) {
+      return false;
+    }
+    if(!street.contains(filter.street)) {
+      return false;
+    }
+    if(filter.postalCode.isNotEmpty && postalCode != filter.postalCode) {
+      return false;
+    }
+    return true;
+  }
+
+  bool match(LocationHitFilter filter)
+  {
+    if(!matchLocationData(filter)) {
+      return false;
+    }
+    final now = DateTime.now();
+    if(now.difference(hitDay).inDays > filter.numDayToQuery) {
+      return false;
+    }
+    final afterMin = hitDay.hour >= filter.hitTimeMin.hour && hitDay.minute <= filter.hitTimeMin.minute;
+    final beforeMax = hitDay.hour <= filter.hitTimeMax.hour && hitDay.minute <= filter.hitTimeMax.minute;
+    final inRange = filter.isTwoDaySpan?(afterMin || beforeMax):(afterMin && beforeMax);
+    if(!inRange)
+    {
+      return false;
+    }
+    return true;
   }
 }

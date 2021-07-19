@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/filter.dart';
+import 'package:pop_experiment/models/hit_query_mode.dart';
 import 'package:pop_experiment/models/location_hit.dart';
 
 class LocationHistory extends ChangeNotifier {
@@ -13,6 +14,7 @@ class LocationHistory extends ChangeNotifier {
   DateTime lastSaveTimeStamp = DateTime.now();
 
   // TODO: This file could accumulate up to 500k records, so consider using sqlite
+  static const int SAVE_VERSION = 1;// TODO: mark save version, for easier file format upgrade
   static const LOCAL_CACHE = 'location_history.json';
   static const SAVE_CACHE_COOLDOWN_IN_MINUTE = 1;
   static const RECENT_THRESHOLD_IN_DAY = 90;
@@ -58,55 +60,44 @@ class LocationHistory extends ChangeNotifier {
     var matched = false;
     var failed = false;
     const FULL_DAY_IN_MINUTE = 24*60;
+    // TODO: handle edge case, numDaysToQuery = 0
     filter.locations.forEach((filter) {
+      final queryThisMoment = filter.numDayToQuery == 0;
+      if(queryThisMoment)
+      {
+        matched = active?.matchLocationData(filter)??false;
+        return;
+      }
+      final passedEntries = entries.where((hit) {
+        return hit.match(filter);
+      });
       int time = 0;
-      final twoDaySpan = filter.hitTimeMin.hour > filter.hitTimeMax.hour || 
-          (filter.hitTimeMin.hour == filter.hitTimeMax.hour && filter.hitTimeMin.minute > filter.hitTimeMax.minute);
-      entries.where((hit) {
-        if(!hit.country.contains(filter.country)) {
-          return false;
-        }
-        if(!hit.area.contains(filter.area)) {
-          return false;
-        }
-        if(!hit.locality.contains(filter.locality)) {
-          return false;
-        }
-        if(!hit.route.contains(filter.route)) {
-          return false;
-        }
-        if(!hit.street.contains(filter.street)) {
-          return false;
-        }
-        if(filter.postalCode.isNotEmpty && hit.postalCode != filter.postalCode) {
-          return false;
-        }
-        if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax)) {
-          return false;
-        }
-        final afterMin = hit.hitDay.hour >= filter.hitTimeMin.hour && hit.hitDay.minute <= filter.hitTimeMin.minute;
-        final beforeMax = hit.hitDay.hour <= filter.hitTimeMax.hour && hit.hitDay.minute <= filter.hitTimeMax.minute;
-        final inRange = twoDaySpan?(afterMin || beforeMax):(afterMin && beforeMax);
-        if(!inRange)
-        {
-          return false;
-        }
-        return true;
-      }).forEach((e) {
+      passedEntries.forEach((e) {
         final lowerBound = max(e.hitDay.hour*60+e.hitDay.minute, 
           filter.hitTimeMin.hour*60+filter.hitTimeMin.minute);
         final upperBound = min(e.leaveDay.hour*60+e.leaveDay.minute, 
           filter.hitTimeMax.hour*60+filter.hitTimeMax.minute);
-        time += max(0, twoDaySpan?FULL_DAY_IN_MINUTE:0 + upperBound - lowerBound);
+        time += max(0, filter.isTwoDaySpan?FULL_DAY_IN_MINUTE:0 + upperBound - lowerBound);
       });
-      matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      int days = passedEntries.map((e) => e.hitDay.year*10000 + e.hitDay.month*1000 + e.hitDay.day).toSet().length;
+      int result = 0;
+      switch(filter.queryMode)
+      {
+        case HitQueryMode.averageDuration:
+          result = (days==0)?0:(time~/days);
+          break;
+        case HitQueryMode.countNumberOfDay:
+          result = days;
+          break;
+      }
+      matched = result >= filter.queryMin && result <= filter.queryMax;
       if(matched)
       {
         return;
       }
     });
-    failed = (!matched && filter.genderMode == FilterMode.include) || 
-      (matched && filter.genderMode == FilterMode.exclude);
+    failed = (!matched && filter.locationMode == FilterMode.include) || 
+      (matched && filter.locationMode == FilterMode.exclude);
     if(failed)
     {
       print('apply filter ${filter.title}, return false because location history was not satified');

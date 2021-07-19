@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/geofence_hit.dart';
+import 'package:pop_experiment/models/hit_query_mode.dart';
 
 class GeofenceHistory extends ChangeNotifier {
   List<GeofenceHit> entries = List<GeofenceHit>.empty(growable: true);
   List<int> actives = List<int>.empty(growable: true);
+  DateTime lastSaveTimeStamp = DateTime.now();
 
+  static const int SAVE_VERSION = 1;// TODO: mark save version, for easier file format upgrade
   static const LOCAL_CACHE = 'geofence_history.json';
+  static const SAVE_CACHE_COOLDOWN_IN_MINUTE = 1;
   static const RECENT_THRESHOLD_IN_DAY = 90;
 
   Future<File> get cacheFile async {
@@ -26,7 +30,6 @@ class GeofenceHistory extends ChangeNotifier {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       print('GeofenceHistory load() response = $response');
-      return;
       Iterable models = json.decode(response);
       entries = List<GeofenceHit>.from(models.map((e) => GeofenceHit.fromJson(e)));
     } on Exception catch (e) {
@@ -34,16 +37,20 @@ class GeofenceHistory extends ChangeNotifier {
     }
   }
 
-  Future<void> save() async {
+  Future<void> save({bool force = false}) async {
+    final now = DateTime.now();
+    if(!force && lastSaveTimeStamp.difference(now).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
+    {
+      return;
+    }
+    lastSaveTimeStamp = now;
     final file = await cacheFile;
-    var jsonData = json.encode(entries);
+    var jsonData = json.encode(entries.map((e) => e.toJson()).toList());
     print('GeofenceHistory save() data = $jsonData');
-    return;
-    //TODO: rewrite serialization logic
     file.writeAsString(jsonData);
   }
 
-  Future<void> enterGeofence(int id) async
+  Future<void> enter(int id) async
   {
     if(!actives.contains(id))
     {
@@ -54,46 +61,51 @@ class GeofenceHistory extends ChangeNotifier {
     save();
   }
 
-  Future<void> exitGeofence(int id) async
+  Future<void> exit(int id) async
   {
     if(!actives.contains(id))
     {
       return;
     }
-    markSeenSingleGeofences(id);
+    markSeenSingle(id);
     actives.remove(id);
     notifyListeners();
     save();
   }
 
-  void markSeenActiveGeofences()
+  void markSeenActive()
   {
     actives.forEach((id) {
-      markSeenSingleGeofences(id);
+      markSeenSingle(id);
     });
     save();
   }
-  void markSeenSingleGeofences(int id)
+  
+  void markSeenSingle(int id)
   {
       final lastMatch = entries.lastWhere((e) => e.geofenceID == id, orElse: () => GeofenceHit(geofenceID: -1));
       if(lastMatch.geofenceID == -1)
       {
         return;
       }
-      final today = DateTime.now();
-      final sameDay = lastMatch.hitDay.year == today.year && 
-      lastMatch.hitDay.month == today.month && 
-      lastMatch.hitDay.day == today.day;
+      final now = DateTime.now();
+      final sameDay = lastMatch.hitDay.year == now.year && 
+      lastMatch.hitDay.month == now.month && 
+      lastMatch.hitDay.day == now.day;
       if(sameDay)
       {
-        lastMatch.lastSeen = TimeOfDay.now();
+        lastMatch.leaveDay = now;
       }
       else
       {
-        lastMatch.lastSeen = TimeOfDay(hour: 23, minute: 59);
+        lastMatch.leaveDay = DateTime(
+          lastMatch.hitDay.year, lastMatch.hitDay.month, lastMatch.hitDay.day, 
+          23, 59);
         final newDayEntry = GeofenceHit(geofenceID: id);
-        newDayEntry.hitTime = TimeOfDay(hour: 0, minute: 0);
-        newDayEntry.lastSeen = TimeOfDay.now();
+        newDayEntry.hitDay = DateTime(
+          now.year, now.month, now.day, 
+          0, 0);
+        newDayEntry.leaveDay = now;
         entries.add(newDayEntry);
       }
   }
@@ -102,35 +114,45 @@ class GeofenceHistory extends ChangeNotifier {
   {
     var matched = false;
     var failed = false;
+    const FULL_DAY_IN_MINUTE = 24*60;
+    // TODO: handle edge case, numDaysToQuery = 0
     filter.geofences.forEach((filter) {
-      int time = 0;
-      entries.forEach((hit) {
-        if(hit.geofenceID != filter.geofenceID)
-        {
-          return;
-        }
-        if(hit.hitDay.isBefore(filter.hitDayMin) || hit.hitDay.isAfter(filter.hitDayMax))
-        {
-          return;
-        }
-        int a = hit.hitTime.hour * 60 + hit.hitTime.minute;
-        int amin = filter.hitTimeMin.hour * 60 + filter.hitTimeMin.minute;
-        int b = hit.lastSeen.hour * 60 + hit.lastSeen.minute;
-        int bmax = filter.hitTimeMax.hour * 60 + filter.hitTimeMax.minute;
-        time += min(bmax, b) - max(a, amin);
-        if(time > filter.hitDurationMax)
-        {
-          return;
-        }
+      final queryThisMoment = filter.numDayToQuery == 0;
+      if(queryThisMoment)
+      {
+        matched = actives.contains(filter.geofenceID);
+        return;
+      }
+      final passedEntries = entries.where((hit) {
+        return hit.match(filter);
       });
-      matched = time >= filter.hitDurationMin && time <= filter.hitDurationMax;
+      int time = 0;
+      passedEntries.forEach((e) {
+        final lowerBound = max(e.hitDay.hour*60+e.hitDay.minute, 
+          filter.hitTimeMin.hour*60+filter.hitTimeMin.minute);
+        final upperBound = min(e.leaveDay.hour*60+e.leaveDay.minute, 
+          filter.hitTimeMax.hour*60+filter.hitTimeMax.minute);
+        time += max(0, filter.isTwoDaySpan?FULL_DAY_IN_MINUTE:0 + upperBound - lowerBound);
+      });
+      int days = passedEntries.map((e) => e.hitDay.year*10000 + e.hitDay.month*1000 + e.hitDay.day).toSet().length;
+      int result = 0;
+      switch(filter.queryMode)
+      {
+        case HitQueryMode.averageDuration:
+          result = (days==0)?0:(time~/days);
+          break;
+        case HitQueryMode.countNumberOfDay:
+          result = days;
+          break;
+      }
+      matched = result >= filter.queryMin && result <= filter.queryMax;
       if(matched)
       {
         return;
       }
     });
-    failed = (!matched && filter.genderMode == FilterMode.include) || 
-      (matched && filter.genderMode == FilterMode.exclude);
+    failed = (!matched && filter.geofenceMode == FilterMode.include) || 
+      (matched && filter.geofenceMode == FilterMode.exclude);
     if(failed)
     {
       print('apply filter ${filter.title}, return false because geofence history was not satified');

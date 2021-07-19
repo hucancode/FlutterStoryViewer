@@ -1,0 +1,5 @@
+enum HitQueryMode
+{
+  averageDuration,
+  countNumberOfDay
+}

@@ -9,7 +9,7 @@ import 'package:pop_experiment/services/server_config.dart';
 // TODO: merge services and provider to one, name it as Service
 
 class FilterService  extends ChangeNotifier {
-
+  
   static const LOCAL_CACHE = 'filters.json';
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/filter/read';
