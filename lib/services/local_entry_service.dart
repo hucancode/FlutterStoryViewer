@@ -128,12 +128,7 @@ class LocalEntryService extends ChangeNotifier {
   }
 
   int get totalSelected => entries.fold(0, (total, element) => total + (element.isSelected?1:0));
-
-  List<Entry> forGeofence(int id)
-  {
-    return entries.where((e) => e.geofences.contains(id)).toList();
-  }
-
+  
   void deleteSelected()
   {
     final int lengthBefore = entries.length;

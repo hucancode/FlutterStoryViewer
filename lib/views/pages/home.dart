@@ -6,6 +6,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/geofence.dart';
+import 'package:pop_experiment/models/geofence_hit.dart';
+import 'package:pop_experiment/models/geofence_hit_filter.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
 import 'package:pop_experiment/services/beacon_history.dart';
@@ -391,7 +393,17 @@ class HomePageState extends State<HomePage> {
     );
     if(geofenceID is int)
     {
-      return EntryListView(entries: provider.forGeofence(geofenceID!));
+      final geofenceFilters = filters.entries.where((e){
+        if(e.geofenceMode != FilterMode.include)
+        {
+          return false;
+        }
+        final hit = e.geofences.firstWhere((hit) => hit.geofenceID == geofenceID, orElse: () => GeofenceHitFilter.empty());
+        final found = hit.geofenceID != -1;
+        return found;
+      }).map((e) => e.id).toList();
+      final geofenceEntries = provider.entries.where((e) => geofenceFilters.contains(e.filterID)).toList();
+      return EntryListView(entries: geofenceEntries);
     }
     return EntryListView(entries: provider.entries);
   }

@@ -7,8 +7,6 @@ class Entry
   String? title;
   String? content;
   int? filterID;
-  List<int> geofences;
-  List<int> beacons;
   int authorID;
   bool isSelected;
   bool isFavorite;
@@ -21,8 +19,6 @@ class Entry
     this.modifiedDate,
     this.content,
     this.filterID,
-    this.geofences = const [],
-    this.beacons = const [],
     this.authorID = -1,
     this.isSelected = false,
     this.isFavorite = false,
@@ -37,8 +33,6 @@ class Entry
       modifiedDate: DateTime.parse(json["modifiedAt"]),
       content: json["content"],
       filterID: json["filterID"],
-      geofences: List<int>.from(json["geofences"]??[]),
-      beacons: List<int>.from(json["beacons"]??[]),
       authorID: 1,
     );
   }
@@ -51,8 +45,6 @@ class Entry
     ret["thumbnail"] = thumbnail;
     ret["content"] = content;
     ret["filterID"] = filterID;
-    ret["geofences"] = geofences;
-    ret["beacons"] = beacons;
     ret["authorID"] = authorID;
     return ret;
   }
@@ -65,8 +57,6 @@ class Entry
     ret["thumbnail"] = thumbnail;
     ret["content"] = content;
     ret["filterID"] = filterID;
-    ret["geofences"] = geofences;
-    ret["beacons"] = beacons;
     return ret;
   }
 }
