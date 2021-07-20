@@ -14,7 +14,7 @@ class FilterService  extends ChangeNotifier {
   static const CACHE_MAX_AGE_HOUR = 12;
   static const READ_API = '/filter/read';
 
-  var filters = List<Filter>.empty(growable: true);
+  var entries = List<Filter>.empty(growable: true);
   var ready = true;
 
   Future<File> get cacheFile async {
@@ -50,7 +50,7 @@ class FilterService  extends ChangeNotifier {
       final cache = await cacheFile;
       String response = await cache.readAsString();
       Iterable models = json.decode(response);
-      filters = models.map((model) => Filter.fromJson(model)).toList();
+      entries = models.map((model) => Filter.fromJson(model)).toList();
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
@@ -74,12 +74,12 @@ class FilterService  extends ChangeNotifier {
         //print('responseJson = $responseJson');
         Iterable models = responseJson['data'];
         writeToCache(models);
-        filters = models.map((model) => Filter.fromShortJson(model)).toList();
+        entries = models.map((model) => Filter.fromShortJson(model)).toList();
       }
     } on Exception catch (e) {
       print('error while fetching json ${e.toString()}');
     }
-    filters.forEach((e) {
+    entries.forEach((e) {
       fetchSingleJSON(e.id).then((value) => e.reloadFromJson(value));
     });
     notifyListeners();
@@ -115,7 +115,7 @@ class FilterService  extends ChangeNotifier {
   }
 
   Filter readById(int id) {
-    final filter = filters.singleWhere((e) => e.id == id, orElse: () => Filter());
+    final filter = entries.singleWhere((e) => e.id == id, orElse: () => Filter());
     return filter;
   }
 }
