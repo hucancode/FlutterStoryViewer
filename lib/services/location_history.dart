@@ -43,7 +43,7 @@ class LocationHistory extends ChangeNotifier {
 
   Future<void> save({bool force = false}) async {
     final now = DateTime.now();
-    if(!force && lastSaveTimeStamp.difference(now).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
+    if(!force && now.difference(lastSaveTimeStamp).inMinutes < SAVE_CACHE_COOLDOWN_IN_MINUTE)
     {
       return;
     }
