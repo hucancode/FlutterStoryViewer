@@ -180,7 +180,7 @@ class ProfileState extends State<ProfilePage> {
     final profile = Provider.of<Profile>(context);
 
     final avatars = [maleAvatars, femaleAvatars];
-    final int ageTier = min(max((profile.age - 5) ~/ 10, 0), min(maleAvatars.length, femaleAvatars.length));
+    final int ageTier = min(max((profile.age - 5) ~/ 10, 0), min(maleAvatars.length - 1, femaleAvatars.length - 1));
     final avatar = avatars[profile.gender.index][ageTier];
     return SizedBox(
       height: 150,
