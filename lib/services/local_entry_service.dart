@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/entry.dart';
 import 'package:pop_experiment/models/profile.dart';
+import 'package:pop_experiment/services/beacon_history.dart';
 import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
+import 'package:pop_experiment/services/location_history.dart';
 
 // TODO: merge services and provider to one, name it as Service
 
@@ -29,6 +31,8 @@ class LocalEntryService extends ChangeNotifier {
       required FilterService filterProvider, 
       required Profile profileProvider, 
       required GeofenceHistory geofenceHistoryProvider, 
+      required LocationHistory locationHistoryProvider, 
+      required BeaconHistory beaconHistoryProvider, 
     })
   {
     loadWithCallback(data, 
@@ -43,50 +47,58 @@ class LocalEntryService extends ChangeNotifier {
         }
         return true;
       },
-      geofenceCheck: (geofences)
+      geofenceCheck: (filterID)
       {
-        var matched = false;
-        geofences.forEach((e) { matched |= geofenceHistoryProvider.entries.contains(e);});
-        return matched;
-      },
-      beaconCheck: (beacons)
-      {
+        final filter = filterProvider.readById(filterID);
+        final error = geofenceHistoryProvider.applyFilter(filter);
+        if(error != 0)
+        {
+          print('entry filtered out, filter result = $error');
+          return false;
+        }
         return true;
       },
-      );
+      beaconCheck: (filterID)
+      {
+        final filter = filterProvider.readById(filterID);
+        final error = geofenceHistoryProvider.applyFilter(filter);
+        if(error != 0)
+        {
+          print('entry filtered out, filter result = $error');
+          return false;
+        }
+        return true;
+      },
+    );
   }
 
   void loadWithCallback(List<Entry> data, 
   {
     bool Function(int filterID)? profileCheck, 
-    bool Function(List<int> geofences)? geofenceCheck, 
-    bool Function(List<int> beacons)? beaconCheck
+    bool Function(int filterID)? geofenceCheck, 
+    bool Function(int filterID)? beaconCheck
   })
   {
     entries = data.where((e) {
-      if(e.filterID is int)
+      if(e.filterID == null)
       {
-        final success = profileCheck?.call(e.filterID!)??true;
-        if(!success)
-        {
-          return false;
-        }
+        return true;
       }
-      if(e.geofences.isNotEmpty)
+      var success;
+      success = profileCheck?.call(e.filterID!)??true;
+      if(!success)
       {
-        final success = geofenceCheck?.call(e.geofences)??true;
-        if(!success)
-        {
-          return false;
-        }
+        return false;
       }
-      if(e.beacons.isNotEmpty)
+      success = geofenceCheck?.call(e.filterID!)??true;
+      if(!success)
       {
-        final success = beaconCheck?.call(e.beacons)??true;
-        if(!success)
-        {
-          return false;
-        }
+        return false;
+      }
+      success = beaconCheck?.call(e.filterID!)??true;
+      if(!success)
+      {
+        return false;
       }
       return true;
     }).toList();

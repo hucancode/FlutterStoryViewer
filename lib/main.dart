@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pop_experiment/models/profile.dart';
+import 'package:pop_experiment/services/beacon_history.dart';
 import 'package:pop_experiment/services/entry_service.dart';
 import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
@@ -21,10 +22,11 @@ class MyApp extends StatelessWidget {
   final entryProvider = EntryService();
   final geofenceProvider = GeofenceService();
   final localEntryProvider = LocalEntryService();
-  final geofenceHistoryProvider = GeofenceHistory();
   final prefectureProvider = PrefectureService();
   final profileProvider = Profile();
   final locationHistoryProvider = LocationHistory();
+  final beaconHistoryProvider = BeaconHistory();
+  final geofenceHistoryProvider = GeofenceHistory();
   
   Future<void> load() async {
     print('loading started!!!!');
@@ -32,16 +34,19 @@ class MyApp extends StatelessWidget {
     await geofenceProvider.load();
     await profileProvider.load();
     await geofenceHistoryProvider.load();
+    await beaconHistoryProvider.load();
+    await locationHistoryProvider.load();
     await filterProvider.readOrFetch();
     await entryProvider.readOrFetch();
     localEntryProvider.loadWithProvider(
       entryProvider.entries, 
       profileProvider: profileProvider, 
       filterProvider: filterProvider, 
-      geofenceHistoryProvider: geofenceHistoryProvider
+      geofenceHistoryProvider: geofenceHistoryProvider,
+      locationHistoryProvider: locationHistoryProvider,
+      beaconHistoryProvider: beaconHistoryProvider,
     );
     await prefectureProvider.load();
-    await locationHistoryProvider.load();
     print('loading finished!!!!');
   }
   @override
@@ -61,9 +66,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: geofenceProvider),
         ChangeNotifierProvider.value(value: localEntryProvider),
         ChangeNotifierProvider.value(value: geofenceHistoryProvider),
+        ChangeNotifierProvider.value(value: locationHistoryProvider),
+        ChangeNotifierProvider.value(value: beaconHistoryProvider),
         ChangeNotifierProvider.value(value: prefectureProvider),
         ChangeNotifierProvider.value(value: profileProvider),
-        ChangeNotifierProvider.value(value: locationHistoryProvider),
       ],
       child: app,
     );

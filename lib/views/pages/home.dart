@@ -8,11 +8,13 @@ import 'package:pop_experiment/models/filter.dart';
 import 'package:pop_experiment/models/geofence.dart';
 import 'package:pop_experiment/models/profile.dart';
 import 'package:pop_experiment/models/qr_scan_payload.dart';
+import 'package:pop_experiment/services/beacon_history.dart';
 import 'package:pop_experiment/services/filter_service.dart';
 import 'package:pop_experiment/services/geofence_history.dart';
 import 'package:pop_experiment/services/geofence_service.dart';
 import 'package:pop_experiment/services/local_entry_service.dart';
 import 'package:pop_experiment/services/entry_service.dart';
+import 'package:pop_experiment/services/location_history.dart';
 import 'package:pop_experiment/services/notification_service.dart';
 import 'package:pop_experiment/views/widgets/entry_list_view.dart';
 import 'package:provider/provider.dart';
@@ -375,13 +377,17 @@ class HomePageState extends State<HomePage> {
     final profile = Provider.of<Profile>(context);
     final filters = Provider.of<FilterService>(context);
     final geofenceHistory = Provider.of<GeofenceHistory>(context);
+    final locationHistory = Provider.of<LocationHistory>(context);
+    final beaconHistory = Provider.of<BeaconHistory>(context);
     final data = Provider.of<EntryService>(context).entries;
     final provider = Provider.of<LocalEntryService>(context, listen: false);
     provider.loadWithProvider(
       data, 
       profileProvider: profile, 
       filterProvider: filters, 
-      geofenceHistoryProvider: geofenceHistory
+      geofenceHistoryProvider: geofenceHistory,
+      locationHistoryProvider: locationHistory,
+      beaconHistoryProvider: beaconHistory,
     );
     if(geofenceID is int)
     {

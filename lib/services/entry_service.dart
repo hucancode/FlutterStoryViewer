@@ -67,6 +67,7 @@ class EntryService extends ChangeNotifier {
         Iterable models = responseJson['data'];
         writeToCache(models);
         entries = models.map((model) => Entry.fromJson(model)).toList();
+        print("EntryService fetch() returns ${entries.length}");
         notifyListeners();
       }
     } on Exception catch (e) {
